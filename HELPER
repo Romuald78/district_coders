@@ -17,3 +17,9 @@ each class contains fields from models.*Field() instances
 each field name is the one used in the python code AND the table column name
 by default django adds an "id" field with primary key and auto increment
 
+# VIEWS 
+https://www.geeksforgeeks.org/views-in-django-python/
+
+
+
+
