@@ -1,0 +1,19 @@
+# Create all django tables into the database
+python3 manage.py migrate
+
+# create super user for the django admin
+python3 manage.py createsuperuser
+
+# ADMIN access
+in urls.py, urlpatterns list contains the path from the website root (e.g. /admin)
+=> localhost/admin/
+
+# Create new application in the django environment
+python3 manage.py startapp <name>
+
+# Models in your <name> application
+edit models.py to add classes extending models.Model
+each class contains fields from models.*Field() instances
+each field name is the one used in the python code AND the table column name
+by default django adds an "id" field with primary key and auto increment
+
