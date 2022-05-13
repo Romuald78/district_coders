@@ -23,6 +23,11 @@ def coding(request):
     context["title"] = "List of handled programming languages"
     context["languages"] = Language.objects.all()
 
+    # Get variable from session (with default value)
+    nb_visits = request.session.get('nb_visits', 0)
+    request.session['nb_visits'] = nb_visits + 1
+    context['nb_visits'] = nb_visits
+
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
 
