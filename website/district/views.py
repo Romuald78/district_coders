@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.template import loader
 
 from district.models import Language
 
@@ -9,7 +10,11 @@ def coding(request):
     # field names as keys
     context = {}
 
-    # add the dictionary during initialization
-    response = Language.objects.all()
-    return HttpResponse(response, content_type='application/json')
+    template = loader.get_template('coding/languages.html')
+
+    context["title"] = "List of handled programming languages"
+    context["languages"] = Language.objects.all()
+
+
+    return HttpResponse(template.render(context, request))
 
