@@ -8,7 +8,10 @@
     <h1>{{ title }}</h1>
     <ul>
         {% for k in languages %}
-            <li>{{ k }}</li>
+            <li>
+                <h3>{{ k.name }}</h3>
+                <pre>{{ k.default_code }}</pre>
+            </li>
         {%  endfor %}
     </ul>
 </body>
