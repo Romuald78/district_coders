@@ -16,10 +16,11 @@ def coding(request):
     context = {}
 
     # Load view template
-    template = loader.get_template('coding/languages.html')
+    template = loader.get_template('coding/base.html')
 
     # Create context dictionary
     # Use any needed models for that
+    context["page_title"] = "District Coders"
     context["title"] = "List of handled programming languages"
     context["languages"] = Language.objects.all()
 
