@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
+    {% load static %}
+    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
 </head>
+
 <body>
     <h1>{{ title }}</h1>
     <ul>
         {% for k in languages %}
             <li>
-                <h3>{{ k.name }}</h3>
-                <pre>{{ k.default_code }}</pre>
+                <details>
+                    <summary>{{ k.name }}</summary>
+                    <pre>{{ k.default_code }}</pre>
+                </details>
             </li>
         {%  endfor %}
     </ul>
     <p>Number of visits = {{ nb_visits }}</p>
- </body>
+</body>
+
 </html>
