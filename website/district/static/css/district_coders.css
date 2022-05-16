@@ -1,0 +1,59 @@
+
+.code_logo{
+    width: auto;
+    height: 32px;
+    vertical-align: middle;
+}
+
+.big_title {
+    font-size: 60px;
+    background-image: linear-gradient(135deg, #9090FF, #C0C080 60%, #FFFF00);
+    background-size: 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    vertical-align: middle;
+}
+
+.top_row{
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height:5px;
+    z-index:99;
+    background:linear-gradient(90deg, #9090FF, #C0C080 60%, #FFFF00);
+}
+
+.bottom_row{
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height:5px;
+    z-index:99;
+    background:linear-gradient(90deg, #9090FF, #C0C080 60%, #FFFF00);
+}
+
+.header_row{
+    position: fixed;
+    left: 0;
+    top: 5px;
+    width: 100%;
+    height:250px;
+    background: linear-gradient(135deg, #242440, #303020 60%, #404000);
+    vertical-align: middle;
+}
+
+.footer_row{
+    left:0px;
+    width: 100%;
+    height:128px;
+    background: linear-gradient(135deg, #242440, #303020 60%, #404000);
+}
+
+.page{
+    position:relative;
+    top:255px;
+    height:100%;
+    background-color: var(--background-color);
+}

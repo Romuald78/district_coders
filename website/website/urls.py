@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from district.views import coding
+from district.views import main_view
 
 urlpatterns = [
     # Documentation Generation (before 'admin' URL in order to avoid interceptions)
@@ -24,5 +24,5 @@ urlpatterns = [
     # Administration View
     path('admin/'    , admin.site.urls),
     # Our views
-    path(''          , coding),
+    path(''          , main_view),
 ]
