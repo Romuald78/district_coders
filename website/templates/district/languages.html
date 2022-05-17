@@ -1,9 +1,12 @@
-<h1>{{ title }}</h1>
+<h1>{{ title }} </h1>
+
 <ul>
     {% for k in languages %}
         <li>
             <details>
-                <summary><img class="code_logo" src="{{ k.icon }}" /> {{ k.name }} </summary>
+                <summary>
+                    <img class="code_logo" src="{{ k.icon }}" /> {{ k.name }}
+                </summary>
                 <pre>{{ k.default_code }}</pre>
             </details>
         </li>

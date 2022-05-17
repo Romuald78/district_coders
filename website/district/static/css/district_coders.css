@@ -1,10 +1,57 @@
 
-.code_logo{
-    width: auto;
-    height: 32px;
-    vertical-align: middle;
+.button-dc {
+    appearance: none;
+    background:linear-gradient(90deg, #303030, #404040 60%, #606060);
+    border-width: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0;
+    opacity: 50;
+    outline: 0;
+    padding: 4px 4px 4px 4px;
+    position: relative;
+    text-align: center;
+    vertical-align: baseline;
+    text-rendering: geometricprecision;
+    text-transform: uppercase;
+    transition: background-color 50ms cubic-bezier(.694, 0, 0.335, 1),color 50ms cubic-bezier(.694, 0, 0.335, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+.button-dc:before {
+    animation: opacityFallbackOut .5s step-end forwards;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    background:linear-gradient(90deg, #9090FF, #C0C080 60%, #FFFF00);
+    clip-path: polygon(-1% 0, 0 0, -25% 100%, -1% 100%);
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    transition: clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1), -webkit-clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1);
+}
+.button-dc:hover:before {
+  animation: opacityFallbackIn 0s step-start forwards;
+  clip-path: polygon(0 0, 101% 0, 101% 101%, 0 101%);
+}
+.button-dc span {
+    z-index: 1;
+    position: relative;
+    mix-blend-mode: difference;
 }
 
+
+.code_logo{
+    width: auto;
+    height: 40px;
+    vertical-align: middle;
+}
 .big_title {
     font-size: 60px;
     background-image: linear-gradient(135deg, #9090FF, #C0C080 60%, #FFFF00);
@@ -13,7 +60,6 @@
     -webkit-text-fill-color: transparent;
     vertical-align: middle;
 }
-
 .top_row{
     position: fixed;
     left: 0px;
@@ -23,7 +69,6 @@
     z-index:99;
     background:linear-gradient(90deg, #9090FF, #C0C080 60%, #FFFF00);
 }
-
 .bottom_row{
     position: fixed;
     left: 0px;
@@ -33,7 +78,6 @@
     z-index:99;
     background:linear-gradient(90deg, #9090FF, #C0C080 60%, #FFFF00);
 }
-
 .header_row{
     position: fixed;
     left: 0;
@@ -43,17 +87,17 @@
     background: linear-gradient(135deg, #242440, #303020 60%, #404000);
     vertical-align: middle;
 }
-
 .footer_row{
     left:0px;
     width: 100%;
     height:128px;
     background: linear-gradient(135deg, #242440, #303020 60%, #404000);
 }
-
 .page{
     position:relative;
     top:255px;
     height:100%;
     background-color: var(--background-color);
 }
+
+
