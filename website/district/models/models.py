@@ -14,7 +14,7 @@ class Language(models.Model):
 
 class Exercice(models.Model):
 
-    title = models.CharField(max_length=64)
+    title = models.CharField(max_length=128)
     description = models.TextField()
     genFile = models.CharField(unique=True, max_length=128) ## FileField ?
     icon = models.TextField()               ## FileField ?
