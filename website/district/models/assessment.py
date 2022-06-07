@@ -1,6 +1,7 @@
 from django.db import models
 
 from district.models.group import GroupDC
+from district.models.test import TestDC
 
 
 class Assessment(models.Model):
@@ -9,7 +10,8 @@ class Assessment(models.Model):
     end_time = models.DateTimeField()
     training_time = models.DateTimeField()
     result_json = models.TextField()
-    groups = models.ForeignKey(GroupDC, on_delete=models.CASCADE)
+    groups = models.ManyToManyField(GroupDC)
+    test_id = models.ForeignKey(TestDC, on_delete=models.CASCADE)
 
     def __str__(self):
         out = f"Group {self.name}"
