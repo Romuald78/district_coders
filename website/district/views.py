@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
-from district.models.models import Language
+from district.models.language import Language
 
 # Create your views here.
 def main_view(request):
