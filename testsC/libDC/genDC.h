@@ -16,7 +16,6 @@
     } Mode;
     
     // Implement the following functions
-    int mainProcess(int argc, char** argv);
     Result generate(int seed);    
     Result verify  (int seed);
     void   error   (const char* format, ...); 

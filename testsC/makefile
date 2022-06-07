@@ -5,6 +5,7 @@ CC    = gcc
 MKDIR = mkdir
 RMDIR = rm -rf
 AR    = ar -rcs
+LIB   = DC
 
 # ------------------------
 # DIRECTORIES
@@ -12,7 +13,7 @@ AR    = ar -rcs
 TMP_DIR = tmp
 BIN_DIR = bin
 USR_DIR = users
-LIB_DIR = libDC
+LIB_DIR = lib$(LIB)
 EXO_DIR = exercices
 
 # ------------------------
@@ -25,11 +26,9 @@ EXO   = $(patsubst %.c, %.exe, $(EXO_O))
 # ------------------------
 # NAMES
 # ------------------------
-LIB = DC
 
-
-$(EXO)/%.exe : $(EXO_C)/%.c
-	gcc $< -o $@ -L$(TMP_DIR) -l$(LIB)
+exec : $(TMP_DIR)/lib$(LIB).a
+	gcc $(EXO_DIR)/ex0001_val_abs.c -o $@ -I$(LIB_DIR) -L$(TMP_DIR) -l$(LIB)
 
 $(TMP_DIR)/lib$(LIB).a : $(TMP_DIR)/genDC.o | $(TMP_DIR)
 	$(AR) $@ $<

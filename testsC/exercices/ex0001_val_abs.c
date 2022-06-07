@@ -52,7 +52,7 @@ Result verify(int seed){
             // Displaying message when an answer is correct
             message("Received '%d' / Expected '%d'\n", user, answer);
         }
-*/
+//*/
     }
     // return result of verification
     return res;

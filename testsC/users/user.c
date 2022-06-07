@@ -5,6 +5,7 @@ int main(){
 
     int N = 0;
     int V = 0;
+    srand(0);
     if( fscanf(stdin, "%d\n", &N ) != 1){
         return 1;
     }
