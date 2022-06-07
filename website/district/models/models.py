@@ -16,7 +16,7 @@ class Exercice(models.Model):
 
     title = models.CharField(max_length=64)
     description = models.TextField()
-    genFile = models.TextField(unique=True) ## FileField ?
+    genFile = models.CharField(unique=True, max_length=128) ## FileField ?
     icon = models.TextField()               ## FileField ?
 
     def __str__(self):
