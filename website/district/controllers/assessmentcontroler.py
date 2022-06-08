@@ -22,7 +22,7 @@ def getCurrent(request):
     template = loader.get_template('district/assessment.html')
 
     # get current assessement
-    context["result_query"] = Assessment.objects.filter(start_time__lte=datetime.now(), end_time__gte=datetime.now())
+    context["assessments"] = Assessment.objects.filter(start_time__lte=datetime.now(), end_time__gte=datetime.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -35,7 +35,7 @@ def getPast(request):
     template = loader.get_template('district/assessment.html')
 
     # get past assessement
-    context["result_query"] = Assessment.objects.filter(end_time__lt=datetime.now())
+    context["assessments"] = Assessment.objects.filter(end_time__lt=datetime.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -48,7 +48,7 @@ def getFuture(request):
     template = loader.get_template('district/assessment.html')
 
     # get future assessement
-    context["result_query"] = Assessment.objects.filter(start_time__gt=datetime.now())
+    context["assessments"] = Assessment.objects.filter(start_time__gt=datetime.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
