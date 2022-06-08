@@ -15,13 +15,20 @@
             {% for i in assessments %}
                 <li>
                     <ul>
-                        <li>{{ i.id }}</li>
-                        <li>{{ i.start_time }}</li>
-                        <li>{{ i.end_time }}</li>
-                        <li>{{ i.training }}</li>
-                        <li>{{ i.result_json }}</li>
-                        <li>{{ i.groups }}</li>
-                        <li>{{ i.test_id }}</li>
+                        <li>id :{{ i.id }}</li>
+                        <li>start time :{{ i.start_time }}</li>
+                        <li>end time :{{ i.end_time }}</li>
+                        <li>training time :{{ i.training_time }}</li>
+                        <li>result json :{{ i.result_json }}</li>
+                        <li>test :{{ i.test_id }}</li>
+                        <li>
+                            groups :
+                            <ul>
+                            {% for k in i.groups.all %}
+                                    <li>{{ k.name }}</li>
+                            {% endfor %}
+                            </ul>
+                        </li>
                     </ul>
                 </li>
             {% endfor %}

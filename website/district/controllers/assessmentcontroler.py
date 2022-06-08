@@ -1,54 +1,75 @@
 from datetime import datetime
 
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
-from django.db import models
-
-
-# getCurrent, getPast, getFuture
 
 # Create your views here.
 from district.models import assessment
 from district.models.assessment import Assessment
 
+# get all the current assessments
+from district.models.exercise import Exercise
 
-def getCurrent(request):
+
+def get_current(request):
     # dictionary for initial data
     context = {}
 
     # Load view template
     template = loader.get_template('district/assessment.html')
 
-    # get current assessement
-    context["assessments"] = Assessment.objects.filter(start_time__lte=datetime.now(), end_time__gte=datetime.now())
+    # get current assessment
+    context["assessments"] = Assessment.objects.filter(start_time__lte=datetime.now(), end_time__gt=datetime.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
 
-def getPast(request):
+
+# get all the past assessments
+def get_past(request):
     # dictionary for initial data
     context = {}
 
     # Load view template
     template = loader.get_template('district/assessment.html')
 
-    # get past assessement
-    context["assessments"] = Assessment.objects.filter(end_time__lt=datetime.now())
+    # get past assessment
+    context["assessments"] = Assessment.objects.filter(end_time__lte=datetime.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
 
-def getFuture(request):
+
+# get the future assessments
+def get_future(request):
     # dictionary for initial data
     context = {}
 
     # Load view template
     template = loader.get_template('district/assessment.html')
 
-    # get future assessement
+    # get future assessment
     context["assessments"] = Assessment.objects.filter(start_time__gt=datetime.now())
+
+    # Use context in the template and render response view
+    return HttpResponse(template.render(context, request))
+
+
+# get the list of exercises in the assessment
+def get_exercises(request, id_asse):
+    # only trainable exercises
+    if Assessment.objects.filter(id=id_asse, training_time__gt=datetime.now()).exists():
+        return HttpResponse("Access denied")
+
+    # dictionary for initial data
+    context = {}
+
+    # Load view template
+    template = loader.get_template('district/exercisesAssess.html')
+
+    # get future assessment
+    context["exercises"] = Exercise.objects.filter(exo2test__test_id__assessment=id_asse)
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))

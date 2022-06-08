@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from district.views import main_view
-from district.controllers.assessmentcontroler import getCurrent, getPast, getFuture
+from district.controllers.assessmentcontroler import get_current, get_past, get_future, get_exercises
 
 urlpatterns = [
     # Documentation Generation (before 'admin' URL in order to avoid interceptions)
@@ -26,11 +26,14 @@ urlpatterns = [
     path('admin/'    , admin.site.urls),
 
     # The current assessment View
-    path('assessment/current', getCurrent),
+    path('assessment/current', get_current),
     # The future assessment View
-    path('assessment/future', getFuture),
+    path('assessment/future', get_future),
     # The past assessment View
-    path('assessment/past', getPast),
+    path('assessment/past', get_past),
+
+    # The list of exercises of an assessment View
+    path('assessment/exercises/<int:id_asse>', get_exercises),
 
     # Our views
     path(''          , main_view),
