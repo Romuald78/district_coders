@@ -1,10 +1,10 @@
-from datetime import datetime
-
 from django.http import HttpResponse
 from django.template import loader
 
 
 # Create your views here.
+from django.utils import timezone
+
 from district.models import assessment
 from district.models.assessment import Assessment
 
@@ -20,7 +20,7 @@ def get_current(request):
     template = loader.get_template('district/assessment.html')
 
     # get current assessment
-    context["assessments"] = Assessment.objects.filter(start_time__lte=datetime.now(), end_time__gt=datetime.now())
+    context["assessments"] = Assessment.objects.filter(start_time__lte=timezone.now(), end_time__gt=timezone.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -35,7 +35,7 @@ def get_past(request):
     template = loader.get_template('district/assessment.html')
 
     # get past assessment
-    context["assessments"] = Assessment.objects.filter(end_time__lte=datetime.now())
+    context["assessments"] = Assessment.objects.filter(end_time__lte=timezone.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -50,7 +50,7 @@ def get_future(request):
     template = loader.get_template('district/assessment.html')
 
     # get future assessment
-    context["assessments"] = Assessment.objects.filter(start_time__gt=datetime.now())
+    context["assessments"] = Assessment.objects.filter(start_time__gt=timezone.now())
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -59,7 +59,7 @@ def get_future(request):
 # get the list of exercises in the assessment
 def get_exercises(request, id_asse):
     # only trainable exercises
-    if Assessment.objects.filter(id=id_asse, training_time__gt=datetime.now()).exists():
+    if Assessment.objects.filter(id=id_asse, training_time__gt=timezone.now()).exists():
         return HttpResponse("Access denied")
 
     # dictionary for initial data
