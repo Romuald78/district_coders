@@ -14,36 +14,52 @@ TMP_DIR = tmp
 BIN_DIR = bin
 USR_DIR = users
 LIB_DIR = lib$(LIB)
-EXO_DIR = exercices
+EXO_DIR = exercises
 
 # ------------------------
-# EXERCICES
+# EXERCISE OBJECTS/EXEC
 # ------------------------
 EXO_C = $(wildcard $(EXO_DIR)/*.c)
-EXO_O = $(patsubst $(EXO_DIR)/%, $(BIN_DIR)/%, $(EXO_C))
-EXO   = $(patsubst %.c, %.exe, $(EXO_O))
+EXO_O = $(patsubst $(EXO_DIR)/%, $(TMP_DIR)/%, $(EXO_C))
+EXO_O:= $(patsubst %.c, %.o, $(EXO_O))
+EXO_X = $(patsubst $(EXO_DIR)/%, $(BIN_DIR)/%, $(EXO_C))
+EXO_X:= $(patsubst %.c, %.exe, $(EXO_X))
 
 # ------------------------
-# NAMES
+# Default target : all executables 
 # ------------------------
+all : $(EXO_X)
+    
+# ------------------------
+# Process each exercise 
+# ------------------------
+$(BIN_DIR)/%.exe : $(EXO_DIR)/%.c $(BIN_DIR)/lib$(LIB).a 
+	@echo "Generating [`basename $@`] ... |$^|"
+	@$(CC) $< -o $@ -I$(LIB_DIR) -L$(BIN_DIR) -l$(LIB)
 
-exec : $(TMP_DIR)/lib$(LIB).a
-	gcc $(EXO_DIR)/ex0001_val_abs.c -o $@ -I$(LIB_DIR) -L$(TMP_DIR) -l$(LIB)
+# ------------------------
+# Exercise generation lib
+# ------------------------
+$(BIN_DIR)/lib$(LIB).a : $(LIB_DIR)/genDC.c | $(TMP_DIR) $(BIN_DIR)
+	@echo "Generating [lib$(LIB)] ..."
+	@$(CC) -c $< -o $(TMP_DIR)/genDC.o
+	@$(AR) $@ $(TMP_DIR)/genDC.o
 
-$(TMP_DIR)/lib$(LIB).a : $(TMP_DIR)/genDC.o | $(TMP_DIR)
-	$(AR) $@ $<
+# ------------------------
+# Directories + Clean
+# ------------------------
+$(TMP_DIR) :
+	@echo "Creating 'tmp' directory..."
+	@$(MKDIR) $@
 
-$(TMP_DIR)/genDC.o : $(LIB_DIR)/genDC.c $(LIB_DIR)/genDC.h $(TMP_DIR) | $(TMP_DIR)
-	$(CC) -c $< -o $@
-
-$(TMP_DIR) $(BIN_DIR) : 
-	$(MKDIR) $@
+$(BIN_DIR) :
+	@echo "Creating 'bin' directory..."
+	@$(MKDIR) $@
 
 clean : 
-	$(RMDIR) $(TMP_DIR) $(BIN_DIR)
+	@echo "Removing 'bin' directory..."
+	@$(RMDIR) $(BIN_DIR)
+	@echo "Removing 'tmp' directory..."
+	@$(RMDIR) $(TMP_DIR)
 
-debug:
-	@echo $(EXO_C)
-	@echo $(EXO_O)
-	@echo $(EXO)
 

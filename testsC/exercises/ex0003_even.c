@@ -33,8 +33,8 @@ Result verify(int seed){
     // to flood the stderr    
     for(int i=0; i<N && res==RES_OK; i++){
         answer = getValue();
-        if(answer < 0){
-            answer = -answer;
+        if(answer%2 == 1){
+            continue;
         }
         // If we cannot read from the stdin: we stop the verification
         if( fscanf(stdin, "%d\n", &user ) != 1){
@@ -47,12 +47,6 @@ Result verify(int seed){
             error("Received '%d' / Expected '%d'\n", user, answer);            
             res = RES_ERR;
         }
-/*        
-        else{
-            // Displaying message when an answer is correct
-            message("Received '%d' / Expected '%d'\n", user, answer);
-        }
-*/
     }
     // return result of verification
     return res;
