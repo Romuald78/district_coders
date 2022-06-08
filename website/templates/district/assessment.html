@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assessement</title>
+    {% load static %}
+    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
+    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
+    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
+</head>
+<body>
+    {%  include "district/header.html" %}
+    <div class="page">
+        <ul>
+            {% for i in assessments %}
+                <li>
+                    <ul>
+                        <li>{{ i.id }}</li>
+                        <li>{{ i.start_time }}</li>
+                        <li>{{ i.end_time }}</li>
+                        <li>{{ i.training }}</li>
+                        <li>{{ i.result_json }}</li>
+                        <li>{{ i.groups }}</li>
+                        <li>{{ i.test_id }}</li>
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        {%  include "district/footer.html" %}
+    </div>
+</body>
+</html>

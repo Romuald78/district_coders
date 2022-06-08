@@ -17,12 +17,21 @@ from django.contrib import admin
 from django.urls import path, include
 
 from district.views import main_view
+from district.controllers.assessmentcontroler import getCurrent, getPast, getFuture
 
 urlpatterns = [
     # Documentation Generation (before 'admin' URL in order to avoid interceptions)
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     # Administration View
     path('admin/'    , admin.site.urls),
+
+    # The current assessment View
+    path('assessment/current', getCurrent),
+    # The future assessment View
+    path('assessment/future', getFuture),
+    # The past assessment View
+    path('assessment/past', getPast),
+
     # Our views
     path(''          , main_view),
 ]
