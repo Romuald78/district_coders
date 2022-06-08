@@ -34,7 +34,7 @@ all : $(EXO_X)
 # Process each exercise 
 # ------------------------
 $(BIN_DIR)/%.exe : $(EXO_DIR)/%.c $(BIN_DIR)/lib$(LIB).a 
-	@echo "Generating [`basename $@`] ... |$^|"
+	@echo "Generating [`basename $@`] ..."
 	@$(CC) $< -o $@ -I$(LIB_DIR) -L$(BIN_DIR) -l$(LIB)
 
 # ------------------------

@@ -4,13 +4,18 @@
 #include <genDC.h>
 
 int getValue(){
-    return (rand()%1000) - 500;
+    int v = (rand()%1000) - 500;
+    return v & 0xFFFFFFFE;
+}
+
+int getN(){
+    return rand()%191 + 10;
 }
 
 Result generate(int seed){
     int N = 0;
     srand(seed);
-    N = rand()%91 + 10;
+    N = getN();
     printf("%d\n", N);
     for(int i=0; i<N; i++){
         printf("%d\n", getValue());
@@ -25,7 +30,7 @@ Result verify(int seed){
     int    N      = 0;
     Result res    = RES_OK;
     srand(seed);
-    N = rand()%91 + 10;
+    N = getN();
 
     // We dont stop the verification if one value is not correct
     // So it is easier for the user to see which values work and which don't 
