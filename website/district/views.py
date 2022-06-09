@@ -1,6 +1,5 @@
 import os
 
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
@@ -47,4 +46,5 @@ def test_view(request):
         code = f.read()
 
     toto = ExerciseInspector(user_id, ex_id, lang_id, code)
-    return HttpResponse("test")
+    result = toto.process()
+    return HttpResponse(result)
