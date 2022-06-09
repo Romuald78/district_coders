@@ -16,8 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from district.controllers.exercisecontroller import get_exercise
 from district.views import main_view
-from district.controllers.assessmentcontroler import get_current, get_past, get_future, get_exercises
+from district.controllers.assessmentcontroller import get_current, get_past, get_future, get_exercises
 
 urlpatterns = [
     # Documentation Generation (before 'admin' URL in order to avoid interceptions)
@@ -34,6 +35,11 @@ urlpatterns = [
 
     # The list of exercises of an assessment View
     path('assessment/exercises/<int:id_asse>', get_exercises),
+
+    # The training exercise View
+    path('exercise', get_exercise),
+    # The verifying exercise View
+    path('exercise', get_verify),
 
     # Our views
     path(''          , main_view),

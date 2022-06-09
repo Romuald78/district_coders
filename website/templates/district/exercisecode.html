@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solve the problem</title>
+    {% load static %}
+    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
+    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
+    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
+</head>
+<body>
+    {%  include "district/header.html" %}
+    <div class="page">
+        <div class="wording">
+            <ul>
+                {% for i in wording %}
+                    <li>{{ i.title }}</li>
+                    <li>{{ i.description }}</li>
+                    <li>{{ i.gen_file }}</li>
+                    <li>{{ i.icon }}</li>
+                    <li>{{ i.gen_type }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="ide">
+            <form action="/exercise/verify" method="POST">
+                <textarea id="ideTA" name="story" rows="5" cols="33"># do it by yourself</textarea>
+                <input id="idex" name="idex" type="hidden" value={{ wording.id }}>
+                <input type="submit">
+            </form>
+        </div>
+
+        {%  include "district/footer.html" %}
+    </div>
+</body>
+</html>
