@@ -1,0 +1,1 @@
+medias_absolute_path = '/home/cytech/district_coders/website/medias'
