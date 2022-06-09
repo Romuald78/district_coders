@@ -12,9 +12,8 @@ LIB   = DC
 # ------------------------
 TMP_DIR = tmp
 BIN_DIR = bin
-USR_DIR = users
 LIB_DIR = lib$(LIB)
-EXO_DIR = exercises
+EXO_DIR = mode_stdio
 
 # ------------------------
 # EXERCISE OBJECTS/EXEC

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 
+from secure.django_secret_key import django_secret_key
+from secure.medias_cnf import medias_absolute_path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-from secure.django_secret_key import django_secret_key
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -116,6 +117,12 @@ USE_TZ = True
 # This is the sub-folder of the application where to
 # store static files
 STATIC_URL  = '/static/'
+
+# MEDIA FILEs and URLs
+# here we only use MEDIA_ROOT (directory of media files)
+# but not MEDIA_URL (access from url) because it is not needed
+MEDIA_ROOT = medias_absolute_path
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
