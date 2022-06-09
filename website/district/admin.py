@@ -4,6 +4,7 @@ from district.models.assessment import Assessment
 from district.models.exo2test import Exo2Test
 from district.models.exotest2lang import ExoTest2Lang
 from district.models.group import GroupDC
+from district.models.inspector_mode import InspectorMode
 from district.models.language import Language
 from district.models.exercise import Exercise
 from district.models.keyword import KeyWord
@@ -24,5 +25,6 @@ admin.site.register(Exo2Test)
 admin.site.register(ExoTest2Lang)
 admin.site.register(Assessment)
 admin.site.register(TestResult)
+admin.site.register(InspectorMode)
 
 

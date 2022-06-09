@@ -11,5 +11,5 @@ class UserDC(AbstractUser):
     groups = models.ManyToManyField(GroupDC)
 
     def __str__(self):
-        out = f"User {self.username}"
+        out = f"[{self.id}] User {self.username}"
         return out

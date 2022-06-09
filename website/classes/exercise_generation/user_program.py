@@ -8,5 +8,10 @@ class UserProgram():
     def get_exec_cmd(self):
         raise Exception(f"'{self.get_exec_cmd().__name__}' method has not been implemented yet in {self}")
 
-    def create_user_file(self, filepath, raw_code):
-        raise Exception(f"'{self.create_user_file().__name__}' method has not been implemented yet in {self}")
+    @staticmethod
+    def create_user_file(filepath, raw_code):
+        with open(filepath, 'w', encoding="UTF-8") as f:
+            f.write(raw_code)
+
+    def compile(self):
+        raise Exception(f"'{self.compile.__name__}' method has not been implemented yet in {self}")

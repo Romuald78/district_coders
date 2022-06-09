@@ -1,10 +1,16 @@
+import os
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 
+from classes.exercise_generation.exercise_inspector import ExerciseInspector
 from district.models.language import Language
 
 # Create your views here.
+from website.settings import MEDIA_ROOT
+
+
 def main_view(request):
     # Get parameters from request (e.g. : form field values)
     # either with the GET method or the POST method
@@ -32,3 +38,13 @@ def main_view(request):
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
 
+
+def test_view(request):
+    user_id = 1
+    ex_id = 1
+    lang_id = 1
+    with open(os.path.join(MEDIA_ROOT, "user_codes", "user001.c")) as f:
+        code = f.read()
+
+    toto = ExerciseInspector(user_id, ex_id, lang_id, code)
+    return HttpResponse("test")

@@ -1,1 +1,1 @@
-medias_absolute_path = '/home/cytech/district_coders/website/medias'
+medias_absolute_path = 'h:\Documents\WORK\district_coders\district_coders\website\medias'
