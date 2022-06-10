@@ -8,9 +8,9 @@ class Exercise(models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()
     gen_file = models.CharField(unique=True, max_length=128) ## FileField ?
-    icon = models.TextField(blank=True)               ## FileField ?
+    icon = models.FileField(blank=True, upload_to="icons/exercises")               ## FileField ?
     insp_mode_id = models.ForeignKey(InspectorMode, on_delete=models.CASCADE)
 
     def __str__(self):
-        out = f"[{self.id}] Exercice {self.title}"
+        out = f"[{self.id}] Exercise {self.title}"
         return out

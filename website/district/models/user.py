@@ -6,7 +6,7 @@ from district.models.group import GroupDC
 
 class UserDC(AbstractUser):
 
-    icon = models.TextField(blank=True)
+    icon = models.FileField(blank=True, upload_to="icons/users")
     description = models.TextField()
     groups = models.ManyToManyField(GroupDC)
 
