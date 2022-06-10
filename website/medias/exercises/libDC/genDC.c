@@ -36,15 +36,17 @@ void prepareTitle(){
     }
 }
 
+// Result of verification : stdout
 void displayTitleOnce(){
     // Display title
     if(titleSent == 0){
-        fprintf(stderr, "%s\n", TITLE);
+        fprintf(stdout, "%s\n", TITLE);
         titleSent = 1;
     }
-    fputs(CLR_NORMAL, stderr);
+    fputs(CLR_NORMAL, stdout);
 }
 
+// Debug + Error : STDERR
 void display(Result res, const char* format, va_list args){
     // Display title
     displayTitleOnce();
@@ -186,14 +188,14 @@ int main(int argc, char** argv){
         // Display title
         displayTitleOnce();
         // display result
-        fputs("Test result ", stderr);
+        fputs("Test result ", stdout);
         if(result == RES_OK){
-            fputs(CLR_GREEN"[PASS]", stderr);
+            fputs(CLR_GREEN"[PASS]", stdout);
         }        
         else{
-            fputs(CLR_RED"[FAIL]", stderr);
+            fputs(CLR_RED"[FAIL]", stdout);
         }
-        fputs(CLR_NORMAL"\n", stderr);
+        fputs(CLR_NORMAL"\n", stdout);
     }
     else{
         error("Internal error 11 !\n", stderr);
