@@ -1,3 +1,7 @@
+import os.path
+from shutil import rmtree
+
+
 class UserProgram():
     def __init__(self):
         pass
@@ -10,6 +14,13 @@ class UserProgram():
 
     @staticmethod
     def create_user_file(filepath, raw_code):
+        dirname = os.path.dirname(filepath)
+        # if directory exists -> delete it
+        if os.path.exists(dirname):
+            rmtree(dirname)
+        # create directory
+        os.makedirs(dirname)
+        # create .exe file
         with open(filepath, 'w', encoding="UTF-8") as f:
             f.write(raw_code)
 

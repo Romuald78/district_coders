@@ -40,9 +40,9 @@ def main_view(request):
 
 def test_view(request):
     user_id = 1
-    ex_id = 1
+    ex_id = 4
     lang_id = 1
-    with open(os.path.join(MEDIA_ROOT, "user_codes", "user001.c")) as f:
+    with open(os.path.join(MEDIA_ROOT, "user_codes", "user004.c")) as f:
         code = f.read()
 
     toto = ExerciseInspector(user_id, ex_id, lang_id, code)

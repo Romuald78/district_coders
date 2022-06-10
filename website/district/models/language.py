@@ -5,7 +5,7 @@ from django.db import models
 # Create your own models here.
 class Language(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    icon = models.TextField()
+    icon = models.TextField(blank=True)
     default_code = models.TextField()   ## FileField ?
     language_program = models.CharField(max_length=64, unique=True, default="")
 

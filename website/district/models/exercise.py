@@ -8,7 +8,7 @@ class Exercise(models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()
     gen_file = models.CharField(unique=True, max_length=128) ## FileField ?
-    icon = models.TextField()               ## FileField ?
+    icon = models.TextField(blank=True)               ## FileField ?
     insp_mode_id = models.ForeignKey(InspectorMode, on_delete=models.CASCADE)
 
     def __str__(self):

@@ -1,5 +1,6 @@
 import os
 import subprocess
+import urllib.parse
 from random import randint
 
 from classes.constants import INSPECTOR_MODE_STDIO
@@ -23,35 +24,53 @@ class ExerciseInspector():
 
     def process(self):
         # retrieve exercise (+genFile)
-        exercise = Exercise.objects.get(id=self.ex_id)
-
+        exercise = Exercise.objects.get(id=self.ex_id) #TODO check the return of get
         # Get alea seed (XXXXX)
         seed = randint(0, 99999)
-        seed = 123
+        # Retrieve the execution command string
+        exec_cmd = self.program.get_exec_cmd()
+        # Retrieve the verification exec file path
+        ex_corr = os.path.join(MEDIA_ROOT, "exercises", "bin", f"{exercise.gen_file}.exe")
 
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)
         if exercise.insp_mode_id.name == INSPECTOR_MODE_STDIO:  # mode stdio #TODO use exercice object to retrieve mode
             # Compile user code if needed
             self.program.compile()
-            # Retrieve the execution command string
-            exec_cmd = self.program.get_exec_cmd()
 
-            # Retrieve the verification exec file path
-            ex_corr = os.path.join(MEDIA_ROOT, "exercises", "bin", exercise.gen_file)
+
             # Call the system
             # .../...../exo.exe -g -sXXXXX | execcommandstring | .../...../exo.exe -v -sXXXXX
             # print("commande : ", [ex_corr, "-g", f"-s{seed}", "|", exec_cmd, "|", ex_corr, "-v", f"-s{seed}"])
-            part1 = subprocess.Popen([ex_corr, "-g", f"-s{seed}"], stdout=subprocess.PIPE)
-            part2 = subprocess.Popen([exec_cmd], stdin=part1.stdout, stdout=subprocess.PIPE)
+            part1 = subprocess.Popen([ex_corr, "-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part2 = subprocess.Popen([exec_cmd], stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = part3.communicate() #TODO make a timeout
             part1.stdout.close()
-            part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}"], stdin=part2.stdout, stdout=subprocess.PIPE)
             part2.stdout.close()
-            result = part3.communicate()
-            print("comm", result)
+            part3.stdout.close()
+            (stdout, stderr) = result
+            print("comm out", stdout.decode("UTF-8")) #.decode("UTF-8")
+            print("comm err", stderr.decode("UTF-8")) #.decode("UTF-8")
 
             # retrieve all return values (integer, stdout, stderr)
             # return all these info back to upper layer (dictionary ?)
-            return (result.returncode, result.stdout, result.stderr)
+            return (stdout, stderr)
 
-        else:
-            pass  # mode include #TODO
+        else: # mode include
+            self.program.compile(exercise.gen_file)
+
+            # Call the system
+            # .../...../exo.exe -g -sXXXXX | execcommandstring | .../...../exo.exe -v -sXXXXX
+            # print("commande : ", [ex_corr, "-g", f"-s{seed}", "|", exec_cmd, "|", ex_corr, "-v", f"-s{seed}"])
+            part1 = subprocess.Popen([self.program.get_exec_cmd(), "-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part2 = subprocess.Popen([self.program.get_exec_cmd(), "-v", f"-s{seed}"], stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = part2.communicate()  # TODO make a timeout
+            part1.stdout.close()
+            part2.stdout.close()
+            (stdout, stderr) = result
+            print("comm out", stdout.decode("UTF-8"))  # .decode("UTF-8")
+            print("comm err", stderr.decode("UTF-8"))  # .decode("UTF-8")
+
+            # retrieve all return values (integer, stdout, stderr)
+            # return all these info back to upper layer (dictionary ?)
+            return (stdout, stderr)

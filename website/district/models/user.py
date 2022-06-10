@@ -6,7 +6,7 @@ from district.models.group import GroupDC
 
 class UserDC(AbstractUser):
 
-    icon = models.CharField(max_length=128)
+    icon = models.TextField(blank=True)
     description = models.TextField()
     groups = models.ManyToManyField(GroupDC)
 

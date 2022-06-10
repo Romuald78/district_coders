@@ -3,7 +3,7 @@ from django.db import models
 class GroupDC(models.Model):
 
     name = models.CharField(max_length=128)
-    icon = models.CharField(max_length=128)
+    icon = models.TextField(blank=True)
     register_key = models.CharField(max_length=128)
     description = models.TextField()
 
