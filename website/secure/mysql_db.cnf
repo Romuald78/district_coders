@@ -2,5 +2,5 @@
 host     = localhost
 database = district_db
 user     = root
-password = eisti0001
+password = mySQLRomu78$
 default-character-set = utf8

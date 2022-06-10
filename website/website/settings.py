@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 
 from secure.django_secret_key import django_secret_key
-from secure.medias_cnf import medias_absolute_path
+from secure.medias_cnf import medias_absolute_path, medias_url_root
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -119,10 +119,10 @@ USE_TZ = True
 STATIC_URL  = '/static/'
 
 # MEDIA FILEs and URLs
-# here we only use MEDIA_ROOT (directory of media files)
-# but not MEDIA_URL (access from url) because it is not needed
+# MEDIA_ROOT (directory of media files)
+# MEDIA_URL (url root for media files)
 MEDIA_ROOT = medias_absolute_path
-
+MEDIA_URL = medias_url_root
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

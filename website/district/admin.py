@@ -15,16 +15,32 @@ from district.models.test import TestDC
 from district.models.testresult import TestResult
 from district.models.user import UserDC
 
-admin.site.register(Language)
-admin.site.register(Exercise)
+
+class ExerciseAdmin(admin.ModelAdmin):
+    readonly_fields = ('id','image_tag',)
+class LanguageAdmin(admin.ModelAdmin):
+    readonly_fields = ('id','image_tag',)
+class TestDCAdmin(admin.ModelAdmin):
+    readonly_fields = ('id','image_tag',)
+class InspectorModeAdmin(admin.ModelAdmin):
+    readonly_fields = ('id','image_tag',)
+class GroupDCAdmin(admin.ModelAdmin):
+    readonly_fields = ('id','image_tag',)
+class UserDCAdmin(admin.ModelAdmin):
+    readonly_fields = ('id','image_tag',)
+
+
+
+admin.site.register(Language, LanguageAdmin)
+admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(KeyWord)
-admin.site.register(UserDC)
-admin.site.register(GroupDC)
-admin.site.register(TestDC)
+admin.site.register(UserDC, UserDCAdmin)
+admin.site.register(GroupDC, GroupDCAdmin)
+admin.site.register(TestDC, TestDCAdmin)
 admin.site.register(Exo2Test)
 admin.site.register(ExoTest2Lang)
 admin.site.register(Assessment)
 admin.site.register(TestResult)
-admin.site.register(InspectorMode)
+admin.site.register(InspectorMode, InspectorModeAdmin)
 
 
