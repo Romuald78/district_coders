@@ -1,6 +1,6 @@
 .idea
 __pycache__/
 *.pyc
-testsC/tmp/
-testsC/bin/
+website/medias/exercises/tmp
+website/medias/exercises/bin
 
