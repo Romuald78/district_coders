@@ -45,6 +45,7 @@ class ExerciseInspector():
             part2 = subprocess.Popen([exec_cmd], stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             result = part3.communicate() #TODO make a timeout
+            exit_code = part3.returncode
             part1.stdout.close()
             part2.stdout.close()
             part3.stdout.close()
@@ -54,7 +55,7 @@ class ExerciseInspector():
 
             # retrieve all return values (integer, stdout, stderr)
             # return all these info back to upper layer (dictionary ?)
-            return (stdout, stderr)
+            return (exit_code, stdout, stderr)
 
         else: # mode include
             self.program.compile(exercise.gen_file)
@@ -65,6 +66,7 @@ class ExerciseInspector():
             part1 = subprocess.Popen([self.program.get_exec_cmd(), "-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen([self.program.get_exec_cmd(), "-v", f"-s{seed}"], stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             result = part2.communicate()  # TODO make a timeout
+            exit_code = part2.returncode
             part1.stdout.close()
             part2.stdout.close()
             (stdout, stderr) = result
@@ -73,4 +75,4 @@ class ExerciseInspector():
 
             # retrieve all return values (integer, stdout, stderr)
             # return all these info back to upper layer (dictionary ?)
-            return (stdout, stderr)
+            return (exit_code, stdout, stderr)

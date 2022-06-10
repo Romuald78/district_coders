@@ -10,6 +10,7 @@ from district.models.assessment import Assessment
 
 # get all the current assessments
 from district.models.exercise import Exercise
+from district.models.exotest2lang import ExoTest2Lang
 
 
 def get_current(request):
@@ -59,7 +60,7 @@ def get_future(request):
 # get the list of exercises in the assessment
 def get_exercises(request, id_asse):
     # only trainable exercises
-    if Assessment.objects.filter(id=id_asse, training_time__gt=timezone.now()).exists():
+    if not Assessment.objects.filter(id=id_asse, training_time__gt=timezone.now()).exists():
         return HttpResponse("Access denied")
 
     # dictionary for initial data
@@ -69,7 +70,24 @@ def get_exercises(request, id_asse):
     template = loader.get_template('district/exercisesAssess.html')
 
     # get future assessment
-    context["exercises"] = Exercise.objects.filter(exo2test__test_id__assessment=id_asse)
+    all_exos = ExoTest2Lang.objects.filter(exo2test_id__test_id__assessment=id_asse)
 
+    exos = {}
+    for ex_tst_lng in all_exos:
+        ex_obj = ex_tst_lng.exo2test_id.exercise_id
+        ex_id = ex_obj.id
+        lng_obj = ex_tst_lng.lang_id
+        if not ex_id in exos:
+            exos[ex_id] = {"ex_obj": ex_obj,
+                           "lang_objs" : [lng_obj]
+                           }
+        else:
+            exos[ex_id]["lang_objs"].append(lng_obj)
+
+    for x in exos:
+        print(exos[x])
+
+
+    context["exercises"] = exos
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))

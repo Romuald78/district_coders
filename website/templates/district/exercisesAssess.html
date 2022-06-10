@@ -15,12 +15,14 @@
             {% for i in exercises %}
                 <li>
                     <ul>
-                        <li>id :{{ i.id }}</li>
-                        <li>title :{{ i.title }}</li>
-                        <li>description :{{ i.description }}</li>
-                        <li>gen file :{{ i.gen_file }}</li>
-                        <li>icon :{{ i.icon }}</li>
-                        <li>gen type :{{ i.gen_type }}</li>
+                        <li>ex id :{{ i.ex_obj.id }}</li>
+                        <li>title :{{ i.ex_obj.title }}</li>
+                        <li>description :{{ i.ex_obj.description }}</li>
+                        <li>gen file :{{ i.ex_obj.gen_file }}</li>
+                        <li>icon :{{ i.ex_obj.icon }}</li>
+                        <li>gen type :{{ i.ex_obj.insp_mode_id }}</li>
+                        <li>gen type :{{ i.lang_objs }}</li>
+
                     </ul>
                 </li>
             {% endfor %}

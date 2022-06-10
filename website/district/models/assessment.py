@@ -14,5 +14,5 @@ class Assessment(models.Model):
     test_id = models.ForeignKey(TestDC, on_delete=models.CASCADE)
 
     def __str__(self):
-        out = f"Assessment test_id:{self.test_id}/start:{self.start_time}/end:{self.end_time}/train:{self.training_time}"
+        out = f"[{self.id}] Assessment test_id:{self.test_id}/start:{self.start_time}/end:{self.end_time}/train:{self.training_time}"
         return out

@@ -37,9 +37,9 @@ urlpatterns = [
     path('assessment/exercises/<int:id_asse>', get_exercises),
 
     # The training exercise View
-    path('exercise', get_exercise),
+    path('exercise/write', get_exercise),
     # The verifying exercise View
-    path('exercise', get_verify),
+    path('exercise/inspect', get_verify),
 
     # just for test
     path('test', test_view),
