@@ -1,0 +1,2 @@
+INSPECTOR_MODE_STDIO = "stdio"
+INSPECTOR_MODE_INCLUDE = "include"

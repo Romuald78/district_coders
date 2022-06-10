@@ -3,7 +3,7 @@ from django.db import models
 
 class InspectorMode(models.Model):
 
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     icon = models.CharField(max_length=128, default="")
 
     def __str__(self):

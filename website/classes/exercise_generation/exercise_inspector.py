@@ -2,6 +2,7 @@ import os
 import subprocess
 from random import randint
 
+from classes.constants import INSPECTOR_MODE_STDIO
 from district.models.exercise import Exercise
 from district.models.language import Language
 import importlib
@@ -29,7 +30,7 @@ class ExerciseInspector():
         seed = 123
 
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)
-        if exercise.gen_type_id.id == 1:  # mode stdio #TODO use exercice object to retrieve mode
+        if exercise.insp_mode_id.name == INSPECTOR_MODE_STDIO:  # mode stdio #TODO use exercice object to retrieve mode
             # Compile user code if needed
             self.program.compile()
             # Retrieve the execution command string
