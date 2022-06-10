@@ -186,14 +186,14 @@ int main(int argc, char** argv){
         // Display title
         displayTitleOnce();
         // display result
-        printf("Test result ");
+        fputs("Test result ", stderr);
         if(result == RES_OK){
-            printf(CLR_GREEN"[PASS]");
+            fputs(CLR_GREEN"[PASS]", stderr);
         }        
         else{
-            printf(CLR_RED"[FAIL]");
+            fputs(CLR_RED"[FAIL]", stderr);
         }
-        printf(CLR_NORMAL"\n");
+        fputs(CLR_NORMAL"\n", stderr);
     }
     else{
         error("Internal error 11 !\n", stderr);
