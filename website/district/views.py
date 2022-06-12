@@ -7,7 +7,7 @@ from classes.exercise_generation.exercise_inspector import ExerciseInspector
 from district.models.language import Language
 
 # Create your views here.
-from website.settings import MEDIA_ROOT
+from website.settings import MEDIA_ROOT, MEDIA_URL
 
 
 def main_view(request):
@@ -28,6 +28,7 @@ def main_view(request):
     context["page_title"] = "District Coders"
     context["title"] = "List of handled programming languages"
     context["languages"] = Language.objects.all().order_by('name')
+    context["MEDIA_URL"] = MEDIA_URL
 
     # Get variable from session (with default value)
     nb_visits = request.session.get('nb_visits', 0)
