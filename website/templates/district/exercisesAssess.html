@@ -12,16 +12,20 @@
     {%  include "district/header.html" %}
     <div class="page">
         <ul>
-            {% for i in exercises %}
+            {% for key, value in exercises.items %}
                 <li>
                     <ul>
-                        <li>ex id :{{ i.ex_obj.id }}</li>
-                        <li>title :{{ i.ex_obj.title }}</li>
-                        <li>description :{{ i.ex_obj.description }}</li>
-                        <li>gen file :{{ i.ex_obj.gen_file }}</li>
-                        <li>icon :{{ i.ex_obj.icon }}</li>
-                        <li>gen type :{{ i.ex_obj.insp_mode_id }}</li>
-                        <li>gen type :{{ i.lang_objs }}</li>
+                        <li>ex id :{{ value.ex_obj.id }}</li>
+                        <li>title :{{ value.ex_obj.title }}</li>
+                        <li>description :{{ value.ex_obj.description }}</li>
+                        <li>gen file :{{ value.ex_obj.gen_file }}</li>
+                        <li>icon :{{ value.ex_obj.icon }}</li>
+                        <li>gen type :{{ value.ex_obj.insp_mode_id }}</li>
+                        <li>languages :
+                            {% for lang in value.lang_objs %}
+                                <img class="code_logo" src="{{ MEDIA_URL }}{{ lang.icon }}">
+                            {% endfor %}
+                        </li>
 
                     </ul>
                 </li>

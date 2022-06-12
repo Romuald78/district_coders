@@ -84,9 +84,6 @@ def get_exercises(request, id_asse):
         else:
             exos[ex_id]["lang_objs"].append(lng_obj)
 
-    for x in exos:
-        print(exos[x])
-
 
     context["exercises"] = exos
     # Use context in the template and render response view
