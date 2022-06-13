@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 
 from classes.utils.utils import getIconTag, upload_imagefield_to
@@ -10,7 +12,7 @@ class InspectorMode(models.Model):
     icon = models.ImageField(blank=True, upload_to=upload_imagefield_to)
 
     def get_upload_to_path(self):
-        return "icons/modes"
+        return os.path.join("icons","modes")
 
     # Display of the icon in the admin interface
     def image_tag(self):

@@ -1,3 +1,5 @@
+import os
+
 from django.contrib import admin
 from django.db import models
 
@@ -14,7 +16,7 @@ class Language(models.Model):
     language_program = models.CharField(max_length=64, unique=True, default="")
 
     def get_upload_to_path(self):
-        return "icons/languages"
+        return os.path.join("icons","languages")
 
     # Display of the icon in the admin interface
     def image_tag(self):
