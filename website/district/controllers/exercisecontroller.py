@@ -1,12 +1,20 @@
-from django.http import HttpResponse
-from django.template import loader
+import os
 
+from django.http import HttpResponse, JsonResponse
+from django.template import loader
+from django.utils import timezone
+
+from classes.exercise_generation.exercise_inspector import ExerciseInspector
+from classes.utils.ansi_to_html import ansi_to_html
 from district.models.assessment import Assessment
 from district.models.exercise import Exercise
 
 
 # return the view of an exercise
-def get_exercise(request):
+from website.settings import MEDIA_ROOT
+
+
+def ctrl_exercise_details(request):
     # get parameters
     id_ex = request.GET.get('ex', 0)
     if id_ex == 0 or len(Exercise.objects.filter(id=id_ex)) == 0:
@@ -16,7 +24,7 @@ def get_exercise(request):
     context = {}
 
     # Load view template
-    template = loader.get_template('district/exercisecode.html')
+    template = loader.get_template('district/exercisewording.html')
 
     # get current assessment
     context["wording"] = Exercise.objects.filter(id=id_ex)
@@ -25,19 +33,9 @@ def get_exercise(request):
     return HttpResponse(template.render(context, request))
 
 
-def get_verify(request):
+def ctrl_exercise_write(request):
     # get parameters
-    user_id = 1 #TODO à remplacer
-    ex_id = request.POST.get('ex_id', 0)
-    lang_id = 1
-    with open(os.path.join(MEDIA_ROOT, "user_codes", "user004.c")) as f:
-        code = f.read()
-
-    toto = ExerciseInspector(user_id, ex_id, lang_id, code)
-    result = toto.process()
-    return HttpResponse(result)
-
-
+    id_ex = request.GET.get('ex', 0)
     if id_ex == 0 or len(Exercise.objects.filter(id=id_ex)) == 0:
         return HttpResponse("Please enter a valid number of exercise")
 
@@ -45,10 +43,38 @@ def get_verify(request):
     context = {}
 
     # Load view template
-    template = loader.get_template('district/exercisecode.html')
+    template = loader.get_template('district/exercise_write.html')
 
     # get current assessment
     context["wording"] = Exercise.objects.filter(id=id_ex)
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
+
+
+def ctrl_json_exercise_inspect(request):
+    # get parameters
+    user_id = 1 #TODO à remplacer
+    ex_id = request.POST.get('ex_id', 0)
+    lang_id = request.POST.get('lang_id', 0)
+    user_code = request.POST.get('raw_code', "")
+
+    ex_insp = ExerciseInspector(user_id, ex_id, lang_id, user_code)
+    (exit_code, stdout, stderr) = ex_insp.process()
+
+    # ex_id : int
+    # user_id : int
+    # timestamp (date et heure de début de la requete (reception de la requete))
+    # exit_code : int
+    # stdout : str
+    # stderr : str
+    dico_json_response = {
+        "ex_id": ex_id,
+        "user_id": user_id,
+        "timestamp": timezone.now(),
+        "exit_code": exit_code,
+        "stdout": ansi_to_html(stdout),
+        "stderr": stderr
+    }
+
+    return JsonResponse(dico_json_response)

@@ -35,9 +35,12 @@ class ExerciseInspector():
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)
         if exercise.insp_mode_id.name == INSPECTOR_MODE_STDIO:  # mode stdio #TODO use exercice object to retrieve mode
             # Compile user code if needed
-            self.program.compile()
-
-
+            (exit_code_comp, stdout_comp, stderr_comp) = self.program.compile()
+            a = (exit_code_comp, stdout_comp, stderr_comp)
+            print("tu sais", a)
+            print("exit_code : ", exit_code_comp)
+            if exit_code_comp != 0:
+                return (exit_code_comp, stdout_comp.decode("UTF-8"), stderr_comp.decode("UTF-8"))
             # Call the system
             # .../...../exo.exe -g -sXXXXX | execcommandstring | .../...../exo.exe -v -sXXXXX
             # print("commande : ", [ex_corr, "-g", f"-s{seed}", "|", exec_cmd, "|", ex_corr, "-v", f"-s{seed}"])
@@ -50,15 +53,13 @@ class ExerciseInspector():
             part2.stdout.close()
             part3.stdout.close()
             (stdout, stderr) = result
-            print("comm out", stdout.decode("UTF-8")) #.decode("UTF-8")
-            print("comm err", stderr.decode("UTF-8")) #.decode("UTF-8")
 
             # retrieve all return values (integer, stdout, stderr)
             # return all these info back to upper layer (dictionary ?)
-            return (exit_code, stdout, stderr)
+            return (exit_code, (stdout_comp+stdout).decode("UTF-8"), (stderr_comp+stderr).decode("UTF-8"))
 
         else: # mode include
-            self.program.compile(exercise.gen_file)
+            (exit_code, stdout, stderr) = self.program.compile(exercise.gen_file)
 
             # Call the system
             # .../...../exo.exe -g -sXXXXX | execcommandstring | .../...../exo.exe -v -sXXXXX
@@ -70,9 +71,7 @@ class ExerciseInspector():
             part1.stdout.close()
             part2.stdout.close()
             (stdout, stderr) = result
-            print("comm out", stdout.decode("UTF-8"))  # .decode("UTF-8")
-            print("comm err", stderr.decode("UTF-8"))  # .decode("UTF-8")
 
             # retrieve all return values (integer, stdout, stderr)
             # return all these info back to upper layer (dictionary ?)
-            return (exit_code, stdout, stderr)
+            return (exit_code, stdout.decode("UTF-8"), stderr.decode("UTF-8"))

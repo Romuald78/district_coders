@@ -2,7 +2,7 @@ import re
 
 def ansi_to_html(ansi):
     try:
-        pattern = r'\x1B\[38;2;([0-9]{1,3});([0-9]{1,3});([0-9]{1,3})m'
+        pattern = r'\u001B\[38;2;([0-9]{1,3});([0-9]{1,3});([0-9]{1,3})m'
         regex = re.compile(pattern)
         result = regex.findall(ansi)
         out = ansi
@@ -15,11 +15,21 @@ def ansi_to_html(ansi):
             B = max(0, min(255, B))
             color = "#"+("000" + hex(((R*256)+G)*256+B)[2:])[-6:].upper()
             # Replace regex group
-            str_to_replace = f"\x1B[38;2;{R};{G};{B}m"
+            str_to_replace = f"\u001B[38;2;{R};{G};{B}m"
             html_str       = f"</span><span style=\"color:{color}\">"
             out = out.replace(str_to_replace, html_str, 1)
-        out = out.replace("\x1B[0m", f"</span>", 1)
+
+        pattern = r'(\u001B\[0m)'
+        regex = re.compile(pattern)
+        result = regex.findall(ansi)
+        for res in result:
+            str_to_replace = "\u001B[0m"
+            html_str = "</span>"
+            out = out.replace(str_to_replace, html_str, 1)
+
         out = "<span>" + out
+        out = out.replace("\r", "")
+        out = out.replace("\n", "<br>")
         return out
 
     except Exception as e:

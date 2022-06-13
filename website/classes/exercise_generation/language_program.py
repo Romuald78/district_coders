@@ -25,7 +25,7 @@ class CProgram(UserProgram):
 
     def compile(self, gen_file=""):
         if len(gen_file) == 0:
-            subprocess.run(["gcc", self.filepath, "-o", self.exec_cmd])
+            result = subprocess.run(["gcc", self.filepath, "-o", self.exec_cmd], capture_output=True)
         else:
             # Retrieve the verification exec file path
             ex_corr_c = os.path.join(MEDIA_ROOT, "exercises", "mode_include", f"{gen_file}.c")
@@ -33,7 +33,9 @@ class CProgram(UserProgram):
             ldc_dir = os.path.join(MEDIA_ROOT, "exercises", "libDC")
 
             # compile in one file
-            subprocess.run(["gcc", self.filepath, ex_corr_c, f"-L{bin_dir}", "-lDC", f"-I{ldc_dir}", "-o", self.exec_cmd])
+            result = subprocess.run(["gcc", self.filepath, ex_corr_c, f"-L{bin_dir}", "-lDC", f"-I{ldc_dir}", "-o", self.exec_cmd], capture_output=True)
+
+        return (result.returncode, result.stdout, result.stderr)
 
     def __str__(self):
         return f"raw code: {self.raw_code}"

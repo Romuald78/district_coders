@@ -1,9 +1,11 @@
 import os
+from django.utils import timezone
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
 
 from classes.exercise_generation.exercise_inspector import ExerciseInspector
+from classes.utils.ansi_to_html import ansi_to_html
 from district.models.language import Language
 
 # Create your views here.
@@ -47,5 +49,21 @@ def test_view(request):
         code = f.read()
 
     toto = ExerciseInspector(user_id, ex_id, lang_id, code)
-    result = toto.process()
-    return HttpResponse(result)
+    (exit_code, stdout, stderr) = toto.process()
+    # ex_id : int
+    # user_id : int
+    # timestamp (date et heure de début de la requete (reception de la requete))
+    # exit_code : int
+    # stdout : str
+    # stderr : str
+    dico_json_response = {
+        "ex_id": ex_id,
+        "user_id": user_id,
+        "timestamp": timezone.now(),
+        "exit_code": exit_code,
+        "stdout": ansi_to_html(stdout),
+        "stderr": stderr
+    }
+
+    #return HttpResponse(result)
+    return JsonResponse(dico_json_response)

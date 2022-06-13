@@ -17,11 +17,16 @@ def getIconTag(icon_url):
 # Remove same file if it exists (used to overwrite)
 class OverwriteStorage(FileSystemStorage):
 
-    def get_available_name(self, name, max_length):
+    def get_available_name(self, name, max_length=128):
         full_path = os.path.join(MEDIA_ROOT, name)
         # If the filename already exists, remove it as if it was a true file system
         if os.path.exists(full_path):
-            os.remove(full_path)
+            # os.close()
+            try:
+                os.remove(full_path)
+            except Exception as e:
+                print(e)
+                return ""
         return name
 
 def upload_imagefield_to(instance, filename):

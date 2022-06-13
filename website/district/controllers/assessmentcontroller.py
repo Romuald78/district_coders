@@ -13,7 +13,8 @@ from district.models.exercise import Exercise
 from district.models.exotest2lang import ExoTest2Lang
 
 
-def get_current(request):
+# display all the current assessments
+def ctrl_current_asse(request):
     # dictionary for initial data
     context = {}
 
@@ -27,8 +28,8 @@ def get_current(request):
     return HttpResponse(template.render(context, request))
 
 
-# get all the past assessments
-def get_past(request):
+# display all the past assessments
+def ctrl_past_asse(request):
     # dictionary for initial data
     context = {}
 
@@ -42,8 +43,8 @@ def get_past(request):
     return HttpResponse(template.render(context, request))
 
 
-# get the future assessments
-def get_future(request):
+# display all the future assessments
+def ctrl_future_asse(request):
     # dictionary for initial data
     context = {}
 
@@ -57,8 +58,8 @@ def get_future(request):
     return HttpResponse(template.render(context, request))
 
 
-# get the list of exercises in the assessment
-def get_exercises(request, id_asse):
+# display the list of exercises in an assessment
+def ctrl_asse_details(request, id_asse):
     # only trainable exercises
     if not Assessment.objects.filter(id=id_asse, training_time__gt=timezone.now()).exists():
         return HttpResponse("Access denied")

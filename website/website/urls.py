@@ -17,9 +17,9 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from district.controllers.exercisecontroller import get_exercise, get_verify
+from district.controllers.exercisecontroller import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.views import main_view, test_view
-from district.controllers.assessmentcontroller import get_current, get_past, get_future, get_exercises
+from district.controllers.assessmentcontroller import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse, ctrl_asse_details
 from website import settings
 
 urlpatterns = [
@@ -28,20 +28,22 @@ urlpatterns = [
     # Administration View
     path('admin/'    , admin.site.urls),
 
-    # The current assessment View
-    path('assessment/current', get_current),
-    # The future assessment View
-    path('assessment/future', get_future),
-    # The past assessment View
-    path('assessment/past', get_past),
+    # current assessments View
+    path('assessment/current', ctrl_current_asse),
+    # future assessments View
+    path('assessment/future', ctrl_future_asse),
+    # past assessments View
+    path('assessment/past', ctrl_past_asse),
 
     # The list of exercises of an assessment View
-    path('assessment/exercises/<int:id_asse>', get_exercises),
+    path('assessment/details/<int:id_asse>', ctrl_asse_details),
 
-    # The training exercise View
-    path('exercise/write', get_exercise),
+    # The wording(without code editor) of an exercise
+    path('exercise/details', ctrl_exercise_details),
+    # The training exercise View (with code editor)
+    path('exercise/write', ctrl_exercise_write),
     # The verifying exercise View
-    path('exercise/inspect', get_verify),
+    path('exercise/inspect', ctrl_json_exercise_inspect),
 
     # just for test
     path('test', test_view),

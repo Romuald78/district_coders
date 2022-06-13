@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solve the problem</title>
+    {% load static %}
+    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
+    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
+    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
+    <script type="text/javascript" src={% static 'js/send_user_code.js' %}></script>
+</head>
+<body>
+    {%  include "district/header.html" %}
+    <div class="page">
+        {% for ex in wording %}
+        <div class="wording">
+            <ul>
+                <li>{{ ex.title }}</li>
+                <li>{{ ex.description }}</li>
+                <li>{{ ex.gen_file }}</li>
+                <li>{{ ex.icon }}</li>
+                <li>{{ ex.insp_mode_id }}</li>
+            </ul>
+        </div>
+
+        <div class="ide">
+            <form id="user_form" method="post">{% csrf_token %}
+                <textarea class="code" id="raw_code" name="raw_code" rows="5" cols="33">#do it by yourself</textarea>
+                <input id="ex_id" name="ex_id" type="hidden" value={{ ex.id }}>
+                <input id="lang_id" name="lang_id" type="hidden" value=1>
+                <input type="button" onclick="send_user_code()" value="Submit">
+            </form>
+        </div>
+
+        <pre>
+            <div class="code" id="console_view" style="background-color: white"></div>
+        </pre>
+        {% endfor %}
+        {%  include "district/footer.html" %}
+    </div>
+
+    <link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/styles/default.min.css">
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+</body>
+</html>
