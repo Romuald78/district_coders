@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.utils import timezone
@@ -11,7 +12,7 @@ from district.models.exercise import Exercise
 
 
 # return the view of an exercise
-from website.settings import MEDIA_ROOT
+from website.settings import MEDIA_ROOT, LOGIN_URL
 
 
 def ctrl_exercise_details(request):
@@ -32,7 +33,7 @@ def ctrl_exercise_details(request):
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
 
-
+@login_required(login_url=LOGIN_URL)
 def ctrl_exercise_write(request):
     # get parameters
     id_ex = request.GET.get('ex', 0)
@@ -74,7 +75,7 @@ def ctrl_json_exercise_inspect(request):
         "timestamp": timezone.now(),
         "exit_code": exit_code,
         "stdout": ansi_to_html(stdout),
-        "stderr": stderr
+        "stderr": ansi_to_html(stderr)
     }
 
     return JsonResponse(dico_json_response)

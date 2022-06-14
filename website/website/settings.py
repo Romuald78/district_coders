@@ -146,3 +146,5 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_EXPIRE_SECONDS = 10*60              # in seconds
 SESSION_COOKIE_AGE = 10*60                  # in seconds
 
+# AUTHENTICATION
+LOGIN_URL = "/accounts/login"

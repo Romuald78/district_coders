@@ -16,18 +16,21 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 
 from district.controllers.exercisecontroller import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.views import main_view, test_view
 from district.controllers.assessmentcontroller import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse, ctrl_asse_details
 from website import settings
+from website.settings import LOGIN_URL
 
 urlpatterns = [
     # Documentation Generation (before 'admin' URL in order to avoid interceptions)
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     # Administration View
     path('admin/'    , admin.site.urls),
-
+    # Authent views
+    path("accounts/", include("django.contrib.auth.urls")),
     # current assessments View
     path('assessment/current', ctrl_current_asse),
     # future assessments View

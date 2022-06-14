@@ -18,7 +18,7 @@ function send_user_code() {
         // get the console, clear and populate it
         var console_view = document.getElementById("console_view");
         console_view.innerHTML = ''
-        console_view.appendChild(html_err.body);
         console_view.appendChild(html_out.body);
+        console_view.appendChild(html_err.body);
     });
 }
