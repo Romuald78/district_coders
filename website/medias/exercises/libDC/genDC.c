@@ -16,7 +16,7 @@ void prepareTitle(){
     int  B = 255;
     int  j = 0;
     // allocate title string
-    TITLE = malloc(sizeof(char) * 384);
+    TITLE = malloc(sizeof(char) * 512);
     if(TITLE == NULL){
         error("Internal error 100 !\n", stderr);
         exit(100); 
@@ -34,6 +34,7 @@ void prepareTitle(){
         }
         TITLE[j++] = tmp[i];
     }
+    TITLE[j] = '\0';
 }
 
 // Result of verification : stdout
