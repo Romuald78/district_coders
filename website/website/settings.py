@@ -148,3 +148,5 @@ SESSION_COOKIE_AGE = 10*60                  # in seconds
 
 # AUTHENTICATION
 LOGIN_URL = "/accounts/login"
+LOGOUT_URL = "/accounts/logout"
+LOGOUT_REDIRECT_URL = "/"

@@ -1,5 +1,3 @@
-import os
-
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
@@ -7,17 +5,18 @@ from django.utils import timezone
 
 from classes.exercise_generation.exercise_inspector import ExerciseInspector
 from classes.utils.ansi_to_html import ansi_to_html
-from district.models.assessment import Assessment
 from district.models.exercise import Exercise
 
 
+from website.settings import LOGIN_URL
+
+
 # return the view of an exercise
-from website.settings import MEDIA_ROOT, LOGIN_URL
-
-
+@login_required(login_url=LOGIN_URL)
 def ctrl_exercise_details(request):
     # get parameters
     id_ex = request.GET.get('ex', 0)
+    # TODO constrain
     if id_ex == 0 or len(Exercise.objects.filter(id=id_ex)) == 0:
         return HttpResponse("Please enter a valid number of exercise")
 
@@ -33,10 +32,12 @@ def ctrl_exercise_details(request):
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
 
+
 @login_required(login_url=LOGIN_URL)
 def ctrl_exercise_write(request):
     # get parameters
     id_ex = request.GET.get('ex', 0)
+    # TODO constrain
     if id_ex == 0 or len(Exercise.objects.filter(id=id_ex)) == 0:
         return HttpResponse("Please enter a valid number of exercise")
 
@@ -53,9 +54,10 @@ def ctrl_exercise_write(request):
     return HttpResponse(template.render(context, request))
 
 
+@login_required(login_url=LOGIN_URL)
 def ctrl_json_exercise_inspect(request):
     # get parameters
-    user_id = 1 #TODO à remplacer
+    user_id = request.user.id
     ex_id = request.POST.get('ex_id', 0)
     lang_id = request.POST.get('lang_id', 0)
     user_code = request.POST.get('raw_code', "")

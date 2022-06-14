@@ -1,6 +1,5 @@
 
 function send_user_code() {
-    console.log("ici bas");
     var formElement = document.getElementById("user_form");
     const data = new URLSearchParams(new FormData(formElement));
     fetch('./inspect', {

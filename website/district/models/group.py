@@ -18,7 +18,6 @@ class GroupDC(models.Model):
     image_tag.short_description = 'icon picture'
     image_tag.allow_tags = True
 
-
     def __str__(self):
-        out = f"Group {self.name}"
+        out = f"[{self.id}] Group {self.name}"
         return out

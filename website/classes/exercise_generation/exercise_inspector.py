@@ -37,8 +37,6 @@ class ExerciseInspector():
             # Compile user code if needed
             (exit_code_comp, stdout_comp, stderr_comp) = self.program.compile()
             a = (exit_code_comp, stdout_comp, stderr_comp)
-            print("tu sais", a)
-            print("exit_code : ", exit_code_comp)
             if exit_code_comp != 0:
                 return (exit_code_comp, stdout_comp.decode("UTF-8"), stderr_comp.decode("UTF-8"))
             # Call the system

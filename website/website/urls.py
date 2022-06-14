@@ -16,28 +16,28 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
 
 from district.controllers.exercisecontroller import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
+from district.controllers.usercontroller import ctrl_user_profile, ctrl_user_register
 from district.views import main_view, test_view
 from district.controllers.assessmentcontroller import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse, ctrl_asse_details
 from website import settings
-from website.settings import LOGIN_URL
 
 urlpatterns = [
     # Documentation Generation (before 'admin' URL in order to avoid interceptions)
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     # Administration View
     path('admin/'    , admin.site.urls),
+
     # Authent views
     path("accounts/", include("django.contrib.auth.urls")),
+
     # current assessments View
     path('assessment/current', ctrl_current_asse),
     # future assessments View
     path('assessment/future', ctrl_future_asse),
     # past assessments View
     path('assessment/past', ctrl_past_asse),
-
     # The list of exercises of an assessment View
     path('assessment/details/<int:id_asse>', ctrl_asse_details),
 
@@ -45,8 +45,13 @@ urlpatterns = [
     path('exercise/details', ctrl_exercise_details),
     # The training exercise View (with code editor)
     path('exercise/write', ctrl_exercise_write),
-    # The verifying exercise View
+    # Verify an exercise
     path('exercise/inspect', ctrl_json_exercise_inspect),
+
+    # The user profile View
+    path('accounts/profile', ctrl_user_profile),
+    # Let a user join a group
+    path('accounts/register', ctrl_user_register),
 
     # just for test
     path('test', test_view),
