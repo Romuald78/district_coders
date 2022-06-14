@@ -19,6 +19,6 @@ class GroupDC(models.Model):
     image_tag.allow_tags = True
 
 
-def __str__(self):
+    def __str__(self):
         out = f"Group {self.name}"
         return out
