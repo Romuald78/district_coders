@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from classes.utils.utils import getIconTag
 from district.models.group import GroupDC
@@ -9,7 +11,7 @@ class UserDC(AbstractUser):
 
     # TODO : add width and height values to ImageField ?
     icon = models.ImageField(blank=True, upload_to="icons/users")
-    description = models.TextField()
+    description = models.TextField(blank=True)
     groups = models.ManyToManyField(GroupDC)
 
     # Display of the icon in the admin interface
@@ -22,3 +24,9 @@ class UserDC(AbstractUser):
     def __str__(self):
         out = f"[{self.id}] User {self.username}"
         return out
+
+#@receiver(post_save, sender=UserDC)
+#def update_userdc_signal(sender, instance, created, **kwargs):
+#    if created:
+#        UserDC.objects.create(user=instance)
+#    instance.save()

@@ -1,8 +1,11 @@
-from django.contrib.auth import logout
+from django.conf.global_settings import LOGIN_REDIRECT_URL
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect
 from django.template import loader
 
+from classes.users.signup import SignupForm
 from district.models.group import GroupDC
 from district.models.user import UserDC
 from website.settings import LOGIN_URL
@@ -55,3 +58,32 @@ def ctrl_user_register(request):
 
     # return a dictionary
     return JsonResponse({"exit_code": 0})
+
+
+
+def ctrl_user_signup(request):
+    form = SignupForm(request.POST, request.FILES)
+    if form.is_valid():
+        # retrieve form data
+        user = form.save()
+        user.refresh_from_db()
+        user.first_name = form.cleaned_data.get('first_name')
+        user.last_name = form.cleaned_data.get('last_name')
+        user.email = form.cleaned_data.get('email')
+        user.icon = form.cleaned_data.get('icon')
+        user.description = form.cleaned_data.get('description')
+        user.save()
+        # login after signup
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password1')
+        user = authenticate(username=username, password=password)
+        login(request, user)
+        return redirect('/')
+    else:
+        form = SignupForm()
+
+    context = {'form':form}
+    # Load view template
+    template = loader.get_template('registration/signup.html')
+    return HttpResponse(template.render(context, request))
+

@@ -11,9 +11,10 @@
 <!-- ----------------------------------- --->
     <h1>Mon profil :</h1>
     <ul>
-        <li>id: {{ user.id }}</li>
-        <li><img class="code_logo" src="{{ MEDIA_URL }}{{ user.icon }}"></li>
-        <li>description: {{ user.description }}</li>
+        <li>[{{ user.id }}] {{ user.first_name }} {{ user.last_name }} aka '{{ user.username }}'</li>
+        <li>email : {{ user.email }}</li>
+        <li>Profile picture : <img class="code_logo" src="{{ MEDIA_URL }}{{ user.icon }}"></li>
+        <li>description : {{ user.description }}</li>
         <li>mes groupes
             <ul>
                 {% for key, value in groups.items %}
