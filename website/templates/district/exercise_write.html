@@ -10,7 +10,7 @@
     <script type="text/javascript" src={% static 'js/send_user_code.js' %}></script>
 </head>
 <body>
-    {%  include "district/header.html" %}
+    {%  include "district/common/header.html" %}
     <div class="page">
         {% for ex in wording %}
         <div class="wording">
@@ -36,7 +36,7 @@
             <div class="code" id="console_view" style="background-color: white"></div>
         </pre>
         {% endfor %}
-        {%  include "district/footer.html" %}
+        {%  include "district/common/footer.html" %}
     </div>
 
     <link rel="stylesheet"

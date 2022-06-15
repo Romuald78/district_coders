@@ -17,10 +17,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from district.controllers.exercisecontroller import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
-from district.controllers.usercontroller import ctrl_user_profile, ctrl_user_register
-from district.views import main_view, test_view
-from district.controllers.assessmentcontroller import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse, ctrl_asse_details
+from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
+from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_register
+from district.controllers.ctrl_main import ctrl_home, test_view
+from district.controllers.ctrl_assessment import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse, ctrl_asse_details
 from website import settings
 
 urlpatterns = [
@@ -30,32 +30,33 @@ urlpatterns = [
     path('admin/'    , admin.site.urls),
 
     # Authent views
+    # TODO (register/signup)
     path("accounts/", include("django.contrib.auth.urls")),
 
     # current assessments View
-    path('assessment/current', ctrl_current_asse),
+    path('assessment/current/', ctrl_current_asse),
     # future assessments View
-    path('assessment/future', ctrl_future_asse),
+    path('assessment/future/', ctrl_future_asse),
     # past assessments View
-    path('assessment/past', ctrl_past_asse),
+    path('assessment/past/', ctrl_past_asse),
     # The list of exercises of an assessment View
     path('assessment/details/<int:id_asse>', ctrl_asse_details),
 
     # The wording(without code editor) of an exercise
-    path('exercise/details', ctrl_exercise_details),
+    path('exercise/details/', ctrl_exercise_details),
     # The training exercise View (with code editor)
-    path('exercise/write', ctrl_exercise_write),
+    path('exercise/write/', ctrl_exercise_write),
     # Verify an exercise
-    path('exercise/inspect', ctrl_json_exercise_inspect),
+    path('exercise/inspect/', ctrl_json_exercise_inspect),
 
     # The user profile View
-    path('accounts/profile', ctrl_user_profile),
+    path('accounts/profile/', ctrl_user_profile),
     # Let a user join a group
-    path('accounts/register', ctrl_user_register),
+    path('accounts/register/', ctrl_user_register),
 
     # just for test
     path('test', test_view),
 
     # Our views
-    path(''          , main_view),
+    path('', ctrl_home),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

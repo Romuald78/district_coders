@@ -12,7 +12,7 @@ from district.models.language import Language
 from website.settings import MEDIA_ROOT, MEDIA_URL
 
 
-def main_view(request):
+def ctrl_home(request):
     # Get parameters from request (e.g. : form field values)
     # either with the GET method or the POST method
     # print(request.GET)
@@ -23,22 +23,21 @@ def main_view(request):
     context = {}
 
     # Load view template
-    template = loader.get_template('district/base.html')
+    template = loader.get_template('district/content/home.html')
 
     # Create context dictionary
     # Use any needed models for that
-    context["page_title"] = "District Coders"
-    context["title"] = "List of handled programming languages"
-    context["languages"] = Language.objects.all().order_by('name')
-    context["MEDIA_URL"] = MEDIA_URL
+    #context["page_title"] = "Home"
 
     # Get variable from session (with default value)
-    nb_visits = request.session.get('nb_visits', 0)
-    request.session['nb_visits'] = nb_visits + 1
-    context['nb_visits'] = nb_visits
+    #nb_visits = request.session.get('nb_visits', 0)
+    #request.session['nb_visits'] = nb_visits + 1
+    #context['nb_visits'] = nb_visits
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
+
+
 
 
 def test_view(request):

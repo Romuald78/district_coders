@@ -1,7 +1,7 @@
 function send_register_key() {
     var formElement = document.getElementById("register_form");
     const data = new URLSearchParams(new FormData(formElement));
-    fetch('./register', {
+    fetch('/accounts/register/', {
         method: 'post',
         body: data,
     })

@@ -1,23 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>{{ page_title }}</title>
+    <title>District Coders | {{ title }}</title>
     {% load static %}
     <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
     <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
     <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
+    <script type="text/javascript" src={% static 'js/send_register_key.js' %}></script>
 </head>
-
-<body>
-    {%  include "district/header.html" %}
-    <div class="page">
-        <div>
-            {%  include "district/languages.html" %}
-        </div>
-        {%  include "district/footer.html" %}
-    </div>
-</body>
-
-</html>
