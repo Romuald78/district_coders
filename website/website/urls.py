@@ -30,8 +30,13 @@ urlpatterns = [
     path('admin/'    , admin.site.urls),
 
     # Authent views
-    # TODO (register/signup)
     path("accounts/", include("django.contrib.auth.urls")),
+    # Let a user join a group
+    path('accounts/signup/', ctrl_user_signup),
+    # The user profile View
+    path('accounts/profile/', ctrl_user_profile),
+    # Let a user join a group
+    path('accounts/register/', ctrl_user_register),
 
     # current assessments View
     path('assessment/current/', ctrl_current_asse),
@@ -49,16 +54,9 @@ urlpatterns = [
     # Verify an exercise
     path('exercise/inspect/', ctrl_json_exercise_inspect),
 
-    # Let a user join a group
-    path('accounts/signup/', ctrl_user_signup),
-    # The user profile View
-    path('accounts/profile/', ctrl_user_profile),
-    # Let a user join a group
-    path('accounts/register/', ctrl_user_register),
-
     # just for test
     path('test', test_view),
 
-    # Our views
+    # HOME
     path('', ctrl_home),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

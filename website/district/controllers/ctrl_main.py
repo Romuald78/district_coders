@@ -6,36 +6,20 @@ from django.template import loader
 
 from classes.exercise_generation.exercise_inspector import ExerciseInspector
 from classes.utils.ansi_to_html import ansi_to_html
-from district.models.language import Language
 
-# Create your views here.
-from website.settings import MEDIA_ROOT, MEDIA_URL
-
+from website.settings import MEDIA_ROOT
+from django.shortcuts import redirect
 
 def ctrl_home(request):
-    # Get parameters from request (e.g. : form field values)
-    # either with the GET method or the POST method
-    # print(request.GET)
-    # print(request.POST)
 
-    # dictionary for initial data with
-    # field names as keys
-    context = {}
-
-    # Load view template
-    template = loader.get_template('district/content/home.html')
-
-    # Create context dictionary
-    # Use any needed models for that
-    #context["page_title"] = "Home"
-
-    # Get variable from session (with default value)
-    #nb_visits = request.session.get('nb_visits', 0)
-    #request.session['nb_visits'] = nb_visits + 1
-    #context['nb_visits'] = nb_visits
-
-    # Use context in the template and render response view
-    return HttpResponse(template.render(context, request))
+    if request.user.is_authenticated:
+        return redirect('/accounts/profile')
+    else:
+        # dictionary for initial data with
+        context = {}
+        # Load view template
+        template = loader.get_template('district/content/home.html')
+        return HttpResponse(template.render(context, request))
 
 
 
