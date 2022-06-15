@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% block page_header %}
+    {% include "district/common/head.html" with title=page_title %}
+{% endblock %}
+
+<body>
+
+    {%  include "district/common/header.html" %}
+    <div class="page">
+        <div class="page_container">
+            {%  block page_content %}
+            {% endblock %}
+        </div>
+        {%  include "district/common/footer.html" %}
+    </div>
+</body>
+
+</html>

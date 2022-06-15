@@ -1,49 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My profile</title>
-    {% load static %}
-    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
-    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
-    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
-    <script type="text/javascript" src={% static 'js/send_register_key.js' %}></script>
-</head>
-<body>
-    {%  include "district/header.html" %}
-    <div class="page">
-        <h1>Mon profil :</h1>
-        <ul>
-            <li>id: {{ user.id }}</li>
-            <li><img class="code_logo" src="{{ MEDIA_URL }}{{ user.icon }}"></li>
-            <li>description: {{ user.description }}</li>
-            <li>mes groupes
-                <ul>
-                    {% for key, value in groups.items %}
-                        <li>{{ value.group_obj.name }}</li>
-                        <li>membres :
-                            <ul>
-                                {% for user in value.group_users %}
-                                    <li>{{ user }}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </li>
-        </ul>
+{% extends "district/common/base.html" %}
 
+{% block page_header %}
+    {% with page_title="Profile" %}
+        {{ block.super }}
+    {% endwith %}
+{%  endblock %}
 
-        <form id="register_form" method="post">{% csrf_token %}
-            <label>Register key</label>
-            <input type="text" id="register_key" name="register_key">
-            <input type="hidden" id="user_id" name="user_id" value={{ user.id }}>
-            <input type="button" onclick="send_register_key()" value="Submit">
-        </form>
+<!-- ----------------------------------- --->
+{% block page_content %}
+<!-- ----------------------------------- --->
+    <h1>Mon profil :</h1>
+    <ul>
+        <li>id: {{ user.id }}</li>
+        <li><img class="code_logo" src="{{ MEDIA_URL }}{{ user.icon }}"></li>
+        <li>description: {{ user.description }}</li>
+        <li>mes groupes
+            <ul>
+                {% for key, value in groups.items %}
+                    <li>{{ value.group_obj.name }}</li>
+                    <li>membres :
+                        <ul>
+                            {% for user in value.group_users %}
+                                <li>{{ user }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
 
-        <a href={% url 'logout' %}>logout</a>
-
-        {%  include "district/footer.html" %}
-    </div>
-</body>
-</html>
+    <form id="register_form" method="post">{% csrf_token %}
+        <label>Register key</label>
+        <input type="text" id="register_key" name="register_key">
+        <input type="hidden" id="user_id" name="user_id" value={{ user.id }}>
+        <input type="button" onclick="send_register_key()" value="Submit">
+    </form>
+<!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->

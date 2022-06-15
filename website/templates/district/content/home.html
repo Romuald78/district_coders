@@ -1,7 +1,7 @@
 {% extends "district/common/base.html" %}
 
 {% block page_header %}
-    {% with page_title="Log in" %}
+    {% with page_title="Home" %}
         {{ block.super }}
     {% endwith %}
 {%  endblock %}
@@ -9,11 +9,7 @@
 <!-- ----------------------------------- --->
 {% block page_content %}
 <!-- ----------------------------------- --->
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="button-dc" type="submit">Sign in</button>
-    </form>
+    HOME
 <!-- ----------------------------------- --->
 {% endblock %}
 <!-- ----------------------------------- --->

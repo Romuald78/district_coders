@@ -9,7 +9,7 @@
     <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
 </head>
 <body>
-    {%  include "district/header.html" %}
+    {%  include "district/common/header.html" %}
     <div class="page">
         <h3>Assessment : {{ assessment.start_time }}-{{ assessment.end_time }}</h3>
         <ul>
@@ -37,7 +37,7 @@
                 </li>
             {% endfor %}
         </ul>
-        {%  include "district/footer.html" %}
+        {%  include "district/common/footer.html" %}
     </div>
 </body>
 </html>
