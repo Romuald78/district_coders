@@ -12,21 +12,21 @@
 <body>
     {%  include "district/header.html" %}
     <div class="page">
-        {% for ex in wording %}
         <div class="wording">
             <ul>
-                <li>{{ ex.title }}</li>
-                <li>{{ ex.description }}</li>
-                <li>{{ ex.gen_file }}</li>
-                <li>{{ ex.icon }}</li>
-                <li>{{ ex.insp_mode_id }}</li>
+                <li>id: {{ wording.id }}</li>
+                <li>title: {{ wording.title }}</li>
+                <li>desc: {{ wording.description }}</li>
+                <li>gen_file: {{ wording.gen_file }}</li>
+                <li>icon: {{ wording.icon }}</li>
+                <li>mode: {{ wording.insp_mode_id }}</li>
             </ul>
         </div>
 
         <div class="ide">
             <form id="user_form" method="post">{% csrf_token %}
                 <textarea class="code" id="raw_code" name="raw_code" rows="5" cols="33">#do it by yourself</textarea>
-                <input id="ex_id" name="ex_id" type="hidden" value={{ ex.id }}>
+                <input id="ex_id" name="ex_id" type="hidden" value={{ wording.id }}>
                 <input id="lang_id" name="lang_id" type="hidden" value=1>
                 <input type="button" onclick="send_user_code()" value="Submit">
             </form>
@@ -35,7 +35,6 @@
         <pre>
             <div class="code" id="console_view" style="background-color: white"></div>
         </pre>
-        {% endfor %}
         {%  include "district/footer.html" %}
     </div>
 

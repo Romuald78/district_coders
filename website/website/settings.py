@@ -142,9 +142,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # python3 manage.py clearsessions command MUST be used on a regular (daily) basis
 # in order to clean the session table
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_EXPIRE_SECONDS = 10*60              # in seconds
-SESSION_COOKIE_AGE = 10*60                  # in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_EXPIRE_SECONDS = 60*60              # in seconds
+SESSION_COOKIE_AGE = 60*60                  # in seconds
 
 # AUTHENTICATION
 LOGIN_URL = "/accounts/login"
