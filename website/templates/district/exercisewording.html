@@ -13,13 +13,16 @@
     <div class="page">
         <div class="wording">
             <ul>
-                {% for i in wording %}
-                    <li>{{ i.title }}</li>
-                    <li>{{ i.description }}</li>
-                    <li>{{ i.gen_file }}</li>
-                    <li>{{ i.icon }}</li>
-                    <li>{{ i.insp_mode_id }}</li>
-                {% endfor %}
+                <li>
+                    id: {{ wording.id }}
+                    <ul>
+                        <li>title: {{ wording.title }}</li>
+                        <li>desc: {{ wording.description }}</li>
+                        <li>gen_file: {{ wording.gen_file }}</li>
+                        <li>icon: {{ wording.icon }}</li>
+                        <li>mode: {{ wording.insp_mode_id }}</li>
+                    </ul>
+                </li>
             </ul>
         </div>
 

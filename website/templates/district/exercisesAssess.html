@@ -11,9 +11,15 @@
 <body>
     {%  include "district/common/header.html" %}
     <div class="page">
+        <h3>Assessment : {{ assessment.start_time }}-{{ assessment.end_time }}</h3>
         <ul>
             {% for key, value in exercises.items %}
                 <li>
+                {% if value.is_available %}
+                    <span style="color: green">Available</span>
+                {% else %}
+                    <span style="color: red">Not available</span>
+                {% endif %}
                     <ul>
                         <li>ex id :{{ value.ex_obj.id }}</li>
                         <li>title :{{ value.ex_obj.title }}</li>
