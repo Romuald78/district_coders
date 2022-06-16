@@ -3,7 +3,9 @@ import os
 
 from django.db import migrations
 
+from district.models.inspector_mode import InspectorMode
 from district.models.language import Language
+from toolbox.migration_tools.migration_inspect_mode import migrate_inspect_mode
 from toolbox.migration_tools.migration_language import migrate_langs
 
 
@@ -28,6 +30,21 @@ def data_migration(apps, schema_editor):
         obj.save()
         # print
         print(f"    > Language '{name}' added !")
+    # create default inspector modes
+    for mode in migrate_inspect_mode:
+        # prepare table field values
+        name  = mode["name"]
+        file  = os.path.join("icons", "modes", f"{name}.png")
+        # Create language object
+        obj = InspectorMode()
+        # Set fields
+        obj.name = name
+        obj.icon = file
+        # Save it to DB
+        obj.save()
+        # print
+        print(f"    > Mode '{name}' added !")
+
 
 class Migration(migrations.Migration):
 

@@ -21,18 +21,26 @@ default C# code
 
 #----------------------------------------------
 defaultJS = """
-default JS code 
+console.log("answer);
 """
 
 #----------------------------------------------
 defaultPHP = """
-default PHP code 
+<?php
+    echo("answer");
+?>
 """
 
 #----------------------------------------------
 defaultPython = """
-default Python code 
+print("answer")
 """
+
+#----------------------------------------------
+defaultJava = """
+default Java code 
+"""
+
 
 #----------------------------------------------
 migrate_langs = [{
@@ -49,6 +57,11 @@ migrate_langs = [{
             "name" :"C#",
             "value":"csharp",
             "code" :defaultCSharp
+         },
+         {
+            "name" :"Java",
+            "value":"java",
+            "code" :defaultJava
          },
          {
             "name" :"JS",
