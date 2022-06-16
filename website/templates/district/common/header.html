@@ -9,7 +9,8 @@
     </span>
     <span class="connect_buttons">
         {% if user.is_authenticated %}
-            <span>|{{ user.get_username }}| </span><span><button onclick="location.href='/accounts/logout';" class="button-dc"><div>LOG OUT</div></button>
+            <span><a href="/accounts/profile">|{{ user.get_username }}| </a></span>
+            <span><button onclick="location.href='/accounts/logout';" class="button-dc"><div>LOG OUT</div></button>
         {% else %}
             <button onclick="location.href='/accounts/login';" class="button-dc"><div>LOG IN</div></button>
             <button onclick="location.href='/accounts/signup';" class="button-dc"><div>SIGN UP</div></button>

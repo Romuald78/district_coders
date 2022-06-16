@@ -1,17 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Solve the problem</title>
-    {% load static %}
-    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
-    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
-    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
-    <script type="text/javascript" src={% static 'js/send_user_code.js' %}></script>
-</head>
-<body>
-    {%  include "district/common/header.html" %}
-    <div class="page">
+{% extends "district/common/base.html" %}
+
+{% block page_header %}
+    {% with page_title="Let's code" %}
+        {{ block.super }}
+    {% endwith %}
+{%  endblock %}
+
+<!-- ----------------------------------- --->
+{% block page_content %}
+<!-- ----------------------------------- --->
         <div class="wording">
             <ul>
                 <li>id: {{ wording.id }}</li>
@@ -35,11 +32,10 @@
         <pre>
             <div class="code" id="console_view" style="background-color: white"></div>
         </pre>
-        {%  include "district/common/footer.html" %}
-    </div>
 
     <link rel="stylesheet"
       href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/styles/default.min.css">
     <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
-</body>
-</html>
+<!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->
