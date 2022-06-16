@@ -4,9 +4,9 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
 
-from classes.exercise_generation.exercise_inspector import ExerciseInspector
-from classes.utils.ansi_to_html import ansi_to_html
-from classes.utils.assessment import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse
+from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
+from toolbox.utils.ansi_to_html import ansi_to_html
+from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse
 
 from website.settings import MEDIA_ROOT
 from django.shortcuts import redirect
@@ -19,9 +19,9 @@ def ctrl_home(request):
         # Load view template
         template = loader.get_template('district/content/user_home.html')
         # Retrieve all assessments data
-        context["training"]   = ctrl_past_asse(request)
-        context["inprogress"] = ctrl_current_asse(request)
-        context["future"]     = ctrl_future_asse(request)
+        context["training"]   = get_past_asse(request)
+        context["inprogress"] = get_current_asse(request)
+        context["future"]     = get_future_asse(request)
         # render home page
         return HttpResponse(template.render(context, request))
 

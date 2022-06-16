@@ -3,7 +3,7 @@ import subprocess
 import urllib.parse
 from random import randint
 
-from classes.constants import INSPECTOR_MODE_STDIO
+from toolbox.constants import INSPECTOR_MODE_STDIO
 from district.models.exercise import Exercise
 from district.models.language import Language
 import importlib
@@ -18,7 +18,7 @@ class ExerciseInspector():
         self.raw_code = raw_code
         self.ex_id = ex_id
         self.language = Language.objects.get(id=lang_id)
-        module = importlib.import_module("classes.exercise_generation.language_program")
+        module = importlib.import_module("toolbox.exercise_generation.language_program")
         class_ = getattr(module, self.language.language_program)
         self.program = class_(raw_code, user_id)
 

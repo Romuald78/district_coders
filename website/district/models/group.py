@@ -1,6 +1,6 @@
 from django.db import models
 
-from classes.utils.utils import getIconTag
+from toolbox.utils.utils import getIconTag
 
 
 class GroupDC(models.Model):

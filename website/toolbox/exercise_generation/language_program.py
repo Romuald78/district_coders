@@ -1,6 +1,6 @@
 import subprocess
 
-from classes.exercise_generation.user_program import UserProgram
+from toolbox.exercise_generation.user_program import UserProgram
 from website.settings import MEDIA_ROOT
 
 import os

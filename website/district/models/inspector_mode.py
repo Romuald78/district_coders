@@ -2,7 +2,7 @@ import os
 
 from django.db import models
 
-from classes.utils.utils import getIconTag, upload_imagefield_to, OverwriteStorage
+from toolbox.utils.utils import getIconTag, upload_imagefield_to, OverwriteStorage
 
 
 class InspectorMode(models.Model):

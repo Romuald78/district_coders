@@ -5,9 +5,8 @@ from district.models.assessment import Assessment
 from website.settings import LOGIN_URL
 
 
-
 # retrieve all the current assessments
-def ctrl_current_asse(request):
+def get_current_asse(request):
     # get current user
     curr_user = request.user
 
@@ -20,9 +19,8 @@ def ctrl_current_asse(request):
     return in_progress
 
 
-
 # retrieve all the past assessments
-def ctrl_past_asse(request):
+def get_past_asse(request):
     # get current user
     curr_user = request.user
 
@@ -34,8 +32,9 @@ def ctrl_past_asse(request):
 
     return training
 
+
 # retrieve all the future assessments
-def ctrl_future_asse(request):
+def get_future_asse(request):
     # get current user
     curr_user = request.user
 

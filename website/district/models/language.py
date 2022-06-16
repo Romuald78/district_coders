@@ -5,7 +5,7 @@ from django.db import models
 
 
 # Create your own models here.
-from classes.utils.utils import getIconTag, upload_imagefield_to, OverwriteStorage
+from toolbox.utils.utils import getIconTag, upload_imagefield_to, OverwriteStorage
 
 
 class Language(models.Model):

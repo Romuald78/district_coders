@@ -9,8 +9,6 @@ from district.models.assessment import Assessment
 from website.settings import LOGIN_URL
 
 
-
-
 # display the list of exercises in an assessment
 @login_required(login_url=LOGIN_URL)
 def ctrl_asse_details(request, id_asse):

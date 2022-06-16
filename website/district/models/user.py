@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from classes.utils.utils import getIconTag
+from toolbox.utils.utils import getIconTag
 from district.models.group import GroupDC
 
 

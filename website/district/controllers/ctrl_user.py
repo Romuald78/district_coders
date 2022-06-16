@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template import loader
 
-from classes.users.signup import SignupForm
+from toolbox.users.signup import SignupForm
 from district.models.group import GroupDC
 from district.models.user import UserDC
 from website.settings import LOGIN_URL
