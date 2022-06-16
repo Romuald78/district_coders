@@ -137,7 +137,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # by using : request.session.modified = True
 # DO we have to use it ? what impact in terms of performance ?
 ###SESSION_SAVE_EVERY_REQUEST = True
-
 # SESSIONS
 # python3 manage.py clearsessions command MUST be used on a regular (daily) basis
 # in order to clean the session table

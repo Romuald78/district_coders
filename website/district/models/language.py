@@ -12,8 +12,8 @@ class Language(models.Model):
     name = models.CharField(max_length=32, unique=True)
     # TODO : add width and height values to ImageField ?
     icon = models.ImageField(blank=True, upload_to=upload_imagefield_to) #, storage=OverwriteStorage)
-    default_code = models.TextField()   ## TODO FileField ?
-    language_program = models.CharField(max_length=64, unique=True, default="")
+    default_code = models.TextField(blank=True)
+    language_program = models.CharField(max_length=64, unique=True, default="None")
 
     def get_upload_to_path(self):
         return os.path.join("icons","languages")
