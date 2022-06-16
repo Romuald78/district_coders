@@ -6,6 +6,7 @@ from django.template import loader
 
 from classes.exercise_generation.exercise_inspector import ExerciseInspector
 from classes.utils.ansi_to_html import ansi_to_html
+from classes.utils.assessment import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse
 
 from website.settings import MEDIA_ROOT
 from django.shortcuts import redirect
@@ -13,12 +14,23 @@ from django.shortcuts import redirect
 def ctrl_home(request):
 
     if request.user.is_authenticated:
-        return redirect('/accounts/profile')
+        # dictionary for initial data with
+        context = {}
+        # Load view template
+        template = loader.get_template('district/content/user_home.html')
+        # Retrieve all assessments data
+        context["training"]   = ctrl_past_asse(request)
+        context["inprogress"] = ctrl_current_asse(request)
+        context["future"]     = ctrl_future_asse(request)
+        # render home page
+        return HttpResponse(template.render(context, request))
+
     else:
         # dictionary for initial data with
         context = {}
         # Load view template
         template = loader.get_template('district/content/home.html')
+        # render home page
         return HttpResponse(template.render(context, request))
 
 

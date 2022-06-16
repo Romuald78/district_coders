@@ -1,39 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Assessement</title>
-    {% load static %}
-    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
-    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
-    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
-</head>
-<body>
-    {%  include "district/common/header.html" %}
-    <div class="page">
-        <ul>
-            {% for i in assessments %}
+<ul>
+    {% for i in assessments %}
+        <li>
+            <ul>
+                <li>id :{{ i.id }}</li>
+                <li>start time :{{ i.start_time }}</li>
+                <li>end time :{{ i.end_time }}</li>
+                <li>training time :{{ i.training_time }}</li>
+                <li>result json :{{ i.result_json }}</li>
+                <li>test :{{ i.test_id }}</li>
                 <li>
+                    groups :
                     <ul>
-                        <li>id :{{ i.id }}</li>
-                        <li>start time :{{ i.start_time }}</li>
-                        <li>end time :{{ i.end_time }}</li>
-                        <li>training time :{{ i.training_time }}</li>
-                        <li>result json :{{ i.result_json }}</li>
-                        <li>test :{{ i.test_id }}</li>
-                        <li>
-                            groups :
-                            <ul>
-                            {% for k in i.groups.all %}
-                                    <li>{{ k.name }}</li>
-                            {% endfor %}
-                            </ul>
-                        </li>
+                    {% for k in i.groups.all %}
+                            <li>{{ k.name }}</li>
+                    {% endfor %}
                     </ul>
                 </li>
-            {% endfor %}
-        </ul>
-        {%  include "district/common/footer.html" %}
-    </div>
-</body>
-</html>
+            </ul>
+        </li>
+    {% endfor %}
+</ul>

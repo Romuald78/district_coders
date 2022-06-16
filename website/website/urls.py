@@ -20,7 +20,8 @@ from django.urls import path, include
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_register, ctrl_user_signup
 from district.controllers.ctrl_main import ctrl_home, test_view
-from district.controllers.ctrl_assessment import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse, ctrl_asse_details
+from district.controllers.ctrl_assessment import ctrl_asse_details
+from classes.utils.assessment import ctrl_current_asse, ctrl_past_asse, ctrl_future_asse
 from website import settings
 
 urlpatterns = [
@@ -38,12 +39,6 @@ urlpatterns = [
     # Let a user join a group
     path('accounts/register/', ctrl_user_register),
 
-    # current assessments View
-    path('assessment/current/', ctrl_current_asse),
-    # future assessments View
-    path('assessment/future/', ctrl_future_asse),
-    # past assessments View
-    path('assessment/past/', ctrl_past_asse),
     # The list of exercises of an assessment View
     path('assessment/details/<int:id_asse>', ctrl_asse_details),
 

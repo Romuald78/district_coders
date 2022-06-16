@@ -1,0 +1,26 @@
+{% extends "district/common/base.html" %}
+
+{% block page_header %}
+    {% with page_title="Home" %}
+        {{ block.super }}
+    {% endwith %}
+{%  endblock %}
+
+<!-- ----------------------------------- --->
+{% block page_content %}
+<!-- ----------------------------------- --->
+    <h1>FUTURE</h1>
+    {% with assessments=future %}
+        {% include "district/assessment.html" %}
+    {% endwith %}
+    <h1>IN PROGRESS</h1>
+    {% with assessments=inprogress %}
+        {% include "district/assessment.html" %}
+    {% endwith %}
+    <h1>TRAINING</h1>
+    {% with assessments=training %}
+        {% include "district/assessment.html" %}
+    {% endwith %}
+<!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->
