@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
-from toolbox.utils.exercise import get_exercise
+from toolbox.utils.exercise import get_exercise_details, get_exercise_write
 
 from website.settings import LOGIN_URL
 
@@ -18,7 +18,7 @@ def ctrl_exercise_details(request):
     # get parameters
     ex_id = request.GET.get('ex', 0)
 
-    response = get_exercise(curr_user, ex_id)
+    response = get_exercise_details(curr_user, ex_id)
     if response["exit_code"] == 4:
         return HttpResponse("Please enter a valid number of exercise")
     elif response["exit_code"] == 3:
@@ -42,7 +42,7 @@ def ctrl_exercise_write(request):
     # get parameters
     ex_id = request.GET.get('ex', 0)
 
-    response = get_exercise(curr_user, ex_id)
+    response = get_exercise_write(curr_user, ex_id)
     if response["exit_code"] == 4:
         return HttpResponse("Please enter a valid number of exercise")
     elif response["exit_code"] == 3:

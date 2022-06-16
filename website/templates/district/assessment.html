@@ -2,21 +2,24 @@
     {% for i in assessments %}
         <li>
             <ul>
-                <li>id :{{ i.id }}</li>
-                <li>start time :{{ i.start_time }}</li>
-                <li>end time :{{ i.end_time }}</li>
-                <li>training time :{{ i.training_time }}</li>
-                <li>result json :{{ i.result_json }}</li>
-                <li>test :{{ i.test_id }}</li>
+                <li>id :{{ i.assessment.id }}</li>
+                <li>start time :{{ i.assessment.start_time }}</li>
+                <li>end time :{{ i.assessment.end_time }}</li>
+                <li>training time :{{ i.assessment.training_time }}</li>
+                <li>result json :{{ i.assessment.result_json }}</li>
+                <li>test :{{ i.assessment.test_id }}</li>
                 <li>
                     groups :
                     <ul>
-                    {% for k in i.groups.all %}
+                    {% for k in i.assessment.groups.all %}
                             <li>{{ k.name }}</li>
                     {% endfor %}
                     </ul>
                 </li>
             </ul>
+        {% if i.is_available %}
+            <button onclick="location.href='/assessment/details/{{ i.assessment.id }}';">details</button>
+        {% endif %}
         </li>
     {% endfor %}
 </ul>

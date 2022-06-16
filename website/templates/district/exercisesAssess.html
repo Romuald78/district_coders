@@ -1,43 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>List of exercises of an assessment</title>
-    {% load static %}
-    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
-    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
-    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
-</head>
-<body>
-    {%  include "district/common/header.html" %}
-    <div class="page">
-        <h3>Assessment : {{ assessment.start_time }}-{{ assessment.end_time }}</h3>
-        <ul>
-            {% for key, value in exercises.items %}
-                <li>
+{% extends "district/common/base.html" %}
+
+{% block page_header %}
+    {% with page_title="Assessment details" %}
+        {{ block.super }}
+    {% endwith %}
+{%  endblock %}
+
+<!-- ----------------------------------- --->
+{% block page_content %}
+<!-- ----------------------------------- --->
+    <h3>Assessment : {{ assessment.start_time }}-{{ assessment.end_time }}</h3>
+    <ul>
+        {% for key, value in exercises.items %}
+            <li>
+                <ul>
+                    <li>ex id :{{ value.ex_obj.id }}</li>
+                    <li>title :{{ value.ex_obj.title }}</li>
+                    <li>description :{{ value.ex_obj.description }}</li>
+                    <li>gen file :{{ value.ex_obj.gen_file }}</li>
+                    <li>icon :{{ value.ex_obj.icon }}</li>
+                    <li>gen type :{{ value.ex_obj.insp_mode_id }}</li>
+                    <li>languages :
+                        {% for lang in value.lang_objs %}
+                            <img class="code_logo" src="{{ MEDIA_URL }}{{ lang.icon }}">
+                        {% endfor %}
+                    </li>
+                </ul>
                 {% if value.is_available %}
-                    <span style="color: green">Available</span>
+                    <button onclick="location.href='/exercise/details?ex={{ value.ex_obj.id }}';">Check it out</button>
                 {% else %}
                     <span style="color: red">Not available</span>
                 {% endif %}
-                    <ul>
-                        <li>ex id :{{ value.ex_obj.id }}</li>
-                        <li>title :{{ value.ex_obj.title }}</li>
-                        <li>description :{{ value.ex_obj.description }}</li>
-                        <li>gen file :{{ value.ex_obj.gen_file }}</li>
-                        <li>icon :{{ value.ex_obj.icon }}</li>
-                        <li>gen type :{{ value.ex_obj.insp_mode_id }}</li>
-                        <li>languages :
-                            {% for lang in value.lang_objs %}
-                                <img class="code_logo" src="{{ MEDIA_URL }}{{ lang.icon }}">
-                            {% endfor %}
-                        </li>
-
-                    </ul>
-                </li>
-            {% endfor %}
-        </ul>
-        {%  include "district/common/footer.html" %}
-    </div>
-</body>
-</html>
+            </li>
+        {% endfor %}
+    </ul>
+<!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->

@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
-from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_register, ctrl_user_signup
+from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup
+from toolbox.utils.user import ctrl_user_register
 from district.controllers.ctrl_main import ctrl_home, test_view
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse
