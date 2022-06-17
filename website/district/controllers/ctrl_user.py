@@ -6,7 +6,7 @@ from django.template import loader
 
 from toolbox.users.signup import SignupForm
 from district.models.group import GroupDC
-from website.settings import LOGIN_URL
+from website.settings import LOGIN_URL, DEFAULT_GROUP_KEY
 
 
 @login_required(login_url=LOGIN_URL)
@@ -34,9 +34,13 @@ def ctrl_user_profile(request):
     return HttpResponse(template.render(context, request))
 
 
+# No login required to sign up (indeed)
 def ctrl_user_signup(request):
     form = SignupForm(request.POST, request.FILES)
-    if form.is_valid():
+    # Get default group
+    groups = GroupDC.objects.filter(register_key=DEFAULT_GROUP_KEY)
+
+    if form.is_valid() and groups.exists():
         # retrieve form data
         user = form.save()
         user.refresh_from_db()
@@ -45,6 +49,7 @@ def ctrl_user_signup(request):
         user.email = form.cleaned_data.get('email')
         user.icon = form.cleaned_data.get('icon')
         user.description = form.cleaned_data.get('description')
+        user.groups.add(groups.first())
         user.save()
         # login after signup
         username = form.cleaned_data.get('username')
