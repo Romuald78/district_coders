@@ -26,8 +26,13 @@
                         {% endfor %}
                     </li>
                 </ul>
-                {% if value.is_available %}
-                    <button onclick="location.href='/exercise/details?ex={{ value.ex_obj.id }}';">Check it out</button>
+                {% if value.is_triable %}
+
+                    {% if value.is_redirected %}
+                        This exercise is available in another assessment
+                    {% endif %}
+                    <button onclick="location.href='/exercise/details?extest={{ value.ex_obj.id }}&asse={{ value.asse_id }}';">Check it out</button>
+
                 {% else %}
                     <span style="color: red">Not available</span>
                 {% endif %}

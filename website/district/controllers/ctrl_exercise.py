@@ -17,8 +17,9 @@ def ctrl_exercise_details(request):
     curr_user = request.user
     # get parameters
     ex_id = request.GET.get('ex', 0)
+    asse_id = request.GET.get('ex', 0)
 
-    response = get_exercise_details(curr_user, ex_id)
+    response = get_exercise_details(curr_user, ex_id, asse_id)
     if response["exit_code"] == 4:
         return HttpResponse("Please enter a valid number of exercise")
     elif response["exit_code"] == 3:
@@ -29,7 +30,7 @@ def ctrl_exercise_details(request):
     # Load view template
     template = loader.get_template('district/exercisewording.html')
     # get current assessment
-    context["wording"] = response["wording"]
+    context["wording"] = response["ex_obj"]
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -41,8 +42,9 @@ def ctrl_exercise_write(request):
     curr_user = request.user
     # get parameters
     ex_id = request.GET.get('ex', 0)
+    asse_id = request.GET.get('ex', 0)
 
-    response = get_exercise_write(curr_user, ex_id)
+    response = get_exercise_write(curr_user, ex_id, asse_id)
     if response["exit_code"] == 4:
         return HttpResponse("Please enter a valid number of exercise")
     elif response["exit_code"] == 3:
