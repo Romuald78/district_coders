@@ -3,47 +3,9 @@ import os
 
 from django.db import migrations
 
-from district.models.inspector_mode import InspectorMode
-from district.models.language import Language
-from toolbox.migration_tools.migration_inspect_mode import migrate_inspect_mode
-from toolbox.migration_tools.migration_language import migrate_langs
-
-
-# Add function that will create initial data into the database
-def data_migration(apps, schema_editor):
-    # Create default languages
-    print()
-    for lang in migrate_langs:
-        # prepare table field values
-        name  = lang["name"]
-        value = lang["value"]
-        file  = os.path.join("icons", "languages", f"logo_{value}.png")
-        prog  = f"{value.upper()}Program"
-        # Create language object
-        obj = Language()
-        # Set fields
-        obj.name = name
-        obj.icon = file
-        obj.default_code = lang["code"]
-        obj.language_program = prog
-        # Save it to DB
-        obj.save()
-        # print
-        print(f"    > Language '{name}' added !")
-    # create default inspector modes
-    for mode in migrate_inspect_mode:
-        # prepare table field values
-        name  = mode["name"]
-        file  = os.path.join("icons", "modes", f"{name}.png")
-        # Create language object
-        obj = InspectorMode()
-        # Set fields
-        obj.name = name
-        obj.icon = file
-        # Save it to DB
-        obj.save()
-        # print
-        print(f"    > Mode '{name}' added !")
+from toolbox.migration_tools.migration_group import group_migration
+from toolbox.migration_tools.migration_inspect_mode import mode_migration
+from toolbox.migration_tools.migration_language import language_migration
 
 
 class Migration(migrations.Migration):
@@ -53,5 +15,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(data_migration),
+        migrations.RunPython(language_migration),
+        migrations.RunPython(mode_migration),
+        migrations.RunPython(group_migration),
     ]

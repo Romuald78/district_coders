@@ -1,5 +1,9 @@
 
 #----------------------------------------------
+import os
+
+from district.models.language import Language
+
 defaultC = """
 #include <stdio.h>
 
@@ -79,3 +83,25 @@ migrate_langs = [{
             "code" :defaultPython
          }
     ]
+
+def language_migration(apps, schema_editor):
+    # Create default languages
+    print()
+    print("  [DATA MIGRATION][LANGUAGES]")
+    for lang in migrate_langs:
+        # prepare table field values
+        name  = lang["name"]
+        value = lang["value"]
+        file  = os.path.join("icons", "languages", f"logo_{value}.png")
+        prog  = f"{value.upper()}Program"
+        # Create language object
+        obj = Language()
+        # Set fields
+        obj.name = name
+        obj.icon = file
+        obj.default_code = lang["code"]
+        obj.language_program = prog
+        # Save it to DB
+        obj.save()
+        # print
+        print(f"    > Language [{obj.id}]:'{name}' added !")
