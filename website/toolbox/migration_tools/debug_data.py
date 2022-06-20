@@ -235,7 +235,8 @@ def createUSers():
         obj.save()
         # Add this user to all the groups in the list
         for grp in grp_list:
-            grp = GroupDC.objects.all().filter(id=grp).first()
+            search_id = int(grp)+1
+            grp = GroupDC.objects.all().filter(id=search_id).first()
             obj.groups.add(grp)
         print(f"    > User [{obj.id}]:'{obj.username}' added !")
 
