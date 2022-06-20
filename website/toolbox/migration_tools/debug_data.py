@@ -230,8 +230,8 @@ def createUSers():
         obj.is_superuser = False
         obj.is_staff = False
         obj.is_active = True
-        obj.set_password(name)
-        obj.email = f"pass_{grp_list}"
+        obj.set_password(f"pass_{grp_list}")
+        obj.email = f"{name}@dummy.com"
         obj.save()
         # Add this user to all the groups in the list
         for grp in grp_list:
