@@ -11,15 +11,15 @@
 <!-- ----------------------------------- --->
     <h3>Assessment : {{ assessment.start_time }}-{{ assessment.end_time }}</h3>
     <ul>
-        {% for key, value in exercises.items %}
+        {% for key, value in exo2tests.items %}
             <li>
                 <ul>
-                    <li>ex id :{{ value.ex_obj.id }}</li>
-                    <li>title :{{ value.ex_obj.title }}</li>
-                    <li>description :{{ value.ex_obj.description }}</li>
-                    <li>gen file :{{ value.ex_obj.gen_file }}</li>
-                    <li>icon :{{ value.ex_obj.icon }}</li>
-                    <li>gen type :{{ value.ex_obj.insp_mode_id }}</li>
+                    <li>ex id :{{ value.ex2tst_obj.exercise_id.id }}</li>
+                    <li>title :{{ value.ex2tst_obj.exercise_id.title }}</li>
+                    <li>description :{{ value.ex2tst_obj.exercise_id.description }}</li>
+                    <li>gen file :{{ value.ex2tst_obj.exercise_id.gen_file }}</li>
+                    <li>icon :{{ value.ex2tst_obj.exercise_id.icon }}</li>
+                    <li>gen type :{{ value.ex2tst_obj.exercise_id.insp_mode_id }}</li>
                     <li>languages :
                         {% for lang in value.lang_objs %}
                             <img class="code_logo" src="{{ MEDIA_URL }}{{ lang.icon }}">
@@ -31,7 +31,7 @@
                     {% if value.is_redirected %}
                         This exercise is available in another assessment
                     {% endif %}
-                    <button onclick="location.href='/exercise/details?extest={{ value.ex_obj.id }}&asse={{ value.asse_id }}';">Check it out</button>
+                    <button onclick="location.href='/exercise/details?extest={{ value.ex2tst_obj.id }}&asse={{ value.asse_id }}';">Check it out</button>
 
                 {% else %}
                     <span style="color: red">Not available</span>

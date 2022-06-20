@@ -1,10 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.http import HttpResponse
 from django.template import loader
-from django.utils import timezone
 
-from district.models.assessment import Assessment
 from toolbox.utils.assessment import get_asse_exercises
 
 from website.settings import LOGIN_URL
@@ -14,7 +11,6 @@ from website.settings import LOGIN_URL
 @login_required(login_url=LOGIN_URL)
 def ctrl_asse_details(request, id_asse):
     result = get_asse_exercises(request, id_asse)
-    print(result)
     if result["exit_code"] != 0:
         return HttpResponse("Access denied")
 

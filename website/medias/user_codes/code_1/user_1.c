@@ -22,7 +22,7 @@ int main(){
         }
         if(i==8) break;
 */
-        printf("%d\n", -V);
+        printf("%d\n", V);
     }
     return 0;
 }

@@ -83,7 +83,7 @@ def get_asse_exercises(request, id_asse):
     context = {
         "exit_code": 0,
         "assessment": curr_asse.first(),
-        "exercises": Ex.is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test_id.exo2test_set.all())
+        "exo2tests": Ex.is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test_id.exo2test_set.all())
     }
 
     # Use context in the template and render response view

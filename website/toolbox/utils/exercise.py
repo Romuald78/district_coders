@@ -14,8 +14,8 @@ import toolbox.utils.assessment as Asse
 #   Assessment curr_asse
 #   QuerySet of Exercise exercises
 # return :
-#   dict exercises of ex_id->{
-#       Exercise ex_obj,
+#   dict of exo2test_id->{
+#       Exo2Test ex2tst_obj,
 #       bool is_triable,
 #       list of Language lang_objs,
 #       bool is_redirected,
@@ -42,12 +42,11 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     exos = {}
 
     for ex2test in all_exo2test:
-        ex = ex2test.exercise_id
-        exos[ex.id] = {"ex_obj": ex, "is_triable": True, "lang_objs": [], "is_redirected": False, "asse_id": curr_asse.id}
+        exos[ex2test.id] = {"ex2tst_obj": ex2test, "is_triable": True, "lang_objs": [], "is_redirected": False, "asse_id": curr_asse.id}
         # adding languages available
         for ex_tst_lng in ex2test.exotest2lang_set.all():
             lang = ex_tst_lng.lang_id
-            exos[ex.id]["lang_objs"].append(lang)
+            exos[ex2test.id]["lang_objs"].append(lang)
 
     # if assessment is not in process
     if not (curr_asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(curr_asse.end_time)):
@@ -61,29 +60,28 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
             # now, we set elements from exos
             for asse in all_other_asse:
                 for ex2test in asse.test_id.exo2test_set.all():
-                    ex = ex2test.exercise_id
-                    if ex.id in exos:
+                    if ex2test.id in exos:
                         # if the assessment is in process
                         if asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(asse.end_time):
-                            exos[ex.id]["asse_id"] = asse.id
-                            exos[ex.id]["is_redirected"] = True
-                        elif not exos[ex.id]["is_redirected"]:
-                            exos[ex.id]["is_triable"] = False
+                            exos[ex2test.id]["asse_id"] = asse.id
+                            exos[ex2test.id]["is_redirected"] = True
+                        elif not exos[ex2test.id]["is_redirected"]:
+                            exos[ex2test.id]["is_triable"] = False
         else:
             # now, we set elements from exos
             for asse in all_other_asse:
                 for ex2test in asse.test_id.exo2test_set.all():
                     ex = ex2test.exercise_id
-                    if ex.id in exos:
+                    if ex2test.id in exos:
                         # if the assessment is in progress
                         if asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(asse.end_time):
-                            exos[ex.id]["asse_id"] = asse.id
-                            exos[ex.id]["is_redirected"] = True
+                            exos[ex2test.id]["asse_id"] = asse.id
+                            exos[ex2test.id]["is_redirected"] = True
                         # if not redirected (to in process asse) and if assessment is past but not in training mode
-                        elif not exos[ex.id]["is_redirected"] and curr_asse.start_time.__lt__(timezone.now()) and curr_asse.end_time.__lt__(timezone.now()) and timezone.now().__lt__(curr_asse.training_time):
-                            exos[ex.id]["is_triable"] = False
-                            exos[ex.id]["asse_id"] = asse.id
-                            exos[ex.id]["is_redirected"] = True
+                        elif not exos[ex2test.id]["is_redirected"] and curr_asse.start_time.__lt__(timezone.now()) and curr_asse.end_time.__lt__(timezone.now()) and timezone.now().__lt__(curr_asse.training_time):
+                            exos[ex2test.id]["is_triable"] = False
+                            exos[ex2test.id]["asse_id"] = asse.id
+                            exos[ex2test.id]["is_redirected"] = True
 
     return exos
 
@@ -111,7 +109,7 @@ def get_exercise(curr_user, ex_id, asse_id):
 #   int exit_code:
 #       3 : Access denied
 #       [ exit code of exercise.get_exercise ]
-#   Exercise ex_obj}
+#   Exo2Test ex2tst_obj}
 def get_exercise_details(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
     ex_id = Exercise.objects.filter(exo2test=ex2test_id).first().id
@@ -127,7 +125,7 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test_id__assessment__groups__userdc=curr_user)
 
     exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
-    return {"exit_code": 0, "ex_obj": exos[ex_id]["ex_obj"]}
+    return {"exit_code": 0, "ex2tst_obj": exos[ex2test_id]["ex2tst_obj"]}
 
 
 # return a dict containing the wording of an exercise
@@ -135,7 +133,8 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
 #   int exit_code:
 #       3 : Access denied
 #       [ exit code of exercise.get_exercise ]
-#   Exercise ex_obj}
+#   Exo2Test ex2tst_obj
+#   List of Language lang_objs}
 def get_exercise_write(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
     ex_id = Exercise.objects.filter(exo2test=ex2test_id).first().id
@@ -151,7 +150,7 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test_id__assessment__groups__userdc=curr_user)
 
     exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
-    if exos[ex_id]["is_triable"]:
-        return {"exit_code": 0, "ex_obj": exos[ex_id]["ex_obj"]}
+    if exos[ex2test_id]["is_triable"]:
+        return {"exit_code": 0, "ex2tst_obj": exos[ex2test_id]["ex2tst_obj"], "lang_objs": exos[ex2test_id]["lang_objs"]}
     else:
         return {"exit_code": 3}

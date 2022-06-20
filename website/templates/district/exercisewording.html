@@ -14,18 +14,18 @@
         <div class="wording">
             <ul>
                 <li>
-                    id: {{ wording.id }}
+                    id: {{ ex2tst.exercise_id.id }}
                     <ul>
-                        <li>title: {{ wording.title }}</li>
-                        <li>desc: {{ wording.description }}</li>
-                        <li>gen_file: {{ wording.gen_file }}</li>
-                        <li>icon: {{ wording.icon }}</li>
-                        <li>mode: {{ wording.insp_mode_id }}</li>
+                        <li>title: {{ ex2tst.exercise_id.title }}</li>
+                        <li>desc: {{ ex2tst.exercise_id.description }}</li>
+                        <li>gen_file: {{ ex2tst.exercise_id.gen_file }}</li>
+                        <li>icon: {{ ex2tst.exercise_id.icon }}</li>
+                        <li>mode: {{ ex2tst.exercise_id.insp_mode_id }}</li>
                     </ul>
                 </li>
             </ul>
         </div>
-        <button onclick="location.href='/exercise/write?extest={{ wording.id }}&asse={{ asse_id }}';">Try</button>
+        <button onclick="location.href='/exercise/write?extest={{ ex2tst.id }}&asse={{ asse_id }}';">Try</button>
 
         {%  include "district/common/footer.html" %}
     </div>

@@ -16,8 +16,8 @@ def ctrl_exercise_details(request):
     # get the current user
     curr_user = request.user
     # get parameters
-    ex2tst_id = request.GET.get('extest', 0)
-    asse_id = request.GET.get('asse', 0)
+    ex2tst_id = int(request.GET.get('extest', 0))
+    asse_id = int(request.GET.get('asse', 0))
 
     response = get_exercise_details(curr_user, ex2tst_id, asse_id)
     if response["exit_code"] != 0:
@@ -33,7 +33,7 @@ def ctrl_exercise_details(request):
     # Load view template
     template = loader.get_template('district/exercisewording.html')
     # get current assessment
-    context["wording"] = response["ex_obj"]
+    context["ex2tst"] = response["ex2tst_obj"]
     context["asse_id"] = asse_id
 
     # Use context in the template and render response view
@@ -45,10 +45,10 @@ def ctrl_exercise_write(request):
     # get the current user
     curr_user = request.user
     # get parameters
-    ex_id = request.GET.get('extest', 0)
-    asse_id = request.GET.get('asse', 0)
+    ex2tst_id = int(request.GET.get('extest', 0))
+    asse_id = int(request.GET.get('asse', 0))
 
-    response = get_exercise_write(curr_user, ex_id, asse_id)
+    response = get_exercise_write(curr_user, ex2tst_id, asse_id)
     if response["exit_code"] != 0:
         if response["exit_code"] == 4:
             return HttpResponse("Please enter a valid number of exercise")
@@ -62,7 +62,9 @@ def ctrl_exercise_write(request):
     # Load view template
     template = loader.get_template('district/exercise_write.html')
     # get current assessment
-    context["wording"] = response["ex_obj"]
+    context["ex2tst"] = response["ex2tst_obj"]
+    context["languages"] = response["lang_objs"]
+    context["asse_id"] = asse_id
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -72,11 +74,32 @@ def ctrl_exercise_write(request):
 def ctrl_json_exercise_inspect(request):
     # get parameters
     user_id = request.user.id
-    ex_id = request.POST.get('ex_id', 0)
-    lang_id = request.POST.get('lang_id', 0)
+    ex2tst_id = int(request.POST.get('ex2tst_id', 0))
+    lang_id = int(request.POST.get('lang_id', 0))
     user_code = request.POST.get('raw_code', "")
+    asse_id = int(request.POST.get("asse_id", 0))
 
-    ex_insp = ExerciseInspector(user_id, ex_id, lang_id, user_code)
+    # make sure the user is able to access to the inspection
+    response = get_exercise_write(user_id, ex2tst_id, asse_id)
+    if response["exit_code"] != 0:
+        if response["exit_code"] == 4:
+            return HttpResponse("Please enter a valid number of exercise")
+        elif response["exit_code"] == 3:
+            return HttpResponse("Access denied")
+        else:
+            return HttpResponse("Unknown error")
+
+    # make sure the language selected is available for this exo2test
+    language_missing = True
+    for i in response["lang_objs"]:
+        if i.id == lang_id:
+            language_missing = False
+    if language_missing:
+        return HttpResponse("Please enter a valid programming language")
+
+
+    # process the inspection
+    ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise_id.id, lang_id, user_code)
     (exit_code, stdout, stderr) = ex_insp.process()
 
     # ex_id : int
@@ -86,7 +109,7 @@ def ctrl_json_exercise_inspect(request):
     # stdout : str
     # stderr : str
     dico_json_response = {
-        "ex_id": ex_id,
+        "ex_id": response["ex2tst_obj"].exercise_id.id,
         "user_id": user_id,
         "timestamp": timezone.now(),
         "exit_code": exit_code,
