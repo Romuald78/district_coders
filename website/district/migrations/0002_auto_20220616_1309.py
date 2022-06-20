@@ -3,6 +3,7 @@ import os
 
 from django.db import migrations
 
+from toolbox.migration_tools.debug_data import debug_migration
 from toolbox.migration_tools.migration_group import group_migration
 from toolbox.migration_tools.migration_inspect_mode import mode_migration
 from toolbox.migration_tools.migration_language import language_migration
@@ -18,4 +19,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(language_migration),
         migrations.RunPython(mode_migration),
         migrations.RunPython(group_migration),
+        migrations.RunPython(debug_migration),
     ]

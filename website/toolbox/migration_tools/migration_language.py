@@ -63,14 +63,14 @@ migrate_langs = [{
             "code" :defaultCSharp
          },
          {
-            "name" :"Java",
-            "value":"java",
-            "code" :defaultJava
-         },
-         {
             "name" :"JS",
             "value":"js",
             "code" :defaultJS
+         },
+         {
+            "name" :"Java",
+            "value":"java",
+            "code" :defaultJava
          },
          {
             "name" :"PHP",

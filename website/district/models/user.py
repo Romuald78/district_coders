@@ -24,9 +24,3 @@ class UserDC(AbstractUser):
     def __str__(self):
         out = f"[{self.id}] User {self.username}"
         return out
-
-#@receiver(post_save, sender=UserDC)
-#def update_userdc_signal(sender, instance, created, **kwargs):
-#    if created:
-#        UserDC.objects.create(user=instance)
-#    instance.save()
