@@ -9,10 +9,15 @@
 <!-- ----------------------------------- --->
 {% block page_content %}
 <!-- ----------------------------------- --->
+    {% for i in languages %}
+        {% with i.id|stringformat:"i"|add:"defcod" as name %}
+            {{ i.default_code|json_script:name }}
+        {% endwith %}
+    {% endfor %}
     <script>
         editor_content = {};
         {% for i in languages %}
-            editor_content[{{ i.id }}] = {"default_code": "{{ i.default_code}}", "last_code": ""};
+            editor_content[{{ i.id }}] = {"default_code": document.getElementById("{{ i.id }}defcod").textContent, "last_code": ""};
         {% endfor %}
 
         // save the last lang_id

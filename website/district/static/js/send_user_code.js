@@ -19,6 +19,8 @@ function send_user_code() {
         console_view.innerHTML = ''
         console_view.appendChild(html_out.body);
         console_view.appendChild(html_err.body);
+
+        console.log(json.exit_code)
     });
 }
 

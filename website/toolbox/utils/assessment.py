@@ -74,6 +74,8 @@ def get_asse_exercises(request, id_asse):
         groups__userdc=curr_user
     )
 
+    if len(curr_asse.all()) == 0:
+        return {"exit_code": 4}
     result = is_asse_available(curr_asse)[0]
     # only accessible assessments
     if not result["is_available"]:
