@@ -2,7 +2,7 @@
 function send_user_code() {
     var formElement = document.getElementById("user_form");
     const data = new URLSearchParams(new FormData(formElement));
-    fetch('./inspect', {
+    fetch('/exercise/inspect/', {
         method: 'post',
         body: data,
     })

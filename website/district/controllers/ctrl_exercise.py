@@ -16,14 +16,17 @@ def ctrl_exercise_details(request):
     # get the current user
     curr_user = request.user
     # get parameters
-    ex_id = request.GET.get('ex', 0)
-    asse_id = request.GET.get('ex', 0)
+    ex2tst_id = request.GET.get('extest', 0)
+    asse_id = request.GET.get('asse', 0)
 
-    response = get_exercise_details(curr_user, ex_id, asse_id)
-    if response["exit_code"] == 4:
-        return HttpResponse("Please enter a valid number of exercise")
-    elif response["exit_code"] == 3:
-        return HttpResponse("Access denied")
+    response = get_exercise_details(curr_user, ex2tst_id, asse_id)
+    if response["exit_code"] != 0:
+        if response["exit_code"] == 4:
+            return HttpResponse("Please enter a valid number of exercise")
+        elif response["exit_code"] == 3:
+            return HttpResponse("Access denied")
+        else:
+            return HttpResponse("Unknown error")
 
     # dictionary for initial data
     context = {}
@@ -31,6 +34,7 @@ def ctrl_exercise_details(request):
     template = loader.get_template('district/exercisewording.html')
     # get current assessment
     context["wording"] = response["ex_obj"]
+    context["asse_id"] = asse_id
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -41,21 +45,24 @@ def ctrl_exercise_write(request):
     # get the current user
     curr_user = request.user
     # get parameters
-    ex_id = request.GET.get('ex', 0)
-    asse_id = request.GET.get('ex', 0)
+    ex_id = request.GET.get('extest', 0)
+    asse_id = request.GET.get('asse', 0)
 
     response = get_exercise_write(curr_user, ex_id, asse_id)
-    if response["exit_code"] == 4:
-        return HttpResponse("Please enter a valid number of exercise")
-    elif response["exit_code"] == 3:
-        return HttpResponse("Access denied")
+    if response["exit_code"] != 0:
+        if response["exit_code"] == 4:
+            return HttpResponse("Please enter a valid number of exercise")
+        elif response["exit_code"] == 3:
+            return HttpResponse("Access denied")
+        else:
+            return HttpResponse("Unknown error")
 
     # dictionary for initial data
     context = {}
     # Load view template
     template = loader.get_template('district/exercise_write.html')
     # get current assessment
-    context["wording"] = response["wording"]
+    context["wording"] = response["ex_obj"]
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))

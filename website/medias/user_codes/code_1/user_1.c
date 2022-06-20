@@ -5,8 +5,6 @@ int main(){
 
     int N = 0;
     int V = 0;
-    int mini =  1000000000;
-    int maxi = -1000000000;
     srand(0);
     if( fscanf(stdin, "%d\n", &N ) != 1){
         return 1;
@@ -15,14 +13,16 @@ int main(){
         if( fscanf(stdin, "%d\n", &V ) != 1){
             return 1;
         }    
-        if(mini > V){
-            mini = V;
+        if(V < 0){
+            V = -V;
         }
-        if(maxi < V){
-            maxi = V;
+/*
+        if(i==5){
+            V = 666;
         }
+        if(i==8) break;
+*/
+        printf("%d\n", -V);
     }
-    printf("%d\n", mini);
-    printf("%d\n", maxi);
     return 0;
 }

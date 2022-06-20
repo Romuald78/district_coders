@@ -3,7 +3,7 @@ from django.utils import timezone
 from district.models.assessment import Assessment
 
 # retrieve all the current assessments
-from toolbox.utils.exercise import is_exo_triable
+import toolbox.utils.exercise as Ex
 
 
 def get_current_asse(request):
@@ -83,7 +83,7 @@ def get_asse_exercises(request, id_asse):
     context = {
         "exit_code": 0,
         "assessment": curr_asse.first(),
-        "exercises": is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test_id.exo2test_set.all())
+        "exercises": Ex.is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test_id.exo2test_set.all())
     }
 
     # Use context in the template and render response view

@@ -3,9 +3,9 @@ from django.utils import timezone
 
 from district.models.assessment import Assessment
 from district.models.exercise import Exercise
+from district.models.exo2test import Exo2Test
 
-# from district.models.exo2test import Exo2Test
-# from toolbox.utils.assessment import is_asse_available
+import toolbox.utils.assessment as Asse
 
 
 # check if a Set of Exercise are triable or not (only read access)
@@ -63,7 +63,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
                 for ex2test in asse.test_id.exo2test_set.all():
                     ex = ex2test.exercise_id
                     if ex.id in exos:
-                        # if the assessment is in progress
+                        # if the assessment is in process
                         if asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(asse.end_time):
                             exos[ex.id]["asse_id"] = asse.id
                             exos[ex.id]["is_redirected"] = True
@@ -100,7 +100,7 @@ def get_exercise(curr_user, ex_id, asse_id):
         id=ex_id,
         exo2test__test_id__assessment=asse_id,
         exo2test__test_id__assessment__groups__userdc=curr_user)
-    if ex_id == 0 or len(ex_obj) == 0:
+    if ex_id == 0 or asse_id ==0 or len(ex_obj) == 0:
         return {"exit_code": 4}
 
     return {"exit_code": 0, "ex_obj": ex_obj}
@@ -112,71 +112,46 @@ def get_exercise(curr_user, ex_id, asse_id):
 #       3 : Access denied
 #       [ exit code of exercise.get_exercise ]
 #   Exercise ex_obj}
-def get_exercise_details(curr_user, ex_id, asse_id):
-    # # check if the assessment is reachable in this assessment
-    # result = get_exercise(curr_user, ex_id, asse_id)
-    # if result["exit_code"] != 0:
-    #     return result
-    #
-    # curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
-    #
-    # if not is_asse_available(curr_asse)[0]["is_available"]:
-    #     return {"exit_code": 3}
-    #
-    # all_exo2test = Exo2Test.objects.filter(exercise_id=ex_id, test_id__assessment=asse_id, )
-    #
-    # exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
-    #
-    # return {"exit_code": 0, "ex_obj": exos[ex_id]["ex_objs"]}
-
-    pass
-
-
-def get_exercise_write(curr_user, ex_id, asse_id):
-    # result = get_exercise(curr_user, ex_id)
-    # if result["exit_code"] != 0:
-    #     return result
-    # ex_obj = result["ex_obj"]
-    #
-    # # all assessment must be in training mode OR at least one must be in process
-    # # get all assessment of the user group containing the exercise
-    # all_asse = Assessment.objects.filter(
-    #     groups__userdc=curr_user,
-    #     test_id__exo2test__exercise_id=ex_id,
-    #     end_time__gt=timezone.now(),
-    #     training_time__lte=timezone.now()
-    # )
-    # if len(all_asse) == 0:
-    #     return {"exit_code": 3}
-    # all_in_future = True
-    # in_progress = False
-    # for asse in all_asse:
-    #     if asse.start_time.__lt__(timezone.now()):
-    #         all_in_future = False
-    #     if asse.start_time.__le__(timezone.now()) and asse.end_time.__lt__(timezone.now()):
-    #         in_progress = True
-    #
-    # if all_in_future or not in_progress:
-    #     return {"exit_code": 3}
-    #
-    # return {"exit_code": 0, "wording": ex_obj.first()}
-
+def get_exercise_details(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
-    # result = get_exercise(curr_user, ex_id, asse_id)
-    # if result["exit_code"] != 0:
-    #     return result
-    #
-    # curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
-    #
-    # if not is_asse_available(curr_asse)[0]["is_available"]:
-    #     return {"exit_code": 3}
-    #
-    # all_exo2test = Exo2Test.objects.filter(exercise_id=ex_id, test_id__assessment=asse_id, )
-    #
-    # exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
-    # if exos[0]["is_triable"] :
-    #     return {"exit_code": 0, "ex_obj": exos[ex_id]["ex_objs"]}
-    # else:
-    #     return {"exit_code": 3}
+    ex_id = Exercise.objects.filter(exo2test=ex2test_id).first().id
+    result = get_exercise(curr_user, ex_id, asse_id)
+    if result["exit_code"] != 0:
+        return result
 
-    pass
+    curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
+
+    if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
+        return {"exit_code": 3}
+
+    all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test_id__assessment__groups__userdc=curr_user)
+
+    exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
+    return {"exit_code": 0, "ex_obj": exos[ex_id]["ex_obj"]}
+
+
+# return a dict containing the wording of an exercise
+# dict of {
+#   int exit_code:
+#       3 : Access denied
+#       [ exit code of exercise.get_exercise ]
+#   Exercise ex_obj}
+def get_exercise_write(curr_user, ex2test_id, asse_id):
+    # check if the assessment is reachable in this assessment
+    ex_id = Exercise.objects.filter(exo2test=ex2test_id).first().id
+    result = get_exercise(curr_user, ex_id, asse_id)
+    if result["exit_code"] != 0:
+        return result
+
+    curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
+
+    if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
+        return {"exit_code": 3}
+
+    all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test_id__assessment__groups__userdc=curr_user)
+
+    exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
+    if exos[ex_id]["is_triable"]:
+        return {"exit_code": 0, "ex_obj": exos[ex_id]["ex_obj"]}
+    else:
+        return {"exit_code": 3}
