@@ -49,20 +49,20 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
             exos[ex2test.id]["lang_objs"].append(lang)
 
     # if assessment is not in process
-    if not (curr_asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(curr_asse.end_time)):
+    if not Asse.is_date_current(curr_asse):
         all_other_asse = Assessment.objects.filter(
             ~Q(id=curr_asse.id),
             groups__userdc=curr_user
         )
 
         # if assessment is past but not in training mode
-        if curr_asse.start_time.__lt__(timezone.now()) and curr_asse.end_time.__lt__(timezone.now()) and timezone.now().__lt__(curr_asse.training_time):
+        if Asse.is_date_past_wo_training(curr_asse):
             # now, we set elements from exos
             for asse in all_other_asse:
                 for ex2test in asse.test_id.exo2test_set.all():
                     if ex2test.id in exos:
                         # if the assessment is in process
-                        if asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(asse.end_time):
+                        if Asse.is_date_current(asse):
                             exos[ex2test.id]["asse_id"] = asse.id
                             exos[ex2test.id]["is_redirected"] = True
                         elif not exos[ex2test.id]["is_redirected"]:
@@ -73,12 +73,12 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
                 for ex2test in asse.test_id.exo2test_set.all():
                     ex = ex2test.exercise_id
                     if ex2test.id in exos:
-                        # if the assessment is in progress
-                        if asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(asse.end_time):
+                        # if the assessment is in process
+                        if Asse.is_date_current(asse):
                             exos[ex2test.id]["asse_id"] = asse.id
                             exos[ex2test.id]["is_redirected"] = True
                         # if not redirected (to in process asse) and if assessment is past but not in training mode
-                        elif not exos[ex2test.id]["is_redirected"] and curr_asse.start_time.__lt__(timezone.now()) and curr_asse.end_time.__lt__(timezone.now()) and timezone.now().__lt__(curr_asse.training_time):
+                        elif not exos[ex2test.id]["is_redirected"] and Asse.is_date_past_wo_training(curr_asse):
                             exos[ex2test.id]["is_triable"] = False
                             exos[ex2test.id]["asse_id"] = asse.id
                             exos[ex2test.id]["is_redirected"] = True

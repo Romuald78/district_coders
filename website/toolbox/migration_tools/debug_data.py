@@ -1,5 +1,6 @@
 
 #----------------------------------------------
+import os.path
 from datetime import datetime, timedelta
 
 from django.utils import timezone
@@ -39,7 +40,7 @@ def createExercises():
         obj = Exercise()
         obj.title = f"Exercise {letter}"
         obj.description = f"Exercise #{letter} for debug purpose only (absolute value)"
-        obj.gen_file = f"debug/ex_debug_{letter}"
+        obj.gen_file = os.path.join("debug", f"ex_debug_{letter}")
         obj.insp_mode_id = stdio.first()
         obj.save()
         exercises.append(obj)

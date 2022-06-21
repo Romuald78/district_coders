@@ -3,8 +3,11 @@ from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.utils import timezone
 
+from district.models.assessment import Assessment
+from district.models.exotest2lang import ExoTest2Lang
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
+from toolbox.utils.assessment import is_date_current
 from toolbox.utils.exercise import get_exercise_details, get_exercise_write
 
 from website.settings import LOGIN_URL
@@ -102,9 +105,24 @@ def ctrl_json_exercise_inspect(request):
         return HttpResponse("Please enter a valid programming language")
 
 
-    # process the inspection
+    # process to the inspection
     ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise_id.id, lang_id, user_code)
     (exit_code, stdout, stderr) = ex_insp.process()
+
+    # # saving result into ExoTest2Lang
+    # exotest2lang = ExoTest2Lang.objects.get(exo2test_id=ex2tst_id, lang_id=lang_id)
+    # # is current of not
+    # if is_date_current(Assessment.objects.get(id=asse_id)):
+    #     exotest2lang.nb_test_try += 1
+    #     if exit_code == 0: # success
+    #         exotest2lang.nb_test_pass += 1
+    # else:
+    #     exotest2lang.nb_train_try += 1
+    #     if exit_code == 0:  # success
+    #         exotest2lang.nb_train_pass += 1
+    #
+    # exotest2lang.save()
+    print("oh nice nice")
 
     # ex_id : int
     # user_id : int

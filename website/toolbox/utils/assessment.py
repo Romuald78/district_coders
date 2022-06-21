@@ -52,7 +52,7 @@ def get_future_asse(request):
 def is_asse_available(assessments):
     list_asse = []
     for asse in assessments:
-        list_asse.append({"is_available": asse.start_time.__le__(timezone.now()), "assessment": asse})
+        list_asse.append({"is_available": not is_date_future(asse), "assessment": asse})
 
     return list_asse
 
@@ -90,3 +90,26 @@ def get_asse_exercises(request, id_asse):
 
     # Use context in the template and render response view
     return context
+
+
+# param Assessment asse
+def is_date_current(asse):
+    return asse.start_time.__le__(timezone.now()) and timezone.now().__lt__(asse.end_time)
+
+
+# param Assessment asse
+# recently past assessment, thus no training mode available
+def is_date_past_wo_training(asse):
+    return asse.start_time.__lt__(timezone.now()) and asse.end_time.__le__(timezone.now()) and timezone.now().__lt__(asse.training_time)
+
+
+# param Assessment asse
+# in training mode
+def is_date_trainable(asse):
+    return asse.start_time.__lt__(timezone.now()) and asse.end_time.__le__(timezone.now()) and asse.training_time.__le__(timezone.now())
+
+
+# param Assessment asse
+def is_date_future(asse):
+    return not asse.start_time.__le__(timezone.now())
+
