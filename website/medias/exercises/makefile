@@ -18,7 +18,11 @@ EXO_DIR = mode_stdio
 # ------------------------
 # EXERCISE OBJECTS/EXEC
 # ------------------------
-EXO_C = $(wildcard $(EXO_DIR)/*.c)
+#EXO_C = $(wildcard $(EXO_DIR)/*/*.c)
+EXO_C = $(shell find $(EXO_DIR) -name '*.c')
+SUB_BIN = $(patsubst $(EXO_DIR)/%, $(BIN_DIR)/%, $(EXO_C))
+SUB_BIN:= $(sort $(dir $(SUB_BIN)))
+
 EXO_O = $(patsubst $(EXO_DIR)/%, $(TMP_DIR)/%, $(EXO_C))
 EXO_O:= $(patsubst %.c, %.o, $(EXO_O))
 EXO_X = $(patsubst $(EXO_DIR)/%, $(BIN_DIR)/%, $(EXO_C))
@@ -53,7 +57,8 @@ $(TMP_DIR) :
 
 $(BIN_DIR) :
 	@echo "Creating 'bin' directory..."
-	@$(MKDIR) $@
+#	@$(MKDIR) $@
+	@$(MKDIR) $(SUB_BIN)
 
 clean : 
 	@echo "Removing 'bin' directory..."
@@ -61,4 +66,7 @@ clean :
 	@echo "Removing 'tmp' directory..."
 	@$(RMDIR) $(TMP_DIR)
 
-
+debug:
+	@echo $(EXO_C)
+	@echo $(SUB_BIN)
+	
