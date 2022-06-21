@@ -82,10 +82,25 @@ def get_asse_exercises(request, id_asse):
         return {"exit_code": 3}
 
     # dictionary for initial data
+    # adding stat for each ex2tst
+    exo_triable = Ex.is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test_id.exo2test_set.all().order_by("rank"))
+    for ex2tst in exo_triable:
+        nb_test_try = 0
+        nb_test_pass = 0
+        nb_train_try = 0
+        nb_train_pass = 0
+        for extstlng in exo_triable[ex2tst]["ex_tst_lng"]:
+            nb_test_try += extstlng.nb_test_try
+            nb_test_pass += extstlng.nb_test_pass
+            nb_train_try += extstlng.nb_train_try
+            nb_train_pass += extstlng.nb_train_pass
+        exo_triable[ex2tst]["result_test"] = int(0 if nb_test_try == 0 else 100*nb_test_pass/nb_test_try)
+        exo_triable[ex2tst]["result_train"] = int(0 if nb_train_try == 0 else 100*nb_train_pass/nb_train_try)
+
     context = {
         "exit_code": 0,
         "assessment": curr_asse.first(),
-        "exo2tests": Ex.is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test_id.exo2test_set.all())
+        "exo2tests": exo_triable
     }
 
     # Use context in the template and render response view

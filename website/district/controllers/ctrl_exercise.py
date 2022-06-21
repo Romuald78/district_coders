@@ -37,6 +37,16 @@ def ctrl_exercise_details(request):
     template = loader.get_template('district/exercisewording.html')
     # get current assessment
     context["ex2tst"] = response["ex2tst_obj"]
+    # convert the list of languages into dict of lang_id -> {String name, String default_code, int result_test, int result_train}
+    languages = {}
+    for extstlng in response["ex_tst_lng"]:
+        languages[extstlng.lang_id.id] = {
+            "name": extstlng.lang_id.name,
+            "default_code": extstlng.lang_id.default_code,
+            "result_test": int(0 if extstlng.nb_test_try == 0 else 100 * extstlng.nb_test_pass / extstlng.nb_test_try),
+            "result_train": int(
+                0 if extstlng.nb_train_try == 0 else 100 * extstlng.nb_train_pass / extstlng.nb_train_try)}
+    context["languages"] = languages
     context["asse_id"] = asse_id
 
     # Use context in the template and render response view
@@ -66,10 +76,14 @@ def ctrl_exercise_write(request):
     template = loader.get_template('district/exercise_write.html')
     # get current assessment
     context["ex2tst"] = response["ex2tst_obj"]
-    # convert the list of languages into dict of lang_id -> {String name, String default_code}
+    # convert the list of languages into dict of lang_id -> {String name, String default_code, int result_test, int result_train}
     languages = {}
-    for lang in response["lang_objs"]:
-        languages[lang.id] = {"name": lang.name, "default_code": lang.default_code}
+    for extstlng in response["ex_tst_lng"]:
+        languages[extstlng.lang_id.id] = {
+            "name": extstlng.lang_id.name,
+            "default_code": extstlng.lang_id.default_code,
+            "result_test": int(0 if extstlng.nb_test_try == 0 else 100*extstlng.nb_test_pass/extstlng.nb_test_try),
+            "result_train": int(0 if extstlng.nb_train_try == 0 else 100*extstlng.nb_train_pass/extstlng.nb_train_try)}
     context["languages"] = languages
     context["asse_id"] = asse_id
 
@@ -109,20 +123,19 @@ def ctrl_json_exercise_inspect(request):
     ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise_id.id, lang_id, user_code)
     (exit_code, stdout, stderr) = ex_insp.process()
 
-    # # saving result into ExoTest2Lang
-    # exotest2lang = ExoTest2Lang.objects.get(exo2test_id=ex2tst_id, lang_id=lang_id)
-    # # is current of not
-    # if is_date_current(Assessment.objects.get(id=asse_id)):
-    #     exotest2lang.nb_test_try += 1
-    #     if exit_code == 0: # success
-    #         exotest2lang.nb_test_pass += 1
-    # else:
-    #     exotest2lang.nb_train_try += 1
-    #     if exit_code == 0:  # success
-    #         exotest2lang.nb_train_pass += 1
-    #
-    # exotest2lang.save()
-    print("oh nice nice")
+    # saving result into ExoTest2Lang
+    exotest2lang = ExoTest2Lang.objects.get(exo2test_id=ex2tst_id, lang_id=lang_id)
+    # is current of not
+    if is_date_current(Assessment.objects.get(id=asse_id)):
+        exotest2lang.nb_test_try += 1
+        if exit_code == 0:  # success
+            exotest2lang.nb_test_pass += 1
+    else:
+        exotest2lang.nb_train_try += 1
+        if exit_code == 0:  # success
+            exotest2lang.nb_train_pass += 1
+
+    exotest2lang.save()
 
     # ex_id : int
     # user_id : int

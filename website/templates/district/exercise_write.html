@@ -71,6 +71,23 @@
                 <li>gen_file: {{ ex2tst.exercise_id.gen_file }}</li>
                 <li>icon: {{ ex2tst.exercise_id.icon }}</li>
                 <li>mode: {{ ex2tst.exercise_id.insp_mode_id }}</li>
+                <li>
+                    Languages :
+                    <ul>
+                        {% for key, value in languages.items %}
+                            <li>
+                                {{ value.name }}:
+                                <ul>
+                                    <li>{{ value.result_test }}% of success in test mode</li>
+                                    <li>{{ value.result_train }}% of success in train mode</li>
+                                </ul>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+
+
             </ul>
         </div>
 

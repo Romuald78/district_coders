@@ -27,8 +27,6 @@ class CProgram(UserProgram):
         if len(gen_file) == 0:
             result = subprocess.run(["gcc", self.filepath, "-o", self.exec_cmd], capture_output=True)
         else:
-            print("gen file", gen_file)
-            exit()
             # Retrieve the verification exec file path
             ex_corr_c = os.path.join(MEDIA_ROOT, "exercises", "mode_include", f"{gen_file}.c")
             bin_dir = os.path.join(MEDIA_ROOT, "exercises", "bin")
