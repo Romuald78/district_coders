@@ -12,18 +12,30 @@
     {%  include "district/common/header.html" %}
     <div class="page">
         <div class="wording">
-            <ul>
-                <li>
-                    id: {{ ex2tst.exercise_id.id }}
+            <ul><li>
+                id: {{ ex2tst.exercise_id.id }}
+                <ul>
+                    <li>title: {{ ex2tst.exercise_id.title }}</li>
+                    <li>desc: {{ ex2tst.exercise_id.description }}</li>
+                    <li>gen_file: {{ ex2tst.exercise_id.gen_file }}</li>
+                    <li>icon: {{ ex2tst.exercise_id.icon }}</li>
+                    <li>mode: {{ ex2tst.exercise_id.insp_mode_id }}</li>
+                    <li>
+                    Languages :
                     <ul>
-                        <li>title: {{ ex2tst.exercise_id.title }}</li>
-                        <li>desc: {{ ex2tst.exercise_id.description }}</li>
-                        <li>gen_file: {{ ex2tst.exercise_id.gen_file }}</li>
-                        <li>icon: {{ ex2tst.exercise_id.icon }}</li>
-                        <li>mode: {{ ex2tst.exercise_id.insp_mode_id }}</li>
+                        {% for key, value in languages.items %}
+                            <li>
+                                {{ value.name }}:
+                                <ul>
+                                    <li>{{ value.result_test }}% of success in test mode</li>
+                                    <li>{{ value.result_train }}% of success in train mode</li>
+                                </ul>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </li>
-            </ul>
+                </ul>
+            </li></ul>
         </div>
         <button onclick="location.href='/exercise/write?extest={{ ex2tst.id }}&asse={{ asse_id }}';">Try</button>
 

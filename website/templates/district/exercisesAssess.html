@@ -20,9 +20,13 @@
                     <li>gen file :{{ value.ex2tst_obj.exercise_id.gen_file }}</li>
                     <li>icon :{{ value.ex2tst_obj.exercise_id.icon }}</li>
                     <li>gen type :{{ value.ex2tst_obj.exercise_id.insp_mode_id }}</li>
+                    <li>{{ value.result_train }}% succeed in training mode</li>
+                    <li>{{ value.result_test }}% succeed in test mode</li>
+                    <li>rank: {{ value.ex2tst_obj.rank }}</li>
+                    <li>score: {{ value.ex2tst_obj.score }}</li>
                     <li>languages :
-                        {% for lang in value.lang_objs %}
-                            <img class="code_logo" src="{{ MEDIA_URL }}{{ lang.icon }}">
+                        {% for extstlng in value.ex_tst_lng %}
+                            <img class="code_logo" src="{{ MEDIA_URL }}{{ extstlng.lang_id.icon }}">
                         {% endfor %}
                     </li>
                 </ul>

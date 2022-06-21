@@ -33,7 +33,7 @@ class ExerciseInspector():
         ex_corr = os.path.join(MEDIA_ROOT, "exercises", "bin", f"{exercise.gen_file}.exe")
 
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)
-        if exercise.insp_mode_id.name == INSPECTOR_MODE_STDIO:  # mode stdio #TODO use exercice object to retrieve mode
+        if exercise.insp_mode_id.name == INSPECTOR_MODE_STDIO:  # mode stdio #TODO use exercise object to retrieve mode
             # Compile user code if needed
             (exit_code_comp, stdout_comp, stderr_comp) = self.program.compile()
             a = (exit_code_comp, stdout_comp, stderr_comp)
