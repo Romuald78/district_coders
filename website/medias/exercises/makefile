@@ -18,8 +18,8 @@ EXO_DIR = mode_stdio
 # ------------------------
 # EXERCISE OBJECTS/EXEC
 # ------------------------
-#EXO_C = $(wildcard $(EXO_DIR)/*/*.c)
-EXO_C = $(shell find $(EXO_DIR) -name '*.c')
+EXO_C = $(wildcard $(EXO_DIR)/*.c) $(wildcard $(EXO_DIR)/*/*.c)
+#EXO_C = $(shell find $(EXO_DIR) -name '*.c')
 SUB_BIN = $(patsubst $(EXO_DIR)/%, $(BIN_DIR)/%, $(EXO_C))
 SUB_BIN:= $(sort $(dir $(SUB_BIN)))
 
