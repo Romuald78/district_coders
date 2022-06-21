@@ -63,7 +63,11 @@ def ctrl_exercise_write(request):
     template = loader.get_template('district/exercise_write.html')
     # get current assessment
     context["ex2tst"] = response["ex2tst_obj"]
-    context["languages"] = response["lang_objs"]
+    # convert the list of languages into dict of lang_id -> {String name, String default_code}
+    languages = {}
+    for lang in response["lang_objs"]:
+        languages[lang.id] = {"name": lang.name, "default_code": lang.default_code}
+    context["languages"] = languages
     context["asse_id"] = asse_id
 
     # Use context in the template and render response view

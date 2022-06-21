@@ -9,15 +9,14 @@
 <!-- ----------------------------------- --->
 {% block page_content %}
 <!-- ----------------------------------- --->
-    {% for i in languages %}
-        {% with i.id|stringformat:"i"|add:"defcod" as name %}
-            {{ i.default_code|json_script:name }}
-        {% endwith %}
-    {% endfor %}
+    {{ languages|json_script:"languages" }}
+
     <script>
         editor_content = {};
-        {% for i in languages %}
-            editor_content[{{ i.id }}] = {"default_code": document.getElementById("{{ i.id }}defcod").textContent, "last_code": ""};
+        def_code = JSON.parse(document.getElementById("languages").textContent);
+
+        {% for key, value in languages.items %}
+            editor_content[{{ key }}] = {"default_code": def_code[{{ key }}]["default_code"], "last_code": ""};
         {% endfor %}
 
         // save the last lang_id
@@ -39,6 +38,7 @@
             } else {
                 document.getElementById("raw_code").value = editor_content[lang_id]["last_code"];
             }
+
         }
 
         function set_default_code() {
@@ -77,11 +77,11 @@
         <div class="ide">
             <form id="user_form" method="post">{% csrf_token %}
                 <select name="lang_id" id="lang_id" onchange="switch_language()">
-                    {% for i in languages %}
-                        <option value={{ i.id }}>{{ i.name }}</option>
+                    {% for key, value in languages.items %}
+                        <option value={{ key }}>{{ value.name }}</option>
                     {% endfor %}
                 </select>
-                <textarea class="code" id="raw_code" name="raw_code" rows="5" cols="33">{{ languages.0.default_code }}</textarea>
+                <textarea class="code" id="raw_code" name="raw_code" rows="5" cols="33"></textarea>
 
                 <input id="ex2tst_id" name="ex2tst_id" type="hidden" value={{ ex2tst.id }}>
                 <input id="asse_id" name="asse_id" type="hidden" value={{ asse_id }}>
@@ -98,6 +98,12 @@
     <link rel="stylesheet"
       href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/styles/default.min.css">
     <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+    <script>
+        // load default code display
+        // get the language id from the dropdown menu
+        var lang_id = document.getElementById("lang_id").value;
+        document.getElementById("raw_code").value = editor_content[lang_id]["default_code"];
+    </script>
 <!-- ----------------------------------- --->
 {% endblock %}
 <!-- ----------------------------------- --->
