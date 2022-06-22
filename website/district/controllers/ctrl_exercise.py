@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
@@ -9,6 +11,7 @@ from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
 from toolbox.utils.assessment import is_date_current
 from toolbox.utils.exercise import get_exercise_details, get_exercise_write
+from toolbox.utils.testresult import get_testresult
 
 from website.settings import LOGIN_URL
 
@@ -37,6 +40,7 @@ def ctrl_exercise_details(request):
     template = loader.get_template('district/exercisewording.html')
     # get current assessment
     context["ex2tst"] = response["ex2tst_obj"]
+    context["is_triable"] = response["is_triable"]
     # convert the list of languages into dict of lang_id -> {String name, String default_code, int result_test, int result_train}
     languages = {}
     for extstlng in response["ex_tst_lng"]:
@@ -74,6 +78,7 @@ def ctrl_exercise_write(request):
     context = {}
     # Load view template
     template = loader.get_template('district/exercise_write.html')
+
     # get current assessment
     context["ex2tst"] = response["ex2tst_obj"]
     # convert the list of languages into dict of lang_id -> {String name, String default_code, int result_test, int result_train}
@@ -86,6 +91,9 @@ def ctrl_exercise_write(request):
             "result_train": int(0 if extstlng.nb_train_try == 0 else 100*extstlng.nb_train_pass/extstlng.nb_train_try)}
     context["languages"] = languages
     context["asse_id"] = asse_id
+
+    # adding testresult stat
+    context["testresults"] = get_testresult(curr_user.id, asse_id, response["ex_tst_lng"])
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -104,38 +112,54 @@ def ctrl_json_exercise_inspect(request):
     response = get_exercise_write(user_id, ex2tst_id, asse_id)
     if response["exit_code"] != 0:
         if response["exit_code"] == 4:
-            return HttpResponse("Please enter a valid number of exercise")
+            return JsonResponse({"exit_code": 4})  # Please enter a valid number of exercise
         elif response["exit_code"] == 3:
-            return HttpResponse("Access denied")
+            return JsonResponse({"exit_code": 3})  # Access denied
         else:
-            return HttpResponse("Unknown error")
+            return JsonResponse({"exit_code": 18})  # Unknown error
 
     # make sure the language selected is available for this exo2test
     language_missing = True
-    for i in response["lang_objs"]:
-        if i.id == lang_id:
+    for i in response["ex_tst_lng"]:
+        if i.lang_id.id == lang_id:
             language_missing = False
     if language_missing:
-        return HttpResponse("Please enter a valid programming language")
+        return JsonResponse({"exit_code": 4})  # Please enter a valid programming language"
 
 
-    # process to the inspection
+    # proceed the inspection
     ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise_id.id, lang_id, user_code)
     (exit_code, stdout, stderr) = ex_insp.process()
 
-    # saving result into ExoTest2Lang
-    exotest2lang = ExoTest2Lang.objects.get(exo2test_id=ex2tst_id, lang_id=lang_id)
-    # is current of not
-    if is_date_current(Assessment.objects.get(id=asse_id)):
+    # saving result into ExoTest2Lang and TestResult
+    queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
+    exotest2lang = queryset_exotest2lang.first()
+    all_testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)
+    if len(all_testresult) == 0:
+        return JsonResponse({"exit_code": 12})  # Missing testResult
+    testresult = all_testresult[0]["testresult_obj"]
+
+    # is assessment in process or not
+    asse_obj = Assessment.objects.get(id=asse_id)
+    if is_date_current(asse_obj):
+        testresult.nb_test_try += 1
+
         exotest2lang.nb_test_try += 1
         if exit_code == 0:  # success
+            # TODO making different level of success (in %)
+            # according to testresult.solve_percentage
+            if testresult.solve_percentage < 100:
+                testresult.solve_code = user_code
+                testresult.solve_percentage = 100
+                testresult.solve_time = timezone.now() - asse_obj.start_time
+
             exotest2lang.nb_test_pass += 1
     else:
         exotest2lang.nb_train_try += 1
         if exit_code == 0:  # success
             exotest2lang.nb_train_pass += 1
-
     exotest2lang.save()
+    testresult.save()
 
     # ex_id : int
     # user_id : int

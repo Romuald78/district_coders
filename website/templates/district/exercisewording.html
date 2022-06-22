@@ -37,8 +37,9 @@
                 </ul>
             </li></ul>
         </div>
-        <button onclick="location.href='/exercise/write?extest={{ ex2tst.id }}&asse={{ asse_id }}';">Try</button>
-
+        {% if is_triable %}
+            <button onclick="location.href='/exercise/write?extest={{ ex2tst.id }}&asse={{ asse_id }}';">Try</button>
+        {% endif %}
         {%  include "district/common/footer.html" %}
     </div>
 </body>

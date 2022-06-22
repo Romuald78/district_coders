@@ -30,16 +30,15 @@
                         {% endfor %}
                     </li>
                 </ul>
-                {% if value.is_triable %}
 
-                    {% if value.is_redirected %}
-                        This exercise is available in another assessment
-                    {% endif %}
-                    <button onclick="location.href='/exercise/details?extest={{ value.ex2tst_obj.id }}&asse={{ value.asse_id }}';">Check it out</button>
-
-                {% else %}
-                    <span style="color: red">Not available</span>
+                {% if value.is_redirected %}
+                    This exercise is available in another assessment
                 {% endif %}
+                {% if not value.is_triable %}
+                    <span style="color: red">Locked</span>
+                {% endif %}
+                <button onclick="location.href='/exercise/details?extest={{ value.ex2tst_obj.id }}&asse={{ value.asse_id }}';">Check it out</button>
+
             </li>
         {% endfor %}
     </ul>

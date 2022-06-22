@@ -14,8 +14,8 @@ class TestResult(models.Model):
     nb_test_try = models.IntegerField(default=0)
     solve_time = models.DurationField(default=timedelta())
     solve_code = models.TextField()
+    solve_percentage = models.FloatField(default=0)
     assessment_id = models.ForeignKey(Assessment, on_delete=models.CASCADE)
-    solve_percentage = models.IntegerField(default=0)
 
     def __str__(self):
         out = f"TestResult exo_test2lang_id:{self.exo_test2lang_id}/user:{self.user_id}"
