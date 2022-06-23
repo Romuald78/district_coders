@@ -17,7 +17,7 @@ class Exercise(models.Model):
     gen_file = models.CharField(unique=True, max_length=128) ## FileField ? No because here we only use the name (and not the extension)
     # TODO : add width and height values to ImageField ?
     icon = models.ImageField(blank=True, upload_to="icons/exercises")               ## FileField ?
-    insp_mode_id = models.ForeignKey(InspectorMode, on_delete=models.CASCADE)
+    insp_mode = models.ForeignKey(InspectorMode, on_delete=models.CASCADE)
 
     # Display of the icon in the admin interface
     def image_tag(self):

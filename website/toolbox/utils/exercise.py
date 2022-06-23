@@ -49,23 +49,30 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
 
     # getting the higher rank of the solved exercises
     ranking_max_all_exo2test = Exo2Test.objects.filter(
-        test_id__assessment=curr_asse,
+        test__assessment=curr_asse,
         exotest2lang__testresult__solve_time__gt=timedelta()
     ).order_by("-rank")
+    # if no exercises have been completed yet
     if len(ranking_max_all_exo2test.all()) == 0:
         max_solved_rank = 0
     else:
         max_solved_rank = ranking_max_all_exo2test.first().rank
     # getting the lower rank greater than max_solved_rank
     ranking_min_all_exo2test = Exo2Test.objects.filter(
-        test_id__assessment=curr_asse,
-        exotest2lang__testresult__solve_time__lte=timedelta(),
+        test__assessment=curr_asse,
+        # exotest2lang__testresult__solve_time__lte=timedelta(),
         rank__gt=max_solved_rank
     ).order_by("rank")
+    # if no exercises have been tested yet
     if len(ranking_min_all_exo2test.all()) == 0:
-        min_unsolved_rank = 0
+        print("trouve pas de min")
+        # getting the lower rank exercise
+        min_unsolved_rank = Exo2Test.objects.filter(test__assessment=curr_asse).order_by("rank").first().rank
     else:
         min_unsolved_rank = ranking_min_all_exo2test.first().rank
+
+    print("max:", max_solved_rank)
+    print("min:", min_unsolved_rank)
 
     exos = {}
     for ex2test in all_exo2test:
@@ -77,19 +84,23 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
         # set is_triable to False the exercise of a rank already passed
         exos[ex2test.id] = {
             "ex2tst_obj": ex2test,
-            "is_triable":
-                ex2test.rank == min_unsolved_rank
-                if ex2test.rank > max_solved_rank
-                else True not in [etl.testresult_set.first().solve_percentage == 100 for etl in all_ex_tst_lng],
+            "is_triable": True,
             "ex_tst_lng": all_ex_tst_lng,
             "is_redirected": False,
             "asse_id": curr_asse.id
         }
-
+        if ex2test.rank >= min_unsolved_rank:
+            exos[ex2test.id]["is_triable"] = ex2test.rank == min_unsolved_rank
+        else:
+            is_exo_solved = False
+            for etl in all_ex_tst_lng:
+                if len(etl.testresult_set.all()) != 0 and etl.testresult_set.first().solve_percentage == 100:
+                    is_exo_solved = True
+            exos[ex2test.id]["is_triable"] = not is_exo_solved
 
     # now, we set elements from exos
     for asse in all_other_asse:
-        for ex2test in asse.test_id.exo2test_set.all():
+        for ex2test in asse.test.exo2test_set.all():
             if ex2test.id in exos:
                 # if assessment is in process
                 if Asse.is_date_current(curr_asse):
@@ -126,8 +137,8 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
 def get_exercise(curr_user, ex_id, asse_id):
     ex_obj = Exercise.objects.filter(
         id=ex_id,
-        exo2test__test_id__assessment=asse_id,
-        exo2test__test_id__assessment__groups__userdc=curr_user)
+        exo2test__test__assessment=asse_id,
+        exo2test__test__assessment__groups__userdc=curr_user)
     if ex_id == 0 or asse_id ==0 or len(ex_obj) == 0:
         return {"exit_code": 4}
 
@@ -156,7 +167,7 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
     if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
         return {"exit_code": 3}
 
-    all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test_id__assessment__groups__userdc=curr_user)
+    all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:
         return {"exit_code": 4}
 
@@ -188,7 +199,7 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
     if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
         return {"exit_code": 3}
 
-    all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test_id__assessment__groups__userdc=curr_user)
+    all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:
         return {"exit_code": 4}
 

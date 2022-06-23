@@ -6,8 +6,8 @@ from district.models.language import Language
 
 class ExoTest2Lang(models.Model):
 
-    exo2test_id = models.ForeignKey(Exo2Test, on_delete=models.CASCADE)
-    lang_id = models.ForeignKey(Language, on_delete=models.CASCADE)
+    exo2test = models.ForeignKey(Exo2Test, on_delete=models.CASCADE)
+    lang = models.ForeignKey(Language, on_delete=models.CASCADE)
     nb_test_try = models.IntegerField(default=0)
     nb_test_pass = models.IntegerField(default=0)
     nb_train_try = models.IntegerField(default=0)
@@ -16,5 +16,5 @@ class ExoTest2Lang(models.Model):
     exec_max_memory = models.IntegerField(default=-1)
 
     def __str__(self):
-        out = f"ExoTest2Lang {self.exo2test_id}/lang:{self.lang_id}"
+        out = f"ExoTest2Lang {self.exo2test}/lang:{self.lang}"
         return out

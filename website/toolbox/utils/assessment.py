@@ -83,7 +83,7 @@ def get_asse_exercises(request, id_asse):
 
     # dictionary for initial data
     # adding stat for each ex2tst
-    exo_triable = Ex.is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test_id.exo2test_set.all().order_by("rank"))
+    exo_triable = Ex.is_exo_triable(curr_user, curr_asse.first(), curr_asse.first().test.exo2test_set.all().order_by("rank"))
     for ex2tst in exo_triable:
         nb_test_try = 0
         nb_test_pass = 0

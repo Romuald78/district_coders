@@ -45,15 +45,15 @@ def ctrl_json_testresult_exists(request):
     # check if a test result already exist
     test_result = TestResult.objects.filter(
         assessment_id=asse_id,
-        exo_test2lang_id__exo2test_id=ex2tst_id,
-        exo_test2lang_id__lang_id=lang_id,
+        exo_test2lang__exo2test=ex2tst_id,
+        exo_test2lang__lang=lang_id,
         user_id=curr_user)
     if len(test_result.all()) == 0:
         # do not exist, create it
         new_test_result = TestResult()
-        new_test_result.user_id = curr_user
-        new_test_result.assessment_id = asse_objs.first()
-        new_test_result.exo_test2lang_id = ExoTest2Lang.objects.get(exo2test_id=ex2tst_id, lang_id=lang_id)
+        new_test_result.user = curr_user
+        new_test_result.assessment = asse_objs.first()
+        new_test_result.exo_test2lang = ExoTest2Lang.objects.get(exo2test_id=ex2tst_id, lang_id=lang_id)
 
         new_test_result.save()
 

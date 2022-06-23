@@ -41,7 +41,7 @@ def createExercises():
         obj.title = f"Exercise {letter}"
         obj.description = f"Exercise #{letter} for debug purpose only (absolute value)"
         obj.gen_file = os.path.join("debug", f"ex_debug_{letter}")
-        obj.insp_mode_id = stdio.first()
+        obj.insp_mode = stdio.first()
         obj.save()
         exercises.append(obj)
         print(f"    > Exercise [{obj.id}]:'{obj.title}' added !")
@@ -89,8 +89,8 @@ def createExo2Test(exos, tests):
         # for each exercise in the test
         for e in EX2TST[t]:
             obj = Exo2Test()
-            obj.test_id = tests[t]
-            obj.exercise_id = exos[e-1]
+            obj.test = tests[t]
+            obj.exercise = exos[e - 1]
             obj.rank = rank
             obj.score = rank
             rank += 1
@@ -123,7 +123,7 @@ def createExoTest2Lang(exo2tests):
     print()
     print("  [DATA MIGRATION][EXO-TEST 2 LANG]")
     for e2t in exo2tests:
-        ex_id = e2t.exercise_id.id -1
+        ex_id = e2t.exercise.id - 1
         lang_list = langs[ex_id]
         for lang_id in lang_list:
             obj = ExoTest2Lang()
@@ -133,8 +133,8 @@ def createExoTest2Lang(exo2tests):
             obj.nb_train_pass   = 0
             obj.exec_timeout    = -1
             obj.exec_max_memory = -1
-            obj.exo2test_id     = e2t
-            obj.lang_id_id      = lang_id
+            obj.exo2test     = e2t
+            obj.lang_id            = lang_id
             obj.save()
             print(f"    > ExoTest2Lang [{obj.id}]: ex2tst #{e2t.id} -> lang #{lang_id} added !")
 
@@ -187,7 +187,7 @@ def createAssess(tests):
         obj.end_time      = 0
         obj.training_time = 0
         obj.result_json   = ""
-        obj.test_id_id    = test_id
+        obj.test_id          = test_id
         # apply dates according to test status
         if x_time == "training":
             obj.start_time = m2
@@ -212,7 +212,7 @@ def createAssess(tests):
         obj.save()
         grp = GroupDC.objects.all().filter(id=grp_id).first()
         obj.groups.add(grp)
-        print(f"    > Assessment [{obj.id}]: test #{obj.test_id_id} added !")
+        print(f"    > Assessment [{obj.id}]: test #{obj.test_id} added !")
 
 def createUSers():
     groups = [

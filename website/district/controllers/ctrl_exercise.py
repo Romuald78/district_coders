@@ -44,9 +44,9 @@ def ctrl_exercise_details(request):
     # convert the list of languages into dict of lang_id -> {String name, String default_code, int result_test, int result_train}
     languages = {}
     for extstlng in response["ex_tst_lng"]:
-        languages[extstlng.lang_id.id] = {
-            "name": extstlng.lang_id.name,
-            "default_code": extstlng.lang_id.default_code,
+        languages[extstlng.lang.id] = {
+            "name": extstlng.lang.name,
+            "default_code": extstlng.lang.default_code,
             "result_test": int(0 if extstlng.nb_test_try == 0 else 100 * extstlng.nb_test_pass / extstlng.nb_test_try),
             "result_train": int(
                 0 if extstlng.nb_train_try == 0 else 100 * extstlng.nb_train_pass / extstlng.nb_train_try)}
@@ -84,9 +84,9 @@ def ctrl_exercise_write(request):
     # convert the list of languages into dict of lang_id -> {String name, String default_code, int result_test, int result_train}
     languages = {}
     for extstlng in response["ex_tst_lng"]:
-        languages[extstlng.lang_id.id] = {
-            "name": extstlng.lang_id.name,
-            "default_code": extstlng.lang_id.default_code,
+        languages[extstlng.lang.id] = {
+            "name": extstlng.lang.name,
+            "default_code": extstlng.lang.default_code,
             "result_test": int(0 if extstlng.nb_test_try == 0 else 100*extstlng.nb_test_pass/extstlng.nb_test_try),
             "result_train": int(0 if extstlng.nb_train_try == 0 else 100*extstlng.nb_train_pass/extstlng.nb_train_try)}
     context["languages"] = languages
@@ -121,14 +121,14 @@ def ctrl_json_exercise_inspect(request):
     # make sure the language selected is available for this exo2test
     language_missing = True
     for i in response["ex_tst_lng"]:
-        if i.lang_id.id == lang_id:
+        if i.lang.id == lang_id:
             language_missing = False
     if language_missing:
         return JsonResponse({"exit_code": 4})  # Please enter a valid programming language"
 
 
     # proceed the inspection
-    ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise_id.id, lang_id, user_code)
+    ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code)
     (exit_code, stdout, stderr) = ex_insp.process()
 
     # saving result into ExoTest2Lang and TestResult
@@ -168,7 +168,7 @@ def ctrl_json_exercise_inspect(request):
     # stdout : str
     # stderr : str
     dico_json_response = {
-        "ex_id": response["ex2tst_obj"].exercise_id.id,
+        "ex_id": response["ex2tst_obj"].exercise.id,
         "user_id": user_id,
         "timestamp": timezone.now(),
         "exit_code": exit_code,
