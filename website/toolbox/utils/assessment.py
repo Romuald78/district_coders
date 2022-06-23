@@ -56,6 +56,46 @@ def is_asse_available(assessments):
 
     return list_asse
 
+# return a dictionary with assessment IDs as keys
+# and a list of assessment IDs in collision as value
+def detect_assess_overlaps(past, current, future):
+    # store all assessments for this user
+    all = []
+    # useless to check collision with past assessments
+    #for assess in past:
+    #    all.append((assess["assessment"].start_time, assess["assessment"]))
+    #    all.append((assess["assessment"].end_time,   assess["assessment"]))
+    for assess in current:
+        all.append((assess["assessment"].start_time, assess["assessment"]))
+        all.append((assess["assessment"].end_time,   assess["assessment"]))
+    for assess in future:
+        all.append((assess["assessment"].start_time, assess["assessment"]))
+        all.append((assess["assessment"].end_time,   assess["assessment"]))
+    # Sort by time
+    all    = sorted(all, key=lambda x: x[0])
+    #
+    active = []
+    out    = {}
+    for a in all:
+        assess = a[1]
+        if assess in active:
+            # this is an end
+            active.remove(assess)
+        else:
+            # this is a start
+            active.append(assess)
+            out[assess] = []
+            if len(active) > 1:
+                for other in active:
+                    if assess != other:
+                        if other not in out[assess]:
+                            out[assess].append(other)
+                        if assess not in out[other]:
+                            out[other].append(assess)
+    #for o in out:
+    #    others = [x.id for x in out[o]]
+    #    print(o.id, others)
+    return out
 
 # get exercises of an assessment
 # return a dict of {

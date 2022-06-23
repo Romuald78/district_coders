@@ -21,7 +21,7 @@ from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_ex
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup
 from toolbox.utils.user import ctrl_user_register
-from district.controllers.ctrl_main import ctrl_home, test_view
+from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse
 from website import settings
@@ -52,9 +52,6 @@ urlpatterns = [
     path('exercise/inspect/', ctrl_json_exercise_inspect),
     # Verify the existence of a TestResult
     path('exercise/createstat/', ctrl_json_testresult_exists),
-
-    # just for test
-    path('test', test_view),
 
     # HOME
     path('', ctrl_home),

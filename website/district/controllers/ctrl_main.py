@@ -6,7 +6,8 @@ from django.template import loader
 
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
-from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse, is_asse_available
+from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse, is_asse_available, \
+    detect_assess_overlaps
 
 from website.settings import MEDIA_ROOT
 from django.shortcuts import redirect
@@ -20,10 +21,17 @@ def ctrl_home(request):
         # Load view template
         template = loader.get_template('district/content/user_home.html')
         # Retrieve all assessments data
-        context["training"]   = is_asse_available(get_past_asse(request))
-        context["inprogress"] = is_asse_available(get_current_asse(request))
-        context["future"]     = is_asse_available(get_future_asse(request))
+        past    = is_asse_available(get_past_asse(request))
+        current = is_asse_available(get_current_asse(request))
+        future  = is_asse_available(get_future_asse(request))
+        # Process all assessments and try to find a collision
+        # it modifies the previous dict adding
+        # a 'collisions' field (list of other asses ids)
+        detect_assess_overlaps(past, current, future)
         # render home page
+        context["training"]   = past
+        context["inprogress"] = current
+        context["future"]     = future
         return HttpResponse(template.render(context, request))
 
     else:
@@ -33,31 +41,3 @@ def ctrl_home(request):
         template = loader.get_template('district/content/home.html')
         # render home page
         return HttpResponse(template.render(context, request))
-
-
-def test_view(request):
-    user_id = 1
-    ex_id = 4
-    lang_id = 1
-    with open(os.path.join(MEDIA_ROOT, "user_codes", "user004.c")) as f:
-        code = f.read()
-
-    toto = ExerciseInspector(user_id, ex_id, lang_id, code)
-    (exit_code, stdout, stderr) = toto.process()
-    # ex_id : int
-    # user_id : int
-    # timestamp (date et heure de début de la requete (reception de la requete))
-    # exit_code : int
-    # stdout : str
-    # stderr : str
-    dico_json_response = {
-        "ex_id": ex_id,
-        "user_id": user_id,
-        "timestamp": timezone.now(),
-        "exit_code": exit_code,
-        "stdout": ansi_to_html(stdout),
-        "stderr": stderr
-    }
-
-    #return HttpResponse(result)
-    return JsonResponse(dico_json_response)
