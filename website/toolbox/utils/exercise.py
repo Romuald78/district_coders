@@ -65,7 +65,6 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     ).order_by("rank")
     # if no exercises have been tested yet
     if len(ranking_min_all_exo2test.all()) == 0:
-        print("trouve pas de min")
         # getting the lower rank exercise
         min_unsolved_rank = Exo2Test.objects.filter(test__assessment=curr_asse).order_by("rank").first().rank
     else:
