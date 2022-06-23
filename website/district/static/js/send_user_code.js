@@ -16,11 +16,11 @@ function send_user_code() {
 	    var html_err = parser.parseFromString(json.stderr, 'text/html');
         // get the console, clear and populate it
         var console_view = document.getElementById("console_view");
-        console_view.innerHTML = ''
+        console_view.innerHTML = '';
         console_view.appendChild(html_out.body);
         console_view.appendChild(html_err.body);
 
-        console.log(json.exit_code)
+        console.log(json.exit_code);
     });
 }
 

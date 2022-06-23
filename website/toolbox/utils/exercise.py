@@ -41,36 +41,51 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     #     s'il y a un P\T
     #         -> trainable False
     #         -> leak
-    exos = {}
-    for ex2test in all_exo2test:
-        # set is_triable to False the exercise of a rank already passed
-        exos[ex2test.id] = {
-            "ex2tst_obj": ex2test,
-            "is_triable": True,
-            "ex_tst_lng": [],
-            "is_redirected": False,
-            "asse_id": curr_asse.id
-        }
-        # adding languages available
-        for ex_tst_lng in ex2test.exotest2lang_set.all():
-            # lang = ex_tst_lng.lang_id
-            exos[ex2test.id]["ex_tst_lng"].append(ex_tst_lng)
 
     all_other_asse = Assessment.objects.filter(
         ~Q(id=curr_asse.id),
         groups__userdc=curr_user
     )
 
-    # getting the higher rank of a solved exercise
-    ranking_all_exo2test = Exo2Test.objects.filter(
+    # getting the higher rank of the solved exercises
+    ranking_max_all_exo2test = Exo2Test.objects.filter(
         test_id__assessment=curr_asse,
-        exotest2lang__testresult__solve_time__gt=timedelta(),
-        exotest2lang__testresult__solve_percentage__lt=100
+        exotest2lang__testresult__solve_time__gt=timedelta()
     ).order_by("-rank")
-    if len(ranking_all_exo2test.all()) == 0:
-        max_rank = 0
+    if len(ranking_max_all_exo2test.all()) == 0:
+        max_solved_rank = 0
     else:
-        max_rank = ranking_all_exo2test.first().rank
+        max_solved_rank = ranking_max_all_exo2test.first().rank
+    # getting the lower rank greater than max_solved_rank
+    ranking_min_all_exo2test = Exo2Test.objects.filter(
+        test_id__assessment=curr_asse,
+        exotest2lang__testresult__solve_time__lte=timedelta(),
+        rank__gt=max_solved_rank
+    ).order_by("rank")
+    if len(ranking_min_all_exo2test.all()) == 0:
+        min_unsolved_rank = 0
+    else:
+        min_unsolved_rank = ranking_min_all_exo2test.first().rank
+
+    exos = {}
+    for ex2test in all_exo2test:
+        # getting languages available
+        all_ex_tst_lng = []
+        for ex_tst_lng in ex2test.exotest2lang_set.all():
+            # lang = ex_tst_lng.lang_id
+            all_ex_tst_lng.append(ex_tst_lng)
+        # set is_triable to False the exercise of a rank already passed
+        exos[ex2test.id] = {
+            "ex2tst_obj": ex2test,
+            "is_triable":
+                ex2test.rank == min_unsolved_rank
+                if ex2test.rank > max_solved_rank
+                else True not in [etl.testresult_set.first().solve_percentage == 100 for etl in all_ex_tst_lng],
+            "ex_tst_lng": all_ex_tst_lng,
+            "is_redirected": False,
+            "asse_id": curr_asse.id
+        }
+
 
     # now, we set elements from exos
     for asse in all_other_asse:
@@ -78,8 +93,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
             if ex2test.id in exos:
                 # if assessment is in process
                 if Asse.is_date_current(curr_asse):
-                    # TODO discontinuous rank in assessment ?
-                    exos[ex2test.id]["is_triable"] = ex2test.rank == max_rank + 1
+                    pass
                 else: # if assessment is not in process
                     # if assessment is past but not in training mode
                     if Asse.is_date_past_wo_training(curr_asse):

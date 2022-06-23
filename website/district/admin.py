@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelForm
-from setuptools._entry_points import _
+# from setuptools._entry_points import _
 
 from district.models.assessment import Assessment
 from district.models.exo2test import Exo2Test
