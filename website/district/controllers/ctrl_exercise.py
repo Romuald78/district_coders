@@ -47,11 +47,13 @@ def ctrl_exercise_details(request):
         languages[extstlng.lang.id] = {
             "name": extstlng.lang.name,
             "default_code": extstlng.lang.default_code,
-            "result_test": int(0 if extstlng.nb_test_try == 0 else 100 * extstlng.nb_test_pass / extstlng.nb_test_try),
-            "result_train": int(
-                0 if extstlng.nb_train_try == 0 else 100 * extstlng.nb_train_pass / extstlng.nb_train_try)}
+            "result_test": int(0 if extstlng.nb_test_try == 0 else 100*extstlng.nb_test_pass/extstlng.nb_test_try),
+            "result_train": int(0 if extstlng.nb_train_try == 0 else 100*extstlng.nb_train_pass/extstlng.nb_train_try)}
     context["languages"] = languages
     context["asse_id"] = asse_id
+
+    # adding testresult stat
+    context["testresults"] = get_testresult(curr_user.id, asse_id, response["ex_tst_lng"])
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -126,7 +128,6 @@ def ctrl_json_exercise_inspect(request):
     if language_missing:
         return JsonResponse({"exit_code": 4})  # Please enter a valid programming language"
 
-
     # proceed the inspection
     ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code)
     (exit_code, stdout, stderr) = ex_insp.process()
@@ -143,17 +144,16 @@ def ctrl_json_exercise_inspect(request):
     asse_obj = Assessment.objects.get(id=asse_id)
     if is_date_current(asse_obj):
         testresult.nb_test_try += 1
-
         exotest2lang.nb_test_try += 1
+
+        # TODO making different level of success (in %)
+        # according to testresult.solve_percentage
         if exit_code == 0:  # success
-            # TODO making different level of success (in %)
-            # according to testresult.solve_percentage
+            exotest2lang.nb_test_pass += 1
             if testresult.solve_percentage < 100:
                 testresult.solve_code = user_code
                 testresult.solve_percentage = 100
-                testresult.solve_time = timezone.now() - asse_obj.start_time
-
-            exotest2lang.nb_test_pass += 1
+                testresult.solve_time = timezone.now()
     else:
         exotest2lang.nb_train_try += 1
         if exit_code == 0:  # success
