@@ -71,9 +71,6 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     else:
         min_unsolved_rank = ranking_min_all_exo2test.first().rank
 
-    print("max:", max_solved_rank)
-    print("min:", min_unsolved_rank)
-
     exos = {}
     for ex2test in all_exo2test:
         # getting languages available
