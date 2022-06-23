@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.db.models import Q
+from django.db.models import Q, F
 from django.utils import timezone
 
 from district.models.assessment import Assessment
@@ -50,25 +50,28 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     # getting the higher rank of the solved exercises
     ranking_max_all_exo2test = Exo2Test.objects.filter(
         test__assessment=curr_asse,
-        exotest2lang__testresult__solve_time__gt=timedelta()
+        solve_percentage_req__lte=F("exotest2lang__testresult__solve_percentage")
     ).order_by("-rank")
     # if no exercises have been completed yet
     if len(ranking_max_all_exo2test.all()) == 0:
-        max_solved_rank = 0
-    else:
-        max_solved_rank = ranking_max_all_exo2test.first().rank
-    # getting the lower rank greater than max_solved_rank
-    ranking_min_all_exo2test = Exo2Test.objects.filter(
-        test__assessment=curr_asse,
-        # exotest2lang__testresult__solve_time__lte=timedelta(),
-        rank__gt=max_solved_rank
-    ).order_by("rank")
-    # if no exercises have been tested yet
-    if len(ranking_min_all_exo2test.all()) == 0:
+        # the user start the assessment
         # getting the lower rank exercise
         min_unsolved_rank = Exo2Test.objects.filter(test__assessment=curr_asse).order_by("rank").first().rank
     else:
-        min_unsolved_rank = ranking_min_all_exo2test.first().rank
+        max_solved_rank = ranking_max_all_exo2test.first().rank
+        # getting the lower rank greater than max_solved_rank
+        ranking_min_all_exo2test = Exo2Test.objects.filter(
+            test__assessment=curr_asse,
+            rank__gt=max_solved_rank
+        ).order_by("rank")
+        # if no exercises have been tested yet
+        if len(ranking_min_all_exo2test.all()) == 0:
+            # the user end the assessment
+            # letting the user access to nonexistent exercise (rank too high)
+            min_unsolved_rank = max_solved_rank + 1
+        else:
+            min_unsolved_rank = ranking_min_all_exo2test.first().rank
+
 
     exos = {}
     for ex2test in all_exo2test:
@@ -90,7 +93,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
         else:
             is_exo_solved = False
             for etl in all_ex_tst_lng:
-                if len(etl.testresult_set.all()) != 0 and etl.testresult_set.first().solve_percentage == 100:
+                if len(etl.testresult_set.all()) != 0 and etl.testresult_set.first().solve_percentage >= etl.exo2test.solve_percentage_req:
                     is_exo_solved = True
             exos[ex2test.id]["is_triable"] = not is_exo_solved
 

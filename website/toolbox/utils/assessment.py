@@ -97,10 +97,13 @@ def detect_assess_overlaps(past, current, future):
 # return a dict of {
 #   int exit_code,
 #   Assessment assessment,
-#   dict exercises of {
-#       Exercise ex_obj,
+#   dict of exo2test_id->{
+#       Exo2Test ex2tst_obj,
 #       bool is_triable,
-#       list of Language lang_objs}}
+#       list of ExoTest2Lang ex_tst_lng
+#       bool is_redirected,
+#       int asse_id
+#       }
 def get_asse_exercises(request, id_asse):
     # get current user
     curr_user = request.user

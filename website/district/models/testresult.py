@@ -15,7 +15,7 @@ class TestResult(models.Model):
     exo_test2lang = models.ForeignKey(ExoTest2Lang, on_delete=models.CASCADE)
     user = models.ForeignKey(UserDC, on_delete=models.CASCADE)
     nb_test_try = models.IntegerField(default=0)
-    solve_time = models.DateTimeField(default=0)
+    solve_time = models.DateTimeField(auto_now_add=True)
     solve_code = models.TextField()
     solve_percentage = models.FloatField(default=0)
     assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE)

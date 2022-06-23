@@ -13,13 +13,13 @@
     <div class="page">
         <div class="wording">
             <ul><li>
-                id: {{ ex2tst.exercise_id.id }}
+                id: {{ ex2tst.exercise.id }}
                 <ul>
-                    <li>title: {{ ex2tst.exercise_id.title }}</li>
-                    <li>desc: {{ ex2tst.exercise_id.description }}</li>
-                    <li>gen_file: {{ ex2tst.exercise_id.gen_file }}</li>
-                    <li>icon: {{ ex2tst.exercise_id.icon }}</li>
-                    <li>mode: {{ ex2tst.exercise_id.insp_mode_id }}</li>
+                    <li>title: {{ ex2tst.exercise.title }}</li>
+                    <li>desc: {{ ex2tst.exercise.description }}</li>
+                    <li>gen_file: {{ ex2tst.exercise.gen_file }}</li>
+                    <li>icon: {{ ex2tst.exercise.icon }}</li>
+                    <li>mode: {{ ex2tst.exercise.insp_mode_id }}</li>
                     <li>
                     Languages :
                     <ul>
@@ -37,10 +37,35 @@
                 </ul>
             </li></ul>
         </div>
+
         {% if is_triable %}
             <button onclick="location.href='/exercise/write?extest={{ ex2tst.id }}&asse={{ asse_id }}';">Try</button>
         {% endif %}
         {%  include "district/common/footer.html" %}
+
+        <h2>Your last solution</h2>
+        <div class="solution">
+            <ul>
+                {% for item in testresults %}
+                    {% if item.testresult_obj.solve_percentage != 0 %}
+                    <li>
+                        {{ item.lang_obj.name }}
+                        <ul>
+                            <li>nb try: {{ item.testresult_obj.nb_test_try }}</li>
+                            <li>solve time: {{ item.testresult_obj.solve_time }}</li>
+                            <li>solve at: {{ item.testresult_obj.solve_percentage }}%</li>
+                            <li>solve code:
+                                <pre>
+                                    <div class="code" id="console_view">{{ item.testresult_obj.solve_code }}</div>
+                                </pre>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
     </div>
 </body>
 </html>

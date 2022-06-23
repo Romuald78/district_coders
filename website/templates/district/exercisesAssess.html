@@ -14,19 +14,19 @@
         {% for key, value in exo2tests.items %}
             <li>
                 <ul>
-                    <li>ex id :{{ value.ex2tst_obj.exercise_id.id }}</li>
-                    <li>title :{{ value.ex2tst_obj.exercise_id.title }}</li>
-                    <li>description :{{ value.ex2tst_obj.exercise_id.description }}</li>
-                    <li>gen file :{{ value.ex2tst_obj.exercise_id.gen_file }}</li>
-                    <li>icon :{{ value.ex2tst_obj.exercise_id.icon }}</li>
-                    <li>gen type :{{ value.ex2tst_obj.exercise_id.insp_mode_id }}</li>
+                    <li>ex id :{{ value.ex2tst_obj.exercise.id }}</li>
+                    <li>title :{{ value.ex2tst_obj.exercise.title }}</li>
+                    <li>description :{{ value.ex2tst_obj.exercise.description }}</li>
+                    <li>gen file :{{ value.ex2tst_obj.exercise.gen_file }}</li>
+                    <li>icon :{{ value.ex2tst_obj.exercise.icon }}</li>
+                    <li>gen type :{{ value.ex2tst_obj.exercise.insp_mode_id }}</li>
                     <li>{{ value.result_train }}% succeed in training mode</li>
                     <li>{{ value.result_test }}% succeed in test mode</li>
                     <li>rank: {{ value.ex2tst_obj.rank }}</li>
                     <li>score: {{ value.ex2tst_obj.score }}</li>
                     <li>languages :
                         {% for extstlng in value.ex_tst_lng %}
-                            <img class="code_logo" src="{{ MEDIA_URL }}{{ extstlng.lang_id.icon }}">
+                            <img class="code_logo" src="{{ MEDIA_URL }}{{ extstlng.lang.icon }}">
                         {% endfor %}
                     </li>
                 </ul>
