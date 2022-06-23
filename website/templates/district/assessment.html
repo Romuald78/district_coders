@@ -2,7 +2,17 @@
     {% for i in assessments %}
         <li>
             <ul>
-                <li>id :{{ i.assessment.id }}</li>
+                <li>id :{{ i.assessment.id }}
+                    {%  if i.overlaps|length > 0 %}
+                        <p class="infobox {{ msg_class }}">
+                        ❗ overlaps following assessments :
+                        {% for k in i.overlaps %}
+                            ID={{ k.id }}
+                        {%  endfor %}
+                        ❗
+                    </p>
+                    {% endif %}
+                </li>
                 <li>start time :{{ i.assessment.start_time }}</li>
                 <li>end time :{{ i.assessment.end_time }}</li>
                 <li>training time :{{ i.assessment.training_time }}</li>

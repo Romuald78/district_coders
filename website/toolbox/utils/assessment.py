@@ -66,13 +66,13 @@ def detect_assess_overlaps(past, current, future):
     #    all.append((assess["assessment"].start_time, assess["assessment"]))
     #    all.append((assess["assessment"].end_time,   assess["assessment"]))
     for assess in current:
-        all.append((assess["assessment"].start_time, assess["assessment"]))
-        all.append((assess["assessment"].end_time,   assess["assessment"]))
+        all.append((assess["assessment"].start_time, assess))
+        all.append((assess["assessment"].end_time,   assess))
     for assess in future:
-        all.append((assess["assessment"].start_time, assess["assessment"]))
-        all.append((assess["assessment"].end_time,   assess["assessment"]))
+        all.append((assess["assessment"].start_time, assess))
+        all.append((assess["assessment"].end_time,   assess))
     # Sort by time
-    all    = sorted(all, key=lambda x: x[0])
+    all = sorted(all, key=lambda x: x[0])
     #
     active = []
     out    = {}
@@ -84,18 +84,14 @@ def detect_assess_overlaps(past, current, future):
         else:
             # this is a start
             active.append(assess)
-            out[assess] = []
+            assess["overlaps"] = []
             if len(active) > 1:
                 for other in active:
                     if assess != other:
-                        if other not in out[assess]:
-                            out[assess].append(other)
-                        if assess not in out[other]:
-                            out[other].append(assess)
-    #for o in out:
-    #    others = [x.id for x in out[o]]
-    #    print(o.id, others)
-    return out
+                        if other["assessment"] not in assess["overlaps"]:
+                            assess["overlaps"].append(other["assessment"])
+                        if assess["assessment"] not in other["overlaps"]:
+                            other["overlaps"].append(assess["assessment"])
 
 # get exercises of an assessment
 # return a dict of {

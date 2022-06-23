@@ -31,6 +31,7 @@ def ctrl_home(request):
         # render home page
         context["training"]   = past
         context["inprogress"] = current
+        print(current)
         context["future"]     = future
         return HttpResponse(template.render(context, request))
 

@@ -10,11 +10,11 @@
 {% block page_content %}
 <!-- ----------------------------------- --->
     <h1>FUTURE</h1>
-    {% with assessments=future %}
+    {% with assessments=future msg_class="warning" %}
         {% include "district/assessment.html" %}
     {% endwith %}
     <h1>IN PROGRESS</h1>
-    {% with assessments=inprogress %}
+    {% with assessments=inprogress msg_class="error" %}
         {% include "district/assessment.html" %}
     {% endwith %}
     <h1>TRAINING</h1>
