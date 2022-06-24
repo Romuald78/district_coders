@@ -9,7 +9,7 @@ function read_line(){
 }
 
 interf.on('line', function (received) {
-    console.log("|"+received+"|");
+    //console.log("|"+received+"|");
     lines.push(received);
 });
 
