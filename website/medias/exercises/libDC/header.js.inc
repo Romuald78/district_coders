@@ -1,6 +1,9 @@
-const readline = rl.default;
+//const readline = rl.default;
 
-var interf = readline.createInterface(process.stdin, null, null);
+const interf = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 var lines = []
 
