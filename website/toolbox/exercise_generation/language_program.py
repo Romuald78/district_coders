@@ -100,8 +100,7 @@ class JSProgram(UserProgram):
         self.exec_cmd = [JS_EXEC, self.filepath]
         # store the raw code into the user file
 
-        dependence = f"var rl = require('{os.path.join(MEDIA_ROOT, 'dependencies', 'node_modules', 'readline-promise')}');\n".replace("\\", "\\\\")
-        # dependence = f"var rl = require('readline');\n"
+        dependence = f"var readline = require('readline');\n"
 
         file = open(os.path.join(MEDIA_ROOT, "exercises", "libDC", "header.js.inc"))
         header = file.read()

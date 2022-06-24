@@ -1,4 +1,3 @@
-const readline = rl.default;
 
 var interf = readline.createInterface(process.stdin, null, null);
 
