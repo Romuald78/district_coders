@@ -24,5 +24,5 @@ class UserProgram():
         with open(filepath, 'w', encoding="UTF-8") as f:
             f.write(raw_code)
 
-    def compile(self):
+    def compile(self, genfile, insp_mode):
         raise Exception(f"'{self.compile.__name__}' method has not been implemented yet in {self}")

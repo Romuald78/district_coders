@@ -7,7 +7,7 @@ from district.models.language import Language
 defaultC = """
 #include <stdio.h>
 
-int main(int argc, char** argc){
+int main(int argc, char** argv){
     printf("answer");
     return 0;
 }
