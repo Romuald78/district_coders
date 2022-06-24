@@ -14,7 +14,7 @@ def get_current_asse(request):
     in_progress = Assessment.objects.filter(
         start_time__lte=timezone.now(),
         end_time__gt=timezone.now(),
-        groups__userdc=curr_user)
+        groups__userdc=curr_user).distinct()
 
     return in_progress
 
@@ -28,7 +28,7 @@ def get_past_asse(request):
         start_time__lt=timezone.now(),
         end_time__lte=timezone.now(),
         training_time__lte=timezone.now(),
-        groups__userdc=curr_user)
+        groups__userdc=curr_user).distinct()
 
     return training
 
@@ -41,7 +41,7 @@ def get_future_asse(request):
     future = Assessment.objects.filter(
         start_time__gt=timezone.now(),
         end_time__gt=timezone.now(),
-        groups__userdc=curr_user)
+        groups__userdc=curr_user).distinct()
 
     return future
 
