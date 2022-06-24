@@ -1,5 +1,8 @@
 
-var interf = readline.createInterface(process.stdin, null, null);
+const interf = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 var lines = []
 
