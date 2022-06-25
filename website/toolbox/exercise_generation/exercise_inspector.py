@@ -39,7 +39,7 @@ class ExerciseInspector():
             return (exit_code_comp, stdout_comp.decode("UTF-8"), stderr_comp.decode("UTF-8"))
 
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)
-        if exercise.insp_mode.name == INSPECTOR_MODE_STDIO:  # mode stdio #TODO use exercise object to retrieve mode
+        if exercise.insp_mode.name == INSPECTOR_MODE_STDIO:  # mode stdio
             # Call the system
             # .../...../exo.exe -g -sXXXXX | execcommandstring | .../...../exo.exe -v -sXXXXX
             # print("commande : ", [ex_corr, "-g", f"-s{seed}", "|", exec_cmd, "|", ex_corr, "-v", f"-s{seed}"])

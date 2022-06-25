@@ -1,0 +1,21 @@
+{% extends "district/common/base.html" %}
+
+{% block page_header %}
+    {% with page_title="User update" %}
+        {{ block.super }}
+    {% endwith %}
+{%  endblock %}
+
+<!-- ----------------------------------- --->
+{% block page_content %}
+<!-- ----------------------------------- --->
+    <div>
+        <form method="post" enctype="multipart/form-data" >
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" >Update information</button>
+        </form>
+    </div>
+<!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->

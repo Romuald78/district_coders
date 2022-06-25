@@ -6,6 +6,7 @@ from django.template import loader
 
 from toolbox.users.signup import SignupForm
 from district.models.group import GroupDC
+from toolbox.users.update import UserUpdateForm
 from website.settings import LOGIN_URL, DEFAULT_GROUP_KEY
 
 
@@ -65,3 +66,25 @@ def ctrl_user_signup(request):
     template = loader.get_template('registration/signup.html')
     return HttpResponse(template.render(context, request))
 
+@login_required(login_url=LOGIN_URL)
+def ctrl_user_update(request):
+    user = request.user
+
+    if request.method == "POST":
+        form = UserUpdateForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            user.refresh_from_db()
+            user.first_name = form.cleaned_data.get('first_name')
+            user.last_name = form.cleaned_data.get('last_name')
+            user.icon = form.cleaned_data.get('icon')
+            user.description = form.cleaned_data.get('description')
+            user = form.save()
+            user.refresh_from_db()
+            return redirect('/accounts/profile')
+    else:
+        form = UserUpdateForm(instance=user)
+
+    context = {'form':form}
+    # Load view template
+    template = loader.get_template('registration/update.html')
+    return HttpResponse(template.render(context, request))

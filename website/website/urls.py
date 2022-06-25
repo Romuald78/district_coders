@@ -19,7 +19,7 @@ from django.urls import path, include
 
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
-from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup
+from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_user_update
 from toolbox.utils.user import ctrl_user_register
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
@@ -38,6 +38,8 @@ urlpatterns = [
     path('accounts/signup/', ctrl_user_signup),
     # The user profile View
     path('accounts/profile/', ctrl_user_profile),
+    # Let a user update information
+    path('accounts/update/', ctrl_user_update),
     # Let a user join a group
     path('accounts/register/', ctrl_user_register),
 
