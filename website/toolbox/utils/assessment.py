@@ -4,6 +4,7 @@ from district.models.assessment import Assessment
 
 # retrieve all the current assessments
 import toolbox.utils.exercise as Ex
+from secure import error_message_cnf
 
 
 def get_current_asse(request):
@@ -48,13 +49,19 @@ def get_future_asse(request):
 
 # give the availability of an assessment (future assessment aren't available)
 # param : QuerySet of Assessment
-# return a list of dict of {bool is_available, Assessment assessment}
+# return a list of dict of {bool is_available, Assessment assessment, String not_available_msg}
 def is_asse_available(assessments):
     list_asse = []
     for asse in assessments:
-        list_asse.append({"is_available": not is_date_future(asse), "assessment": asse})
+        is_available = not is_date_future(asse)
+        asse = {"is_available": is_available, "assessment": asse}
+        if not is_available:
+            asse["not_available_msg"] = error_message_cnf.DATE_PERMISSION_FUTURE
+        list_asse.append(asse)
+
 
     return list_asse
+
 
 # return a dictionary with assessment IDs as keys
 # and a list of assessment IDs in collision as value
@@ -93,9 +100,11 @@ def detect_assess_overlaps(past, current, future):
                         if assess["assessment"] not in other["overlaps"]:
                             other["overlaps"].append(assess["assessment"])
 
+
 # get exercises of an assessment
 # return a dict of {
 #   int exit_code,
+#   (String err_msg,)
 #   Assessment assessment,
 #   dict of exo2test_id->{
 #       Exo2Test ex2tst_obj,
@@ -103,7 +112,7 @@ def detect_assess_overlaps(past, current, future):
 #       list of ExoTest2Lang ex_tst_lng
 #       bool is_redirected,
 #       int asse_id
-#       }
+#   }
 def get_asse_exercises(request, id_asse):
     # get current user
     curr_user = request.user
@@ -114,11 +123,11 @@ def get_asse_exercises(request, id_asse):
     )
 
     if len(curr_asse.all()) == 0:
-        return {"exit_code": 4}
+        return {"exit_code": 4, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT}
     result = is_asse_available(curr_asse)[0]
     # only accessible assessments
     if not result["is_available"]:
-        return {"exit_code": 3}
+        return {"exit_code": 3, "err_msg": result["not_available_msg"]}
 
     # dictionary for initial data
     # adding stat for each ex2tst

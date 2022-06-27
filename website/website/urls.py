@@ -23,27 +23,26 @@ from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, 
     ctrl_json_user_groups, ctrl_user_update
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
-from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse
 from website import settings
 
 urlpatterns = [
-    # Documentation Generation (before 'admin' URL in order to avoid interceptions)
+    # [VIEW] Documentation Generation (before 'admin' URL in order to avoid interceptions)
     path('admin/doc/', include('django.contrib.admindocs.urls')),
-    # Administration View
+    # [VIEW] Administration View
     path('admin/'    , admin.site.urls),
 
-    # Authent views
+    # [VIEW] Authent views
     path("accounts/", include("django.contrib.auth.urls")),
     # [VIEW] Let a user join a group
     path('accounts/signup/', ctrl_user_signup),
     # [VIEW] The user profile View
     path('accounts/profile/', ctrl_user_profile),
+    # [VIEW] Let a user update information
+    path('accounts/update/', ctrl_user_update),
     # [JSON] Let a user join a group
     path('accounts/register/', ctrl_json_user_register),
     # [JSON] Fetch all user's groups
     path('accounts/mygroups/', ctrl_json_user_groups),
-    # Let a user update information
-    path('accounts/update/', ctrl_user_update),
 
     # [VIEW] The list of exercises of an assessment View
     path('assessment/details/<int:id_asse>', ctrl_asse_details),

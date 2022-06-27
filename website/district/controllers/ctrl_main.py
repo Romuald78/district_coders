@@ -42,3 +42,11 @@ def ctrl_home(request):
         template = loader.get_template('district/content/home.html')
         # render home page
         return HttpResponse(template.render(context, request))
+
+def ctrl_error(request, err_msg):
+    # dictionary for initial data with
+    context = {"err_msg": err_msg}
+    # Load view template
+    template = loader.get_template('district/content/error.html')
+    # render home page
+    return HttpResponse(template.render(context, request))

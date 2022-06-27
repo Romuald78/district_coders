@@ -1,17 +1,20 @@
-from datetime import timedelta
+import traceback
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.utils import timezone
 
+from district.controllers.ctrl_main import ctrl_error
 from district.models.assessment import Assessment
 from district.models.exotest2lang import ExoTest2Lang
+from secure import error_message_cnf
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
 from toolbox.utils.assessment import is_date_current
 from toolbox.utils.exercise import get_exercise_details, get_exercise_write
 from toolbox.utils.testresult import get_testresult
+from website import settings
 
 from website.settings import LOGIN_URL
 
@@ -27,12 +30,7 @@ def ctrl_exercise_details(request):
 
     response = get_exercise_details(curr_user, ex2tst_id, asse_id)
     if response["exit_code"] != 0:
-        if response["exit_code"] == 4:
-            return HttpResponse("Please enter a valid number of exercise")
-        elif response["exit_code"] == 3:
-            return HttpResponse("Access denied")
-        else:
-            return HttpResponse("Unknown error")
+        return ctrl_error(request, response["err_msg"])
 
     # dictionary for initial data
     context = {}
@@ -69,12 +67,7 @@ def ctrl_exercise_write(request):
 
     response = get_exercise_write(curr_user, ex2tst_id, asse_id)
     if response["exit_code"] != 0:
-        if response["exit_code"] == 4:
-            return HttpResponse("Please enter a valid number of exercise")
-        elif response["exit_code"] == 3:
-            return HttpResponse("Access denied")
-        else:
-            return HttpResponse("Unknown error")
+        return ctrl_error(request, response["err_msg"])
 
     # dictionary for initial data
     context = {}
@@ -103,77 +96,78 @@ def ctrl_exercise_write(request):
 
 @login_required(login_url=LOGIN_URL)
 def ctrl_json_exercise_inspect(request):
-    # get parameters
-    user_id = request.user.id
-    ex2tst_id = int(request.POST.get('ex2tst_id', 0))
-    lang_id = int(request.POST.get('lang_id', 0))
-    user_code = request.POST.get('raw_code', "")
-    asse_id = int(request.POST.get("asse_id", 0))
+    try:
+        # get parameters
+        user_id = request.user.id
+        ex2tst_id = int(request.POST.get('ex2tst_id', 0))
+        lang_id = int(request.POST.get('lang_id', 0))
+        user_code = request.POST.get('raw_code', "")
+        asse_id = int(request.POST.get("asse_id", 0))
 
-    # make sure the user is able to access to the inspection
-    response = get_exercise_write(user_id, ex2tst_id, asse_id)
-    if response["exit_code"] != 0:
-        if response["exit_code"] == 4:
-            return JsonResponse({"exit_code": 4})  # Please enter a valid number of exercise
-        elif response["exit_code"] == 3:
-            return JsonResponse({"exit_code": 3})  # Access denied
+        # make sure the user is able to access to the inspection
+        response = get_exercise_write(user_id, ex2tst_id, asse_id)
+
+        if response["exit_code"] != 0:
+            return JsonResponse({"exit_code": response["exit_code"], "err_msg": response["err_msg"]})
+
+        # make sure the language selected is available for this exo2test
+        language_missing = True
+        for i in response["ex_tst_lng"]:
+            if i.lang.id == lang_id:
+                language_missing = False
+        if language_missing:
+            return JsonResponse({"exit_code": 4})  # Please enter a valid programming language"
+
+        # proceed the inspection
+        ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code)
+        (exit_code, stdout, stderr) = ex_insp.process()
+
+        # saving result into ExoTest2Lang and TestResult
+        queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
+        exotest2lang = queryset_exotest2lang.first()
+        all_testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)
+        if len(all_testresult) == 0:
+            return JsonResponse({"exit_code": 12, "err_msg": error_message_cnf.TESTRESULT_NOT_FOUND})  # Missing testResult
+        testresult = all_testresult[0]["testresult_obj"]
+
+        # is assessment in process or not
+        asse_obj = Assessment.objects.get(id=asse_id)
+        if is_date_current(asse_obj):
+            testresult.nb_test_try += 1
+            exotest2lang.nb_test_try += 1
+
+            # TODO making different level of success (in %)
+            # according to testresult.solve_percentage
+            if exit_code == 0:  # success
+                exotest2lang.nb_test_pass += 1
+                if testresult.solve_percentage < 100:
+                    testresult.solve_code = user_code
+                    testresult.solve_percentage = 100
+                    testresult.solve_time = timezone.now()
         else:
-            return JsonResponse({"exit_code": 18})  # Unknown error
+            exotest2lang.nb_train_try += 1
+            if exit_code == 0:  # success
+                exotest2lang.nb_train_pass += 1
+        exotest2lang.save()
+        testresult.save()
 
-    # make sure the language selected is available for this exo2test
-    language_missing = True
-    for i in response["ex_tst_lng"]:
-        if i.lang.id == lang_id:
-            language_missing = False
-    if language_missing:
-        return JsonResponse({"exit_code": 4})  # Please enter a valid programming language"
+        # ex_id : int
+        # user_id : int
+        # timestamp (date et heure de début de la requete (reception de la requete))
+        # exit_code : int
+        # stdout : str
+        # stderr : str
+        dico_json_response = {
+            "ex_id": response["ex2tst_obj"].exercise.id,
+            "user_id": user_id,
+            "timestamp": timezone.now(),
+            "exit_code": exit_code,
+            "stdout": ansi_to_html(stdout),
+            "stderr": ansi_to_html(stderr)
+        }
 
-    # proceed the inspection
-    ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code)
-    (exit_code, stdout, stderr) = ex_insp.process()
-
-    # saving result into ExoTest2Lang and TestResult
-    queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
-    exotest2lang = queryset_exotest2lang.first()
-    all_testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)
-    if len(all_testresult) == 0:
-        return JsonResponse({"exit_code": 12})  # Missing testResult
-    testresult = all_testresult[0]["testresult_obj"]
-
-    # is assessment in process or not
-    asse_obj = Assessment.objects.get(id=asse_id)
-    if is_date_current(asse_obj):
-        testresult.nb_test_try += 1
-        exotest2lang.nb_test_try += 1
-
-        # TODO making different level of success (in %)
-        # according to testresult.solve_percentage
-        if exit_code == 0:  # success
-            exotest2lang.nb_test_pass += 1
-            if testresult.solve_percentage < 100:
-                testresult.solve_code = user_code
-                testresult.solve_percentage = 100
-                testresult.solve_time = timezone.now()
-    else:
-        exotest2lang.nb_train_try += 1
-        if exit_code == 0:  # success
-            exotest2lang.nb_train_pass += 1
-    exotest2lang.save()
-    testresult.save()
-
-    # ex_id : int
-    # user_id : int
-    # timestamp (date et heure de début de la requete (reception de la requete))
-    # exit_code : int
-    # stdout : str
-    # stderr : str
-    dico_json_response = {
-        "ex_id": response["ex2tst_obj"].exercise.id,
-        "user_id": user_id,
-        "timestamp": timezone.now(),
-        "exit_code": exit_code,
-        "stdout": ansi_to_html(stdout),
-        "stderr": ansi_to_html(stderr)
-    }
-
-    return JsonResponse(dico_json_response)
+        return JsonResponse(dico_json_response)
+    except:
+        if settings.DEBUG:
+            print(traceback.print_exc())
+        return JsonResponse({})

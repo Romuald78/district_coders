@@ -1,0 +1,16 @@
+{% extends "district/common/base.html" %}
+
+{% block page_header %}
+    {% with page_title="Oops !" %}
+        {{ block.super }}
+    {% endwith %}
+{%  endblock %}
+
+<!-- ----------------------------------- --->
+{% block page_content %}
+<!-- ----------------------------------- --->
+    <h1>Oops, it seems there is something wrong ...</h1>
+    <p class="infobox error">{{ err_msg }}</p>
+<!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->

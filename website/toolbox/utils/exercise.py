@@ -9,6 +9,8 @@ from district.models.exo2test import Exo2Test
 
 import toolbox.utils.assessment as Asse
 
+from secure import error_message_cnf
+
 
 # check if a Set of Exercise are triable or not (only read access)
 # param :
@@ -19,6 +21,7 @@ import toolbox.utils.assessment as Asse
 #   dict of exo2test_id->{
 #       Exo2Test ex2tst_obj,
 #       bool is_triable,
+#       (String not_triable_msg if not is_triable),
 #       list of ExoTest2Lang ex_tst_lng
 #       bool is_redirected,
 #       int asse_id
@@ -29,18 +32,18 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     #     trainable True
     # - P\T :
     #     soit y a un autre en cours
-    #         -> on leak le premier lien ex_id, asse_id
+    #         -> on link le premier lien ex_id, asse_id
     #         -> le champ is_redirected = True
     #         -> trainable True
     #     sinon, c'est
     #         -> trainable False
     # -P :
     #     si y un en cours
-    #         -> leak
+    #         -> link
     #         -> trainable True
     #     s'il y a un P\T
     #         -> trainable False
-    #         -> leak
+    #         -> link
 
     all_other_asse = Assessment.objects.filter(
         ~Q(id=curr_asse.id),
@@ -88,23 +91,27 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
             "is_redirected": False,
             "asse_id": curr_asse.id
         }
-        if ex2test.rank >= min_unsolved_rank:
-            exos[ex2test.id]["is_triable"] = ex2test.rank == min_unsolved_rank
-        else:
-            is_exo_solved = False
-            for etl in all_ex_tst_lng:
-                if len(etl.testresult_set.all()) != 0 and etl.testresult_set.first().solve_percentage >= etl.exo2test.solve_percentage_req:
-                    is_exo_solved = True
-            exos[ex2test.id]["is_triable"] = not is_exo_solved
+        if Asse.is_date_current(curr_asse):
+            # filter : rank too high or complete exercise (during in process assessment) aren't accessible
+            if ex2test.rank >= min_unsolved_rank:
+                exos[ex2test.id]["is_triable"] = ex2test.rank == min_unsolved_rank
+                if not exos[ex2test.id]["is_triable"]:
+                    exos[ex2test.id]["not_triable_msg"] = error_message_cnf.RANK_PERMISSION_TOO_HIGH
+            else:
+                is_exo_solved = False
+                for etl in all_ex_tst_lng:
+                    if len(etl.testresult_set.all()) != 0 and etl.testresult_set.first().solve_percentage >= etl.exo2test.solve_percentage_req:
+                        is_exo_solved = True
+                exos[ex2test.id]["is_triable"] = not is_exo_solved
+                if not exos[ex2test.id]["is_triable"]:
+                    exos[ex2test.id]["not_triable_msg"] = error_message_cnf.RANK_PERMISSION_COMPLETE
 
     # now, we set elements from exos
     for asse in all_other_asse:
         for ex2test in asse.test.exo2test_set.all():
             if ex2test.id in exos:
-                # if assessment is in process
-                if Asse.is_date_current(curr_asse):
-                    pass
-                else: # if assessment is not in process
+                # if assessment is not in process
+                if not Asse.is_date_current(curr_asse):
                     # if assessment is past but not in training mode
                     if Asse.is_date_past_wo_training(curr_asse):
                         # if the assessment is in process
@@ -113,6 +120,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
                             exos[ex2test.id]["is_redirected"] = True
                         elif not exos[ex2test.id]["is_redirected"]:
                             exos[ex2test.id]["is_triable"] = False
+                            exos[ex2test.id]["not_triable_msg"] = error_message_cnf.DATE_PERMISSION_PAST_NOT_TRAINING
                     else:
                         # if the assessment is in process
                         if Asse.is_date_current(asse):
@@ -121,6 +129,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
                         # if not redirected (to in process asse) and if assessment is past but not in training mode
                         elif not exos[ex2test.id]["is_redirected"] and Asse.is_date_past_wo_training(curr_asse):
                             exos[ex2test.id]["is_triable"] = False
+                            exos[ex2test.id]["not_triable_msg"] = error_message_cnf.DATE_PERMISSION_PAST_NOT_TRAINING
                             exos[ex2test.id]["asse_id"] = asse.id
                             exos[ex2test.id]["is_redirected"] = True
     return exos
@@ -132,14 +141,17 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
 #   int exit_code:
 #       4 : exercise not found
 #       3 : Access denied
+#   String err_msg
 #   Exercise ex_obj}
 def get_exercise(curr_user, ex_id, asse_id):
     ex_obj = Exercise.objects.filter(
         id=ex_id,
         exo2test__test__assessment=asse_id,
         exo2test__test__assessment__groups__userdc=curr_user)
-    if ex_id == 0 or asse_id ==0 or len(ex_obj) == 0:
-        return {"exit_code": 4}
+    if ex_id == 0 or asse_id ==0:
+        return {"exit_code": 3, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+    elif len(ex_obj) == 0:
+        return {"exit_code": 4, "err_msg": error_message_cnf.GROUP_PERMISSION_EXERCISE}
 
     return {"exit_code": 0, "ex_obj": ex_obj}
 
@@ -149,32 +161,41 @@ def get_exercise(curr_user, ex_id, asse_id):
 #   int exit_code:
 #       3 : Access denied
 #       [ exit code of exercise.get_exercise ]
+#   (String err_msg)
 #   Exo2Test ex2tst_obj
 #   bool is_triable
+#   (String not_triable_msg)
 #   List of ExoTest2Lang ex_tst_lng}
 def get_exercise_details(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
-    ex_id = Exercise.objects.filter(exo2test=ex2test_id).first().id
+    exercise = Exercise.objects.filter(exo2test=ex2test_id)
+    if len(exercise.all()) == 0:
+        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+    ex_id = exercise.first().id
     result = get_exercise(curr_user, ex_id, asse_id)
     if result["exit_code"] != 0:
         return result
 
     curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
     if len(curr_asse.all()) == 0:
-        return {"exit_code": 4}
+        return {"exit_code": 3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
 
     if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
-        return {"exit_code": 3}
+        return {"exit_code": 3, "err_msg": error_message_cnf.DATE_PERMISSION_FUTURE}
 
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:
-        return {"exit_code": 4}
+        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
 
     exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
-    return {"exit_code": 0,
-            "ex2tst_obj": exos[ex2test_id]["ex2tst_obj"],
-            "is_triable": exos[ex2test_id]["is_triable"],
-            "ex_tst_lng": exos[ex2test_id]["ex_tst_lng"]}
+    rtn_obj = {
+        "exit_code": 0,
+        "ex2tst_obj": exos[ex2test_id]["ex2tst_obj"],
+        "is_triable": exos[ex2test_id]["is_triable"],
+        "ex_tst_lng": exos[ex2test_id]["ex_tst_lng"]}
+    if not rtn_obj["is_triable"]:
+        rtn_obj["not_triable_msg"] = exos[ex2test_id]["not_triable_msg"]
+    return rtn_obj
 
 
 # return a dict containing the wording of an exercise
@@ -182,6 +203,7 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
 #   int exit_code:
 #       3 : Access denied
 #       [ exit code of exercise.get_exercise ]
+#   (String err_msg)
 #   Exo2Test ex2tst_obj
 #   List of ExoTest2Lang ex_tst_lng}
 def get_exercise_write(curr_user, ex2test_id, asse_id):
@@ -193,17 +215,17 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
 
     curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
     if len(curr_asse.all()) == 0:
-        return {"exit_code": 4}
+        return {"exit_code": 3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
 
     if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
-        return {"exit_code": 3}
+        return {"exit_code": 3, "err_msg": error_message_cnf.DATE_PERMISSION_FUTURE}
 
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:
-        return {"exit_code": 4}
+        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
 
     exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
     if exos[ex2test_id]["is_triable"]:
         return {"exit_code": 0, "ex2tst_obj": exos[ex2test_id]["ex2tst_obj"], "ex_tst_lng": exos[ex2test_id]["ex_tst_lng"]}
     else:
-        return {"exit_code": 3}
+        return {"exit_code": 3, "err_msg": exos[ex2test_id]["not_triable_msg"]}
