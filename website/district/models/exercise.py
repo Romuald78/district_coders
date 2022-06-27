@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from toolbox.utils.utils import getIconTag
+from toolbox.utils.utils import get_icon_tag
 from district.models.inspector_mode import InspectorMode
 from website.settings import MEDIA_URL
 
@@ -21,7 +21,7 @@ class Exercise(models.Model):
 
     # Display of the icon in the admin interface
     def image_tag(self):
-        return getIconTag(self.icon)
+        return get_icon_tag(self.icon)
 
     image_tag.short_description = 'icon picture'
     image_tag.allow_tags = True

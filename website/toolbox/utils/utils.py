@@ -1,4 +1,5 @@
 import os
+from shutil import rmtree
 
 from django.core.files.storage import FileSystemStorage
 from django.utils.safestring import mark_safe
@@ -6,7 +7,19 @@ from django.utils.safestring import mark_safe
 from website.settings import MEDIA_URL, MEDIA_ROOT
 
 
-def getIconTag(icon_url):
+def recreate_dir(dirname, clear=True):
+    # if directory exists, remove it if needed
+    if os.path.exists(dirname):
+        if clear:
+            rmtree(dirname)
+    else:
+        clear = True
+    # create directory if needed
+    if clear:
+        os.makedirs(dirname)
+
+
+def get_icon_tag(icon_url):
     icon_path = os.path.join(MEDIA_URL, f"{icon_url}")
     out = "<img src=\""
     out += f"{icon_path}"
@@ -28,6 +41,7 @@ class OverwriteStorage(FileSystemStorage):
                 print(e)
                 return ""
         return name
+
 
 def upload_imagefield_to(instance, filename):
     path = instance.get_upload_to_path()

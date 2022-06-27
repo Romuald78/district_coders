@@ -1,4 +1,3 @@
-//const readline = rl.default;
 
 const interf = readline.createInterface({
   input: process.stdin,

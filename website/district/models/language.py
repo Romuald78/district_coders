@@ -5,7 +5,7 @@ from django.db import models
 
 
 # Create your own models here.
-from toolbox.utils.utils import getIconTag, upload_imagefield_to, OverwriteStorage
+from toolbox.utils.utils import get_icon_tag, upload_imagefield_to, OverwriteStorage
 
 
 class Language(models.Model):
@@ -20,7 +20,7 @@ class Language(models.Model):
 
     # Display of the icon in the admin interface
     def image_tag(self):
-        return getIconTag(self.icon)
+        return get_icon_tag(self.icon)
 
     image_tag.short_description = 'icon picture'
     image_tag.allow_tags = True
