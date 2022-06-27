@@ -46,7 +46,7 @@ class ExerciseInspector():
             part1 = subprocess.Popen([ex_corr, "-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen(exec_cmd, stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            result = part3.communicate() #TODO make a timeout
+            result = part3.communicate(timeout=10)
             exit_code_exec = part3.returncode
             part1.stdout.close()
             part2.stdout.close()
@@ -59,7 +59,7 @@ class ExerciseInspector():
             # print("commande : ", [ex_corr, "-g", f"-s{seed}", "|", exec_cmd, "|", ex_corr, "-v", f"-s{seed}"])
             part1 = subprocess.Popen(exec_cmd + ["-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen(exec_cmd + ["-v", f"-s{seed}"], stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            result = part2.communicate()  # TODO make a timeout
+            result = part2.communicate(timeout=10)
             exit_code_exec = part2.returncode
             part1.stdout.close()
             part2.stdout.close()
