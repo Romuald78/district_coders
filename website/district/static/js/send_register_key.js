@@ -1,3 +1,40 @@
+function display_user_groups() {
+    fetch('/accounts/mygroups/', {
+        method: 'get'
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(json) {
+        // populate the page to display groups
+        var ul = document.getElementById("groups");
+        ul.innerHTML = '';
+
+        for (const [key,value] of Object.entries(json)) {
+            // adding group name
+            var li_gn = document.createElement("li");
+            li_gn.appendChild(document.createTextNode(value.group_obj.name));
+            ul.appendChild(li_gn);
+
+            // adding members list of the group
+            var li_mem = document.createElement("li");
+            li_mem.appendChild(document.createTextNode("membres :"));
+            ul.appendChild(li_mem);
+
+            var ul_mem = document.createElement("ul");
+            // adding user's name
+            value.group_users.forEach(username => {
+                var li_user = document.createElement("li");
+                li_user.appendChild(document.createTextNode(username));
+                ul_mem.appendChild(li_user);
+            })
+            ul.appendChild(ul_mem);
+        }
+
+        // console.log(JSON.stringify(json));
+    });
+}
+
 function send_register_key() {
     var formElement = document.getElementById("register_form");
     const data = new URLSearchParams(new FormData(formElement));
@@ -9,18 +46,20 @@ function send_register_key() {
         return response.json();
     })
     .then(function(json) {
-        // parse string to HtML
-        var parser = new DOMParser();
-        var html_out;
-        if (json.exit_code !== 0) {
-            html_out = parser.parseFromString("Oops, something went wrong", 'text/html');
-        } else {
-            html_out = parser.parseFromString("Added to a new group !", 'text/html');
-        }
         var console_view = document.getElementById("register_result");
         console_view.innerHTML = '';
-        console_view.appendChild(html_out.body);
 
-        console.log(JSON.stringify(json));
+        if (json.exit_code !== 0) {
+            var err_p = document.createElement("p");
+            err_p.appendChild(document.createTextNode("Oops, something went wrong"));
+            err_p.classList.add("infobox");
+            err_p.classList.add("error");
+            console_view.appendChild(err_p);
+        } else {
+            // refresh display
+            display_user_groups();
+        }
+
+        // console.log(JSON.stringify(json));
     });
 }

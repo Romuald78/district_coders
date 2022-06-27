@@ -19,8 +19,8 @@ from django.urls import path, include
 
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
-from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup
-from toolbox.utils.user import ctrl_user_register
+from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
+    ctrl_json_user_groups
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse
@@ -34,25 +34,27 @@ urlpatterns = [
 
     # Authent views
     path("accounts/", include("django.contrib.auth.urls")),
-    # Let a user join a group
+    # [VIEW] Let a user join a group
     path('accounts/signup/', ctrl_user_signup),
-    # The user profile View
+    # [VIEW] The user profile View
     path('accounts/profile/', ctrl_user_profile),
-    # Let a user join a group
-    path('accounts/register/', ctrl_user_register),
+    # [JSON] Let a user join a group
+    path('accounts/register/', ctrl_json_user_register),
+    # [JSON] Fetch all user's groups
+    path('accounts/mygroups/', ctrl_json_user_groups),
 
-    # The list of exercises of an assessment View
+    # [VIEW] The list of exercises of an assessment View
     path('assessment/details/<int:id_asse>', ctrl_asse_details),
 
-    # The wording(without code editor) of an exercise
+    # [VIEW] The wording(without code editor) of an exercise
     path('exercise/details/', ctrl_exercise_details),
-    # The training exercise View (with code editor)
+    # [VIEW] The training exercise View (with code editor)
     path('exercise/write/', ctrl_exercise_write),
-    # Verify an exercise
+    # [JSON] Verify an exercise
     path('exercise/inspect/', ctrl_json_exercise_inspect),
-    # Verify the existence of a TestResult
+    # [JSON] Verify the existence of a TestResult
     path('exercise/createstat/', ctrl_json_testresult_exists),
 
-    # HOME
+    # [VIEW] HOME
     path('', ctrl_home),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

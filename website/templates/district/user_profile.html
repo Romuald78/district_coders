@@ -16,17 +16,7 @@
         <li>Profile picture : <img class="code_logo" src="{{ MEDIA_URL }}{{ user.icon }}"></li>
         <li>description : {{ user.description }}</li>
         <li>mes groupes
-            <ul>
-                {% for key, value in groups.items %}
-                    <li>{{ value.group_obj.name }}</li>
-                    <li>membres :
-                        <ul>
-                            {% for user in value.group_users %}
-                                <li>{{ user }}</li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                {% endfor %}
+            <ul id="groups">
             </ul>
         </li>
     </ul>
@@ -34,10 +24,11 @@
     <form id="register_form" method="post">{% csrf_token %}
         <label>Register key</label>
         <input type="text" id="register_key" name="register_key">
-        <input type="hidden" id="user_id" name="user_id" value={{ user.id }}>
-        <input type="button" onclick="send_register_key()" value="Submit">
+        <input type="button" onclick="send_register_key();" value="Submit">
     </form>
     <div id="register_result"></div>
+
+    <script>display_user_groups();</script>
 <!-- ----------------------------------- --->
 {% endblock %}
 <!-- ----------------------------------- --->
