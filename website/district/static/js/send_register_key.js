@@ -49,16 +49,26 @@ function send_register_key() {
         var console_view = document.getElementById("register_result");
         console_view.innerHTML = '';
 
+        var err_p = document.createElement("p");
+        err_p.classList.add("infobox");
         if (json.exit_code !== 0) {
-            var err_p = document.createElement("p");
-            err_p.appendChild(document.createTextNode("Oops, something went wrong"));
-            err_p.classList.add("infobox");
-            err_p.classList.add("error");
-            console_view.appendChild(err_p);
+            err_p.appendChild(document.createTextNode(json.err_msg[1]));
+            if (json.exit_code == 9) {
+                err_p.classList.add("warning");
+            } else {
+                err_p.classList.add("error");
+            }
         } else {
+            err_p.appendChild(document.createTextNode("New group registration ok"));
+            err_p.classList.add("ok");
             // refresh display
             display_user_groups();
+
+            // clear register_key text field
+            var register_key_field = document.getElementById("register_key");
+            register_key_field.value = "";
         }
+        console_view.appendChild(err_p);
 
         // console.log(JSON.stringify(json));
     });

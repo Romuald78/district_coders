@@ -1,16 +1,9 @@
-import os
-from django.utils import timezone
 
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.template import loader
 
-from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
-from toolbox.utils.ansi_to_html import ansi_to_html
 from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse, is_asse_available, \
     detect_assess_overlaps
-
-from website.settings import MEDIA_ROOT
-from django.shortcuts import redirect
 
 
 def ctrl_home(request):
@@ -31,7 +24,6 @@ def ctrl_home(request):
         # render home page
         context["training"]   = past
         context["inprogress"] = current
-        print(current)
         context["future"]     = future
         return HttpResponse(template.render(context, request))
 

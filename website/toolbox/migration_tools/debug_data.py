@@ -131,7 +131,7 @@ def createExoTest2Lang(exo2tests):
             obj.nb_test_pass    = 0
             obj.nb_train_try    = 0
             obj.nb_train_pass   = 0
-            obj.exec_timeout    = -1
+            # obj.exec_timeout    = -1
             obj.exec_max_memory = -1
             obj.exo2test     = e2t
             obj.lang_id            = lang_id

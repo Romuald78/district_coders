@@ -21,7 +21,7 @@ from secure import error_message_cnf
 #   dict of exo2test_id->{
 #       Exo2Test ex2tst_obj,
 #       bool is_triable,
-#       (String not_triable_msg if not is_triable),
+#       (List of String not_triable_msg),
 #       list of ExoTest2Lang ex_tst_lng
 #       bool is_redirected,
 #       int asse_id
@@ -141,7 +141,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
 #   int exit_code:
 #       4 : exercise not found
 #       3 : Access denied
-#   String err_msg
+#   (List of String err_msg)
 #   Exercise ex_obj}
 def get_exercise(curr_user, ex_id, asse_id):
     ex_obj = Exercise.objects.filter(
@@ -161,10 +161,10 @@ def get_exercise(curr_user, ex_id, asse_id):
 #   int exit_code:
 #       3 : Access denied
 #       [ exit code of exercise.get_exercise ]
-#   (String err_msg)
+#   (List of String err_msg)
 #   Exo2Test ex2tst_obj
 #   bool is_triable
-#   (String not_triable_msg)
+#   (List of String not_triable_msg)
 #   List of ExoTest2Lang ex_tst_lng}
 def get_exercise_details(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
@@ -203,7 +203,7 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
 #   int exit_code:
 #       3 : Access denied
 #       [ exit code of exercise.get_exercise ]
-#   (String err_msg)
+#   (List of String err_msg)
 #   Exo2Test ex2tst_obj
 #   List of ExoTest2Lang ex_tst_lng}
 def get_exercise_write(curr_user, ex2test_id, asse_id):

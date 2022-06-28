@@ -104,7 +104,7 @@ def detect_assess_overlaps(past, current, future):
 # get exercises of an assessment
 # return a dict of {
 #   int exit_code,
-#   (String err_msg,)
+#   (List of String err_msg,)
 #   Assessment assessment,
 #   dict of exo2test_id->{
 #       Exo2Test ex2tst_obj,

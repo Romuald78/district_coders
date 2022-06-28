@@ -7,9 +7,8 @@ from district.models.testresult import TestResult
 #     List of ExoTest2Lang ex_tst_lng_objs
 # return :
 #     List of dict of {
-#         int exit_code
-#             4: testresult not found
 #         TestResult testresult
+#         Language lang_obj
 #     }
 def get_testresult(user_id, asse_id, ex_tst_lng_objs):
 

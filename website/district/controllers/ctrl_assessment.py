@@ -13,7 +13,7 @@ from website.settings import LOGIN_URL
 def ctrl_asse_details(request, id_asse):
     result = get_asse_exercises(request, id_asse)
     if result["exit_code"] != 0:
-        return ctrl_error(request, result["err_msg"])
+        return ctrl_error(request, result["err_msg"][1])
 
     # Load view template
     template = loader.get_template('district/exercisesAssess.html')

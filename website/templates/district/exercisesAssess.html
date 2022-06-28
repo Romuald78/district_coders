@@ -35,7 +35,7 @@
                     This exercise is available in another assessment
                 {% endif %}
                 {% if not value.is_triable %}
-                    <span style="color: red">Locked</span>
+                    <span style="color: red">{{ value.not_triable_msg.0 }}</span>
                 {% endif %}
                 <button onclick="location.href='/exercise/details?extest={{ value.ex2tst_obj.id }}&asse={{ value.asse_id }}';">Check it out</button>
 

@@ -1,7 +1,9 @@
 import os
 import subprocess
-import urllib.parse
+import traceback
 from random import randint
+
+from django.utils import timezone
 
 from toolbox.constants import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
 from district.models.exercise import Exercise
@@ -14,7 +16,7 @@ from website.settings import MEDIA_ROOT
 # TODO pour le mode include il faudra modifier la classe exec_inspect pour passer des parametres optionnels pour gerer les imports dynamiques
 class ExerciseInspector():
 
-    def __init__(self, user_id, ex_id, lang_id, raw_code):
+    def __init__(self, user_id, ex_id, lang_id, raw_code, timeout):
         self.user_id = user_id
         self.raw_code = raw_code
         self.ex_id = ex_id
@@ -22,6 +24,7 @@ class ExerciseInspector():
         module = importlib.import_module("toolbox.exercise_generation.language_program")
         class_ = getattr(module, self.language.language_program)
         self.program = class_(raw_code, user_id)
+        self.timeout = timeout
 
     def process(self):
         # retrieve exercise (+genFile)
@@ -46,12 +49,23 @@ class ExerciseInspector():
             part1 = subprocess.Popen([ex_corr, "-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen(exec_cmd, stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            result = part3.communicate(timeout=10)
-            exit_code_exec = part3.returncode
-            part1.stdout.close()
-            part2.stdout.close()
-            part3.stdout.close()
-            (stdout_exec, stderr_exec) = result
+
+            try:
+                result = part3.communicate(timeout=self.timeout)
+                exit_code_exec = part3.returncode
+                part1.stdout.close()
+                part2.stdout.close()
+                part3.stdout.close()
+                (stdout_exec, stderr_exec) = result
+            except:
+                part1.kill()
+                part2.kill()
+                part3.kill()
+                result = part3.communicate()
+                exit_code_exec = part3.returncode
+                # (stdout_exec, stderr_exec) = result
+                stdout_exec = "".encode("UTF-8")
+                stderr_exec = "Error timeout".encode("UTF-8")
 
         elif exercise.insp_mode.name == INSPECTOR_MODE_INCLUDE: # mode include
             # Call the system
@@ -59,11 +73,20 @@ class ExerciseInspector():
             # print("commande : ", [ex_corr, "-g", f"-s{seed}", "|", exec_cmd, "|", ex_corr, "-v", f"-s{seed}"])
             part1 = subprocess.Popen(exec_cmd + ["-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen(exec_cmd + ["-v", f"-s{seed}"], stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            result = part2.communicate(timeout=10)
-            exit_code_exec = part2.returncode
-            part1.stdout.close()
-            part2.stdout.close()
-            (stdout_exec, stderr_exec) = result
+            try:
+                result = part2.communicate(timeout=self.timeout)
+                exit_code_exec = part2.returncode
+                part1.stdout.close()
+                part2.stdout.close()
+                (stdout_exec, stderr_exec) = result
+            except:
+                part1.kill()
+                part2.kill()
+                result = part2.communicate()
+                exit_code_exec = part2.returncode
+                # (stdout_exec, stderr_exec) = result
+                stdout_exec = "".encode("UTF-8")
+                stderr_exec = "Error timeout".encode("UTF-8")
         else:
             raise Exception(f"Bad inspector mode value {exercise.insp_mode.name}")
 

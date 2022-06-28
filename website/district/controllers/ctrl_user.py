@@ -74,6 +74,9 @@ def ctrl_json_user_register(request):
         if not groups.exists():
             return JsonResponse({"exit_code": 1, "err_msg": error_message_cnf.GROUP_REGISTER_UNVALIDE_KEY})
 
+        if len(GroupDC.objects.filter(id=groups.first().id, userdc=user_id).all()) != 0:
+            return JsonResponse({"exit_code": 9, "err_msg": error_message_cnf.GROUP_REGISTER_ALREADY_IN})
+
         # link the group to the user
         user_obj = UserDC.objects.get(id=user_id)
         user_obj.groups.add(groups.first())
@@ -102,7 +105,7 @@ def ctrl_json_user_groups(request):
 
         groups_users = {}
         for g in all_groups:
-            user_name = [user.username for user in g.userdc_set.all()]
+            user_name = [user.username for user in g.userdc_set.all() if user.id != user_id]
             if g.id not in groups_users:
                 group_dict = {"name": g.name, "icon": str(g.icon), "description": g.description}
                 groups_users[g.id] = {"group_obj": group_dict, "group_users": user_name}

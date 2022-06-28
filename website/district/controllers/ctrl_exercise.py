@@ -30,7 +30,7 @@ def ctrl_exercise_details(request):
 
     response = get_exercise_details(curr_user, ex2tst_id, asse_id)
     if response["exit_code"] != 0:
-        return ctrl_error(request, response["err_msg"])
+        return ctrl_error(request, response["err_msg"][1])
 
     # dictionary for initial data
     context = {}
@@ -67,7 +67,7 @@ def ctrl_exercise_write(request):
 
     response = get_exercise_write(curr_user, ex2tst_id, asse_id)
     if response["exit_code"] != 0:
-        return ctrl_error(request, response["err_msg"])
+        return ctrl_error(request, response["err_msg"][1])
 
     # dictionary for initial data
     context = {}
@@ -119,12 +119,15 @@ def ctrl_json_exercise_inspect(request):
             return JsonResponse({"exit_code": 4})  # Please enter a valid programming language"
 
         # proceed the inspection
-        ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code)
+        queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
+        if len(queryset_exotest2lang.all()) == 0:
+            return JsonResponse({"exit_code": 4, "err_msg": error_message_cnf.EXOTEST2LANG_NOT_FOUND})
+        exotest2lang = queryset_exotest2lang.first()
+
+        ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code, exotest2lang.exec_timeout)
         (exit_code, stdout, stderr) = ex_insp.process()
 
         # saving result into ExoTest2Lang and TestResult
-        queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
-        exotest2lang = queryset_exotest2lang.first()
         all_testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)
         if len(all_testresult) == 0:
             return JsonResponse({"exit_code": 12, "err_msg": error_message_cnf.TESTRESULT_NOT_FOUND})  # Missing testResult
