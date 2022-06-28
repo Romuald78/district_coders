@@ -21,12 +21,19 @@ class ExerciseInspector():
         self.raw_code = raw_code
         self.ex_id = ex_id
         self.language = Language.objects.get(id=lang_id)
-        module = importlib.import_module("toolbox.exercise_generation.language_program")
-        class_ = getattr(module, self.language.language_program)
-        self.program = class_(raw_code, user_id)
         self.timeout = timeout
+        # if the string is overweighted (>1Mo)
+        self.is_file_created = True
+        if len(self.raw_code.encode("UTF-8")) > pow(2, 20):
+            self.is_file_created = False
+        else:
+            module = importlib.import_module("toolbox.exercise_generation.language_program")
+            class_ = getattr(module, self.language.language_program)
+            self.program = class_(raw_code, user_id)
 
     def process(self):
+        if not self.is_file_created:
+            return (3, "", "Too many caracters")
         # retrieve exercise (+genFile)
         exercise = Exercise.objects.get(id=self.ex_id) #TODO check the return of get
         # Get alea seed (XXXXX)
