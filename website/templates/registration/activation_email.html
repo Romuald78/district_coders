@@ -1,0 +1,8 @@
+{% autoescape off %}
+Hello {{ user.username }},
+
+Please confirm your email !
+
+http://{{ domain }}{% url 'ctrl_user_validate_email' uidb64=uid token=token %}
+
+{% endautoescape %}

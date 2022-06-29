@@ -11,4 +11,4 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta(forms.ModelForm):
         model = UserDC
-        fields = ('first_name', 'last_name', 'icon', 'description')
+        fields = ('first_name', 'last_name', 'email', 'icon', 'description')

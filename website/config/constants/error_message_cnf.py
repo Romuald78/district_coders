@@ -36,4 +36,6 @@ UNKNOWN_ERROR = ["Unknown", "What ? I mean, I don't know what is happening"]
 FEATURE_NOT_BUG = ["Working", "It's a feature, not a bug"]
 IN_BUILDING_PAGE = ["Not finished", "Be patient, the site is not totally finished yet"]
 
+# EMAIL CONFIRMATION
+EMAIL_CONFIRM_ERROR = ["Email not confirmed", "We're sorry, we haven't be able to confirm your email, please try again"]
 

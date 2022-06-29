@@ -2,14 +2,21 @@ import traceback
 
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template import loader
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_str
 
+from district.controllers.ctrl_main import ctrl_error
 from district.models.user import UserDC
 from config.constants import error_message_cnf
 from toolbox.users.signup import SignupForm
 from district.models.group import GroupDC
+from toolbox.users.tokens import account_activation_token
 from toolbox.users.update import UserUpdateForm
 from website import settings
 from website.settings import LOGIN_URL, DEFAULT_GROUP_KEY
@@ -43,14 +50,22 @@ def ctrl_user_signup(request):
         user.icon = form.cleaned_data.get('icon')
         user.description = form.cleaned_data.get('description')
         user.groups.add(groups.first())
+        # confirmation email
+        user.is_active = False
         user.save()
         # login after signup
-        username = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password1')
-        user = authenticate(username=username, password=password)
-        login(request, user)
+        # username = form.cleaned_data.get('username')
+        # password = form.cleaned_data.get('password1')
+        # user = authenticate(username=username, password=password)
+        # login(request, user)
+
+        send_confirm_email(request, user)
+
         return redirect('/')
     else:
+        print("do it again")
+        print("form valid", form.is_valid())
+        print("group exist", groups.exists())
         form = SignupForm()
 
     context = {'form':form}
@@ -126,11 +141,17 @@ def ctrl_user_update(request):
     if request.method == "POST":
         form = UserUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
+            # user = form.save()
             user.refresh_from_db()
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
             user.icon = form.cleaned_data.get('icon')
             user.description = form.cleaned_data.get('description')
+            former_email = user.email
+            user.email = form.cleaned_data.get('email')
+            if former_email != form.cleaned_data.get('email'):
+                user.email_confirmation = False
+                send_confirm_email(request, user)
             user = form.save()
             user.refresh_from_db()
             return redirect('/accounts/profile')
@@ -141,3 +162,39 @@ def ctrl_user_update(request):
     # Load view template
     template = loader.get_template('registration/update.html')
     return HttpResponse(template.render(context, request))
+
+
+def send_confirm_email(request, user):
+    # sending email to confirm user's email
+    current_site = get_current_site(request)
+    subject = 'Please Activate Your Account'
+    # load a template like get_template()
+    # and calls its render() method immediately.
+    message = render_to_string('registration/activation_email.html', {
+        'user': user,
+        'domain': current_site.domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        # method will generate a hash value with user related data
+        'token': account_activation_token.make_token(user),
+    })
+
+    user.email_user(subject, message)
+
+
+def ctrl_user_validate_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = UserDC.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, UserDC.DoesNotExist):
+        user = None
+        # checking if the user exists, if the token is valid.
+    if user is not None and account_activation_token.check_token(user, token):
+        # if valid set active true
+        user.is_active = True
+        # set signup_confirmation true
+        user.email_confirmation = True
+        user.save()
+        login(request, user)
+        return redirect('/')
+    else:
+        return ctrl_error(request, error_message_cnf.EMAIL_CONFIRM_ERROR[1])

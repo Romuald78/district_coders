@@ -20,7 +20,7 @@ from django.urls import path, include
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
-    ctrl_json_user_groups, ctrl_user_update
+    ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from website import settings
@@ -35,6 +35,8 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     # [VIEW] Let a user join a group
     path('accounts/signup/', ctrl_user_signup),
+    # [VIEW] Validate the email adress
+    path('accounts/activate/<slug:uidb64>/<slug:token>/', ctrl_user_validate_email, name="ctrl_user_validate_email"),
     # [VIEW] The user profile View
     path('accounts/profile/', ctrl_user_profile),
     # [VIEW] Let a user update information
