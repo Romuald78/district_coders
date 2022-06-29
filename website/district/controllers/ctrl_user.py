@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.template import loader
 
 from district.models.user import UserDC
-from secure import error_message_cnf
+from config.constants import error_message_cnf
 from toolbox.users.signup import SignupForm
 from district.models.group import GroupDC
 from toolbox.users.update import UserUpdateForm

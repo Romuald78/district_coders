@@ -1,7 +1,7 @@
 import subprocess
 
-from secure.exec_paths_cnf import PYTHON_EXEC, GCC_EXEC, PHP_EXEC, JS_EXEC
-from toolbox.constants import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
+from config.constants.exec_paths_cnf import PYTHON_EXEC, GCC_EXEC, PHP_EXEC, JS_EXEC
+from config.constants.inspector_mode_cnf import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
 from toolbox.exercise_generation.user_program import UserProgram
 from website.settings import MEDIA_ROOT
 

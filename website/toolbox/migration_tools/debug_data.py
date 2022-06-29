@@ -1,7 +1,7 @@
 
 #----------------------------------------------
 import os.path
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.utils import timezone
 
@@ -13,7 +13,7 @@ from district.models.group import GroupDC
 from district.models.inspector_mode import InspectorMode
 from district.models.test import TestDC
 from district.models.user import UserDC
-from secure.admin_cnf import ADMIN_EMAIL
+from config.secure.admin_cnf import ADMIN_EMAIL
 from website.settings import DEBUG
 
 def createAdmin():

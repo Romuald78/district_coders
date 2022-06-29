@@ -1,6 +1,6 @@
 # Media ROOT (for back end access)
 # For Windows / Vincent Computer
-medias_absolute_path = 'h:\Documents\WORK\district_coders\district_coders\website\medias'
+medias_absolute_path = '/medias'
 
 # Media ROOT (for back end access)
 # For Linux / Romuald Computer

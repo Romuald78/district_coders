@@ -20,6 +20,9 @@ ASSESSMENT_NOT_FOUNT = ["Unknown", "Unable to find the assessment"]
 EXERCISE_NOT_FOUND = ["Unknown", "Unable to find the exercise"]
 EXOTEST2LANG_NOT_FOUND = ["Unknown", "Unable to find the exercise"]
 
+# USER RAW CODE
+USER_RAW_CODE_TOO_BIG = ["Too many characters", "Your code contains too many characters"]
+
 # groups register
 GROUP_REGISTER_EMPTY_KEY = ["Unknown", "Please enter a valid group key"]
 GROUP_REGISTER_UNVALIDE_KEY = ["Unvalide key", "Group not found"]

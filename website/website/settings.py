@@ -12,8 +12,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 
-from secure.django_secret_key import django_secret_key
-from secure.medias_cnf import medias_absolute_path, medias_url_root
+from config.secure.django_secret_key import django_secret_key
+from config.constants.medias_cnf import medias_absolute_path, medias_url_root
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -83,7 +83,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS':{
-            'read_default_file': 'secure/mysql_db.cnf'
+            'read_default_file': 'config/secure/mysql_db.cnf'
         }
     }
 }

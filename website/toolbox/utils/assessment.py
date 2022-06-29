@@ -4,7 +4,7 @@ from district.models.assessment import Assessment
 
 # retrieve all the current assessments
 import toolbox.utils.exercise as Ex
-from secure import error_message_cnf
+from config.constants import error_message_cnf
 
 
 def get_current_asse(request):

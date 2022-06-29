@@ -1,7 +1,4 @@
-from datetime import timedelta
-
 from django.db.models import Q, F
-from django.utils import timezone
 
 from district.models.assessment import Assessment
 from district.models.exercise import Exercise
@@ -9,7 +6,7 @@ from district.models.exo2test import Exo2Test
 
 import toolbox.utils.assessment as Asse
 
-from secure import error_message_cnf
+from config.constants import error_message_cnf
 
 
 # check if a Set of Exercise are triable or not (only read access)

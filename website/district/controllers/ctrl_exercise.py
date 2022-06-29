@@ -8,7 +8,7 @@ from django.utils import timezone
 from district.controllers.ctrl_main import ctrl_error
 from district.models.assessment import Assessment
 from district.models.exotest2lang import ExoTest2Lang
-from secure import error_message_cnf
+from config.constants import default_value_cnf, error_message_cnf
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
 from toolbox.utils.assessment import is_date_current
@@ -86,6 +86,7 @@ def ctrl_exercise_write(request):
             "result_train": int(0 if extstlng.nb_train_try == 0 else 100*extstlng.nb_train_pass/extstlng.nb_train_try)}
     context["languages"] = languages
     context["asse_id"] = asse_id
+    context["max_raw_code"] = default_value_cnf.MAX_LENGTH_USER_RAW_CODE
 
     # adding testresult stat
     context["testresults"] = get_testresult(curr_user.id, asse_id, response["ex_tst_lng"])
@@ -103,6 +104,10 @@ def ctrl_json_exercise_inspect(request):
         lang_id = int(request.POST.get('lang_id', 0))
         user_code = request.POST.get('raw_code', "")
         asse_id = int(request.POST.get("asse_id", 0))
+
+        # verif the code is short enough
+        if len(user_code.encode("UTF-8")) > default_value_cnf.MAX_LENGTH_USER_RAW_CODE:
+            return JsonResponse({"exit_code": 3, "err_msg": error_message_cnf.USER_RAW_CODE_TOO_BIG})
 
         # make sure the user is able to access to the inspection
         response = get_exercise_write(user_id, ex2tst_id, asse_id)

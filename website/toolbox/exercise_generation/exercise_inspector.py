@@ -1,11 +1,9 @@
 import os
 import subprocess
-import traceback
 from random import randint
 
-from django.utils import timezone
-
-from toolbox.constants import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
+from config.constants import default_value_cnf, error_message_cnf
+from config.constants.inspector_mode_cnf import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
 from district.models.exercise import Exercise
 from district.models.language import Language
 import importlib
@@ -24,7 +22,7 @@ class ExerciseInspector():
         self.timeout = timeout
         # if the string is overweighted (>1Mo)
         self.is_file_created = True
-        if len(self.raw_code.encode("UTF-8")) > pow(2, 20):
+        if len(self.raw_code.encode("UTF-8")) > default_value_cnf.MAX_LENGTH_USER_RAW_CODE:
             self.is_file_created = False
         else:
             module = importlib.import_module("toolbox.exercise_generation.language_program")
@@ -33,7 +31,7 @@ class ExerciseInspector():
 
     def process(self):
         if not self.is_file_created:
-            return (3, "", "Too many caracters")
+            return (3, "", error_message_cnf.USER_RAW_CODE_TOO_BIG)
         # retrieve exercise (+genFile)
         exercise = Exercise.objects.get(id=self.ex_id) #TODO check the return of get
         # Get alea seed (XXXXX)

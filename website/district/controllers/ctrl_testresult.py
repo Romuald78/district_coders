@@ -9,7 +9,7 @@ from district.models.assessment import Assessment
 from district.models.exo2test import Exo2Test
 from district.models.exotest2lang import ExoTest2Lang
 from district.models.testresult import TestResult
-from secure import error_message_cnf
+from config.constants import error_message_cnf
 from toolbox.utils.assessment import is_asse_available
 from toolbox.utils.exercise import is_exo_triable
 from website import settings

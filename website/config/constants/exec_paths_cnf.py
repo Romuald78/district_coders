@@ -1,4 +1,4 @@
-# CONFIG VINCENT
+# constants VINCENT
 import os.path
 
 GCC_EXEC = "gcc"
@@ -7,7 +7,7 @@ PHP_EXEC = "php"
 JS_EXEC = "node"
 
 
-# CONFIG ROMUALD
+# constants ROMUALD
 # GCC_EXEC = "gcc"
 # PYTHON_EXEC = "python3"
 # PHP_EXEC = "php"

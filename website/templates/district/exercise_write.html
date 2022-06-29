@@ -79,7 +79,6 @@
                 return response.json();
             })
             .then(function(json) {
-                console.log(JSON.stringify(json));
                 disable_form(false);
             });
         }
@@ -130,7 +129,7 @@
                         <option value={{ key }}>{{ value.name }}</option>
                     {% endfor %}
                 </select>
-                <textarea class="code" id="raw_code" name="raw_code" rows="5" cols="33"></textarea>
+                <textarea maxlength="{{ max_raw_code }}" class="code" id="raw_code" name="raw_code" rows="5" cols="33"></textarea>
 
                 <input id="ex2tst_id" name="ex2tst_id" type="hidden" value={{ ex2tst.id }}>
                 <input id="asse_id" name="asse_id" type="hidden" value={{ asse_id }}>
