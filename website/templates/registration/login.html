@@ -13,6 +13,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button class="button-dc" type="submit">Sign in</button>
+        <a href="/accounts/password_reset">Forgot password?</a>
     </form>
 <!-- ----------------------------------- --->
 {% endblock %}

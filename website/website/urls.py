@@ -15,13 +15,14 @@ Including another URLconf
 """
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, include
 
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
     ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email, ctrl_email_verification, \
-    ctrl_json_sending_email
+    ctrl_json_sending_email, password_reset_request
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from website import settings
@@ -32,6 +33,15 @@ urlpatterns = [
     # [VIEW] Administration View
     path('admin/'    , admin.site.urls),
 
+    # [VIEW] Reset password
+    path('accounts/password_reset/done/',
+       auth_views.PasswordResetDoneView.as_view(template_name='registration/reset_password_done.html'),
+       name='password_reset_done'),
+    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+      template_name="registration/reset_password_confirm.html"), name='password_reset_confirm'),
+    path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(
+      template_name='registration/reset_password_complete.html'), name='password_reset_complete'),
+    path("accounts/password_reset/", password_reset_request, name="password_reset"),
     # [VIEW] Authent views
     path("accounts/", include("django.contrib.auth.urls")),
     # [VIEW] Let a user join a group

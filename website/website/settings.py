@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',          # SESSIONS
     'django.contrib.messages',
     'django.contrib.staticfiles',       # STATIC FILES (images, css, ...)
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [

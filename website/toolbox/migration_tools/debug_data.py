@@ -231,6 +231,7 @@ def createUSers():
         obj.is_superuser = False
         obj.is_staff = False
         obj.is_active = True
+        obj.is_email_validated = True
         obj.set_password(f"pass_{grp_list}")
         obj.email = f"{name}@dummy.com"
         obj.save()
