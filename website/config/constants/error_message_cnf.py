@@ -38,4 +38,5 @@ IN_BUILDING_PAGE = ["Not finished", "Be patient, the site is not totally finishe
 
 # EMAIL CONFIRMATION
 EMAIL_CONFIRM_ERROR = ["Email not confirmed", "We're sorry, we haven't be able to confirm your email, please try again"]
+EMAIL_ALREADY_CONFIRM = ["Email already confirmed", "You already confirm your email. You can login now"]
 

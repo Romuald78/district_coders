@@ -29,7 +29,7 @@ class UserDC(AbstractUser):
     icon = models.ImageField(blank=True, upload_to=user_icon_upload_to)
     description = models.TextField(blank=True)
     groups = models.ManyToManyField(GroupDC)
-    email_confirmation = models.BooleanField(default=False)
+    is_email_validated = models.BooleanField(default=False)
 
     # Display of the icon in the admin interface
     def image_tag(self):

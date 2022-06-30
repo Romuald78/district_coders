@@ -14,6 +14,9 @@
     <ul>
         <li>[{{ user.id }}] {{ user.first_name }} {{ user.last_name }} aka '{{ user.username }}'</li>
         <li>email : {{ user.email }}</li>
+        {% if not user.is_email_validated %}
+            <a href="/accounts/confirmemail/{{ user.id }}">Confirm my email address</a>
+        {% endif %}
         <li>Profile picture : <img class="code_logo" src="{{ MEDIA_URL }}{{ user.icon }}"></li>
         <li>description : {{ user.description }}</li>
         <li>mes groupes

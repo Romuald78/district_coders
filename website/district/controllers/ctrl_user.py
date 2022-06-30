@@ -1,14 +1,11 @@
 import traceback
 
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template import loader
-from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 
 from district.controllers.ctrl_main import ctrl_error
@@ -18,6 +15,7 @@ from toolbox.users.signup import SignupForm
 from district.models.group import GroupDC
 from toolbox.users.tokens import account_activation_token
 from toolbox.users.update import UserUpdateForm
+from toolbox.utils.user import send_confirm_email
 from website import settings
 from website.settings import LOGIN_URL, DEFAULT_GROUP_KEY
 
@@ -59,13 +57,8 @@ def ctrl_user_signup(request):
         # user = authenticate(username=username, password=password)
         # login(request, user)
 
-        send_confirm_email(request, user)
-
-        return redirect('/')
+        return redirect(f'/accounts/confirmemail/{user.id}')
     else:
-        print("do it again")
-        print("form valid", form.is_valid())
-        print("group exist", groups.exists())
         form = SignupForm()
 
     context = {'form':form}
@@ -150,7 +143,7 @@ def ctrl_user_update(request):
             former_email = user.email
             user.email = form.cleaned_data.get('email')
             if former_email != form.cleaned_data.get('email'):
-                user.email_confirmation = False
+                user.is_email_validated = False
                 send_confirm_email(request, user)
             user = form.save()
             user.refresh_from_db()
@@ -164,23 +157,6 @@ def ctrl_user_update(request):
     return HttpResponse(template.render(context, request))
 
 
-def send_confirm_email(request, user):
-    # sending email to confirm user's email
-    current_site = get_current_site(request)
-    subject = 'Please Activate Your Account'
-    # load a template like get_template()
-    # and calls its render() method immediately.
-    message = render_to_string('registration/activation_email.html', {
-        'user': user,
-        'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        # method will generate a hash value with user related data
-        'token': account_activation_token.make_token(user),
-    })
-
-    user.email_user(subject, message)
-
-
 def ctrl_user_validate_email(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -192,9 +168,39 @@ def ctrl_user_validate_email(request, uidb64, token):
         # if valid set active true
         user.is_active = True
         # set signup_confirmation true
-        user.email_confirmation = True
+        user.is_email_validated = True
         user.save()
         login(request, user)
         return redirect('/')
     else:
         return ctrl_error(request, error_message_cnf.EMAIL_CONFIRM_ERROR[1])
+
+
+def ctrl_email_verification(request, user_id):
+    try:
+        curr_user = UserDC.objects.get(id=user_id)
+    except UserDC.DoesNotExist:
+        curr_user = None
+
+    if curr_user is not None and not curr_user.is_email_validated:
+        context = {}
+        context["user_id"] = curr_user.id
+        context["email"] = curr_user.email
+        template = loader.get_template('registration/send_email_verification.html')
+        return HttpResponse(template.render(context, request))
+    else:
+        return ctrl_error(request, error_message_cnf.EMAIL_ALREADY_CONFIRM[1])
+
+
+def ctrl_json_sending_email(request):
+    user_id = int(request.POST.get("user_id", 0))
+    try:
+        curr_user = UserDC.objects.get(id=user_id)
+    except UserDC.DoesNotExist:
+        curr_user = None
+
+    if curr_user is not None and not curr_user.is_email_validated:
+        send_confirm_email(request, curr_user)
+        return JsonResponse({"exit_code": 0})
+    else:
+        return JsonResponse({"exit_code": 3, "err_msg": error_message_cnf.EMAIL_ALREADY_CONFIRM})

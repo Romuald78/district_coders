@@ -1,0 +1,28 @@
+{% extends "district/common/base.html" %}
+
+{% block page_header %}
+    {% with page_title="Email confirm" %}
+        {{ block.super }}
+    {% endwith %}
+{%  endblock %}
+
+<!-- ----------------------------------- --->
+{% block page_content %}
+<!-- ----------------------------------- --->
+    <div>
+        <h1>Go check out your emails !</h1>
+        at {{ email }}
+
+        <form method="post" id="user_form">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" id="user_id" value="{{ user_id }}"/>
+            <button onclick="send_email_confirm()">Send another email</button>
+        </form>
+
+        <div id="stat"></div>
+    </div>
+
+    <script>send_email_confirm();</script>
+<!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->
