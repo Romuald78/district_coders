@@ -12,7 +12,7 @@ def send_confirm_email(request, user):
     subject = 'Please Activate Your Account'
     # load a template like get_template()
     # and calls its render() method immediately.
-    message = render_to_string('registration/activation_email.html', {
+    message = render_to_string('registration/mails/activation_email.html', {
         'user': user,
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),

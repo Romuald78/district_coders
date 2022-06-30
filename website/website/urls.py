@@ -22,7 +22,7 @@ from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_ex
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
     ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email, ctrl_email_verification, \
-    ctrl_json_sending_email, password_reset_request
+    ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from website import settings
@@ -34,14 +34,17 @@ urlpatterns = [
     path('admin/'    , admin.site.urls),
 
     # [VIEW] Reset password
-    path('accounts/password_reset/done/',
-       auth_views.PasswordResetDoneView.as_view(template_name='registration/reset_password_done.html'),
-       name='password_reset_done'),
+    path('accounts/password_reset/done/',auth_views.PasswordResetDoneView.as_view(
+        template_name='registration/reset_password_done.html'),name='password_reset_done'),
     path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
-      template_name="registration/reset_password_confirm.html"), name='password_reset_confirm'),
+        template_name="registration/reset_password_confirm.html"), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(
-      template_name='registration/reset_password_complete.html'), name='password_reset_complete'),
-    path("accounts/password_reset/", password_reset_request, name="password_reset"),
+        template_name='registration/reset_password_complete.html'), name='password_reset_complete'),
+    path("accounts/password_reset/", ctrl_password_reset_request, name="password_reset"),
+    # [VIEW] Change password
+    path("accounts/password_change/done/", ctrl_password_change_done, name="password_change_done"),
+    path("accounts/password_change/", auth_views.PasswordChangeView.as_view(
+        template_name="registration/change_password.html"), name="password_change"),
     # [VIEW] Authent views
     path("accounts/", include("django.contrib.auth.urls")),
     # [VIEW] Let a user join a group

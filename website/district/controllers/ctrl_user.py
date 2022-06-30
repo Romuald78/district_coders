@@ -4,6 +4,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, BadHeaderError
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
@@ -211,7 +212,7 @@ def ctrl_json_sending_email(request):
         return JsonResponse({"exit_code": 3, "err_msg": error_message_cnf.EMAIL_ALREADY_CONFIRM})
 
 
-def password_reset_request(request):
+def ctrl_password_reset_request(request):
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
         if password_reset_form.is_valid():
@@ -220,10 +221,10 @@ def password_reset_request(request):
             if associated_users.exists():
                 for user in associated_users:
                     subject = "Password Reset Requested"
-                    email_template_name = "registration/reset_password_email.html"
+                    email_template_name = "registration/mails/reset_password_email.html"
                     c = {
                         "email": user.email,
-                        'domain': '127.0.0.1:8000',
+                        'domain': get_current_site(request),
                         'site_name': 'Website',
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
@@ -239,3 +240,31 @@ def password_reset_request(request):
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="registration/reset_password.html",
                   context={"password_reset_form": password_reset_form})
+
+
+@login_required(login_url=LOGIN_URL)
+def ctrl_password_change_done(request):
+    user = request.user
+
+    # sending email
+    subject = "Password changed"
+    email_template_name = "registration/mails/change_password_email.html"
+    c = {
+        "email": user.email,
+        'domain': get_current_site(request),
+        'site_name': 'Website',
+        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+        "user": user,
+        'token': default_token_generator.make_token(user),
+        'protocol': 'http',
+    }
+    email = render_to_string(email_template_name, c)
+    try:
+        send_mail(subject, email, 'admin@example.com', [user.email], fail_silently=False)
+    except BadHeaderError:
+        return HttpResponse('Invalid header found.')
+
+    context = {}
+    # Load view template
+    template = loader.get_template('registration/change_password_done.html')
+    return HttpResponse(template.render(context, request))
