@@ -22,7 +22,7 @@ from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_ex
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
     ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email, ctrl_email_verification, \
-    ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done
+    ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done, ctrl_email_change_auth
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from website import settings
@@ -45,6 +45,8 @@ urlpatterns = [
     path("accounts/password_change/done/", ctrl_password_change_done, name="password_change_done"),
     path("accounts/password_change/", auth_views.PasswordChangeView.as_view(
         template_name="registration/change_password.html"), name="password_change"),
+    # [VIEW] Change email
+    path("accounts/email_change_auth/", ctrl_email_change_auth),
     # [VIEW] Authent views
     path("accounts/", include("django.contrib.auth.urls")),
     # [VIEW] Let a user join a group

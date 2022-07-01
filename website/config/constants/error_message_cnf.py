@@ -37,6 +37,10 @@ FEATURE_NOT_BUG = ["Working", "It's a feature, not a bug"]
 IN_BUILDING_PAGE = ["Not finished", "Be patient, the site is not totally finished yet"]
 
 # EMAIL CONFIRMATION
+EMAIL_INVALID = ["Invalid Email", "Please enter a valid email address"]
 EMAIL_CONFIRM_ERROR = ["Email not confirmed", "We're sorry, we haven't be able to confirm your email, please try again"]
 EMAIL_ALREADY_CONFIRM = ["Email already confirmed", "You already confirm your email. You can login now"]
+
+# PASSWORD
+PASSWORD_INVALID = ["Invalid password", "Please enter a valid password"]
 

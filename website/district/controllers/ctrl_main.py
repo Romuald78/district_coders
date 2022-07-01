@@ -1,7 +1,12 @@
+import traceback
 
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template import loader
+from django.template.loader import render_to_string
 
+from config.secure import email_cnf
 from toolbox.utils.assessment import get_current_asse, get_past_asse, get_future_asse, is_asse_available, \
     detect_assess_overlaps
 
