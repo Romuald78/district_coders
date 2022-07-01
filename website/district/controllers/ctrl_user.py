@@ -3,9 +3,12 @@ import traceback
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail, BadHeaderError
+from django.core.validators import validate_email
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -14,6 +17,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
 
+from config.secure import email_cnf
 from district.controllers.ctrl_main import ctrl_error
 from district.models.user import UserDC
 from config.constants import error_message_cnf
@@ -146,11 +150,6 @@ def ctrl_user_update(request):
             user.last_name = form.cleaned_data.get('last_name')
             user.icon = form.cleaned_data.get('icon')
             user.description = form.cleaned_data.get('description')
-            former_email = user.email
-            user.email = form.cleaned_data.get('email')
-            if former_email != form.cleaned_data.get('email'):
-                user.is_email_validated = False
-                send_confirm_email(request, user)
             user = form.save()
             user.refresh_from_db()
             return redirect('/accounts/profile')
@@ -225,7 +224,7 @@ def ctrl_password_reset_request(request):
                     c = {
                         "email": user.email,
                         'domain': get_current_site(request),
-                        'site_name': 'Website',
+                        'site_name': 'District Coders',
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
                         'token': default_token_generator.make_token(user),
@@ -233,7 +232,7 @@ def ctrl_password_reset_request(request):
                     }
                     email = render_to_string(email_template_name, c)
                     try:
-                        send_mail(subject, email, 'admin@example.com', [user.email], fail_silently=False)
+                        send_mail(subject, email, email_cnf.EMAIL_HOST_USER, [user.email], fail_silently=False)
                     except BadHeaderError:
                         return HttpResponse('Invalid header found.')
                     return redirect("/accounts/password_reset/done/")
@@ -252,7 +251,7 @@ def ctrl_password_change_done(request):
     c = {
         "email": user.email,
         'domain': get_current_site(request),
-        'site_name': 'Website',
+        'site_name': 'District Coders',
         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
         "user": user,
         'token': default_token_generator.make_token(user),
@@ -260,7 +259,7 @@ def ctrl_password_change_done(request):
     }
     email = render_to_string(email_template_name, c)
     try:
-        send_mail(subject, email, 'admin@example.com', [user.email], fail_silently=False)
+        send_mail(subject, email, email_cnf.EMAIL_HOST_USER, [user.email], fail_silently=False)
     except BadHeaderError:
         return HttpResponse('Invalid header found.')
 
@@ -268,3 +267,46 @@ def ctrl_password_change_done(request):
     # Load view template
     template = loader.get_template('registration/change_password_done.html')
     return HttpResponse(template.render(context, request))
+
+
+@login_required(login_url=LOGIN_URL)
+def ctrl_email_change_auth(request):
+    # getting params
+    new_email = request.POST.get("new_email", "")
+    password = request.POST.get("password", "")
+    curr_user = request.user
+
+    # conditions
+    are_field_not_empty = len(new_email) > 0 and len(password) > 0
+    if are_field_not_empty:
+        id_password_correct = check_password(password, curr_user.password)
+        try:
+            validate_email(new_email)
+            is_email_validate = True
+        except ValidationError:
+            is_email_validate = False
+
+        if len(UserDC.objects.filter(email=new_email).all()) > 0:
+            is_email_validate = False
+    else :
+        id_password_correct = False
+        is_email_validate = False
+
+    if are_field_not_empty and id_password_correct and is_email_validate and curr_user.email != new_email:
+        # save changes
+        curr_user.is_email_validated = False
+        curr_user.email = new_email
+        curr_user.save()
+        send_confirm_email(request, curr_user)
+        # redirect
+        return redirect(f"/accounts/confirmemail/{curr_user.id}")
+    else:
+        context = {"err_msg": ""}
+        if are_field_not_empty:
+            if not id_password_correct:
+                context["err_msg"] = error_message_cnf.PASSWORD_INVALID
+            elif not is_email_validate:
+                context["err_msg"] = error_message_cnf.EMAIL_INVALID
+
+        template = loader.get_template('registration/email_change_auth.html')
+        return HttpResponse(template.render(context, request))

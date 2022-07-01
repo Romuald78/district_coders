@@ -1,0 +1,28 @@
+{% extends "district/common/base.html" %}
+
+{% block page_header %}
+    {% with page_title="Change password" %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
+
+<!-- ----------------------------------- --->
+{% block page_content %}
+    <!-- ----------------------------------- --->
+    <div class="container">
+        <h1>Change your email address</h1>
+
+        <form id="register_form" method="post">{% csrf_token %}
+            <label>New email</label>
+            <input type="email" id="new_email" name="new_email">
+            <label>Password</label>
+            <input type="password" id="password" name="password">
+            <input type="submit" value="Submit">
+        </form>
+        {% if err_msg|length > 0 %}
+            <p class="infobox error">{{ err_msg.1 }}</p>
+        {% endif %}
+    </div>
+    <!-- ----------------------------------- --->
+{% endblock %}
+<!-- ----------------------------------- --->

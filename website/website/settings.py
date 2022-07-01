@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 
+from config.secure import email_cnf
 from config.secure.django_secret_key import django_secret_key
 from config.constants.medias_cnf import medias_absolute_path, medias_url_root
 
@@ -155,16 +156,16 @@ LOGOUT_REDIRECT_URL = "/"
 DEFAULT_GROUP_KEY = "everyone"
 
 # EMAIL BACKEND
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_HOST =
-# EMAIL_PORT =
-# EMAIL_HOST_USER =
-# EMAIL_HOST_PASSWORD =
-# EMAIL_USE_TLS =
-# EMAIL_USE_SSL =
-# EMAIL_TIMEOUT =
-# EMAIL_SSL_KEYFILE =
-# EMAIL_SSL_CERTFILE =
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = email_cnf.EMAIL_HOST
+EMAIL_PORT = email_cnf.EMAIL_PORT
+EMAIL_HOST_USER = email_cnf.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = email_cnf.EMAIL_HOST_PASSWORD
+EMAIL_USE_TLS = email_cnf.EMAIL_USE_TLS
+EMAIL_USE_SSL = email_cnf.EMAIL_USE_SSL
+# EMAIL_TIMEOUT = email_cnf.EMAIL_TIMEOUT
+# EMAIL_SSL_KEYFILE = email_cnf.EMAIL_SSL_KEYFILE
+# EMAIL_SSL_CERTFILE = email_cnf.EMAIL_SSL_CERTFILE
 
 # RESET TIMEOUT (email or password) (in second)
 PASSWORD_RESET_TIMEOUT = 5 * 60
