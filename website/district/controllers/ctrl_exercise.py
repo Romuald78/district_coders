@@ -12,7 +12,7 @@ from config.constants import default_value_cnf, error_message_cnf
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
 from toolbox.utils.assessment import is_date_current
-from toolbox.utils.exercise import get_exercise_details, get_exercise_write
+from toolbox.utils.exercise import get_exercise_details, get_exercise_write, get_title_console
 from toolbox.utils.testresult import get_testresult
 from website import settings
 
@@ -107,7 +107,10 @@ def ctrl_json_exercise_inspect(request):
 
         # verif the code is short enough
         if len(user_code.encode("UTF-8")) > default_value_cnf.MAX_LENGTH_USER_RAW_CODE:
-            return JsonResponse({"exit_code": 3, "err_msg": error_message_cnf.USER_RAW_CODE_TOO_BIG})
+            return JsonResponse({"exit_code": 3,
+                                 "err_msg": error_message_cnf.USER_RAW_CODE_TOO_BIG,
+                                 "stdout": ansi_to_html(get_title_console()),
+                                 "stderr": error_message_cnf.USER_RAW_CODE_TOO_BIG[1]})
 
         # make sure the user is able to access to the inspection
         response = get_exercise_write(user_id, ex2tst_id, asse_id)
@@ -170,7 +173,7 @@ def ctrl_json_exercise_inspect(request):
             "user_id": user_id,
             "timestamp": timezone.now(),
             "exit_code": exit_code,
-            "stdout": ansi_to_html(stdout),
+            "stdout": ansi_to_html(get_title_console() + stdout),
             "stderr": ansi_to_html(stderr)
         }
 
