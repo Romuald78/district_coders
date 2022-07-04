@@ -226,3 +226,27 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
         return {"exit_code": 0, "ex2tst_obj": exos[ex2test_id]["ex2tst_obj"], "ex_tst_lng": exos[ex2test_id]["ex_tst_lng"]}
     else:
         return {"exit_code": 3, "err_msg": exos[ex2test_id]["not_triable_msg"]}
+
+
+# return an ANSI title
+def get_title_console():
+    bw_title = "[DISTRICT CODERS]"
+    col_title = ""
+    red, green, blue = 0, 0, 255
+
+    for letter in bw_title:
+        if letter != ' ':
+            col_title += f"\33[38;2;{red};{green};{blue}m"
+            red += 16
+            green += 16
+            blue -= 16
+            if red > 255:
+                red = 255
+            if green > 255:
+                green = 255
+            if blue < 0:
+                blue = 0
+        col_title += letter
+    col_title += "\n\33[0m"
+    print("title :", col_title)
+    return col_title

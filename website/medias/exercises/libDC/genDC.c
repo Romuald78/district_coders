@@ -50,7 +50,7 @@ void displayTitleOnce(){
 // Debug + Error : STDERR
 void display(Result res, const char* format, va_list args){
     // Display title
-    displayTitleOnce();
+    // displayTitleOnce();
     // display line header
     if(res != RES_ERR){
         fputs (CLR_NORMAL "[INFO] ", stderr);
@@ -107,7 +107,7 @@ int main(int argc, char** argv){
     Result result = RES_ERR;
     unsigned long seed = 0;
     // prepare title
-    prepareTitle();
+    // prepareTitle();
     // Check number of arguments
     if(argc != 3){
         error("Bad number of arguments (%d-1) !\n", argc);
@@ -187,7 +187,7 @@ int main(int argc, char** argv){
     else if( mode == MODE_VERIFY ){
         result = verify(seed);
         // Display title
-        displayTitleOnce();
+        // displayTitleOnce();
         // display result
         fputs("Test result ", stdout);
         if(result == RES_OK){
@@ -203,7 +203,7 @@ int main(int argc, char** argv){
         exit(11); 
     }
     // Free title
-    free(TITLE);
+    // free(TITLE);
     // Return result of process
     return (result != RES_OK);    
 }

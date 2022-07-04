@@ -35,7 +35,7 @@ class UserDC(AbstractUser):
     def image_tag(self):
         return get_icon_tag(self.icon)
 
-    image_tag.short_description = 'icon picture'
+    image_tag.short_description = 'user picture'
     image_tag.allow_tags = True
 
     def __str__(self):

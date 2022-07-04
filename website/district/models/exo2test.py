@@ -10,7 +10,7 @@ class Exo2Test(models.Model):
     test = models.ForeignKey(TestDC, on_delete=models.CASCADE)
     rank = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
-    solve_percentage_req = models.FloatField(default=100.0)
+    solve_percentage_req = models.FloatField(default=100.0) # TODO par défaut on bloque l'accès aux exos suivant (valeur 100%)
 
     def __str__(self):
         out = f"Exo2Test ex:{self.exercise}/test:{self.test}"
