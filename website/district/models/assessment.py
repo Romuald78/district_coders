@@ -9,7 +9,7 @@ class Assessment(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     training_time = models.DateTimeField()
-    result_json = models.TextField()
+    result_json = models.TextField(blank=True)
     groups = models.ManyToManyField(GroupDC)
     test = models.ForeignKey(TestDC, on_delete=models.CASCADE)
 

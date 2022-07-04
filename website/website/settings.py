@@ -156,7 +156,7 @@ LOGOUT_REDIRECT_URL = "/"
 DEFAULT_GROUP_KEY = "everyone"
 
 # EMAIL BACKEND
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = email_cnf.EMAIL_HOST
 EMAIL_PORT = email_cnf.EMAIL_PORT
 EMAIL_HOST_USER = email_cnf.EMAIL_HOST_USER

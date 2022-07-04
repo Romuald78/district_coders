@@ -1,22 +1,17 @@
-import os
-import urllib.parse
 
 from django.db import models
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
 
 from toolbox.utils.utils import get_icon_tag
 from district.models.inspector_mode import InspectorMode
-from website.settings import MEDIA_URL
 
 
 class Exercise(models.Model):
 
     title = models.CharField(max_length=128)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     gen_file = models.CharField(unique=True, max_length=128) ## FileField ? No because here we only use the name (and not the extension)
     # TODO : add width and height values to ImageField ?
-    icon = models.ImageField(blank=True, upload_to="icons/exercises")               ## FileField ?
+    icon = models.ImageField(blank=True, upload_to="icons/exercises")
     insp_mode = models.ForeignKey(InspectorMode, on_delete=models.CASCADE)
 
     # Display of the icon in the admin interface

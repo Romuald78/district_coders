@@ -6,7 +6,7 @@ from toolbox.utils.utils import get_icon_tag
 class TestDC(models.Model):
 
     title = models.CharField(max_length=128)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     # TODO : add width and height values to ImageField ?
     icon = models.ImageField(blank=True, upload_to="icons/tests")
 
@@ -14,7 +14,7 @@ class TestDC(models.Model):
     def image_tag(self):
         return get_icon_tag(self.icon)
 
-    image_tag.short_description = 'icon picture'
+    image_tag.short_description = 'test picture'
     image_tag.allow_tags = True
 
     def __str__(self):
