@@ -65,6 +65,7 @@ def is_asse_available(assessments):
 
 # return a dictionary with assessment IDs as keys
 # and a list of assessment IDs in collision as value
+# params : 3 assessment lists from is_asse_available
 def detect_assess_overlaps(past, current, future):
     # store all assessments for this user
     all = []

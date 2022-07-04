@@ -4,9 +4,9 @@ import hashlib
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
         h = hashlib.sha3_256()
-        h.update(user.pk)
-        h.update(timestamp)
-        h.update(user.is_email_validated)
+        h.update((user.pk).to_bytes(8, byteorder='big'))
+        h.update((timestamp).to_bytes(8, byteorder='big'))
+        h.update((user.is_email_validated).to_bytes(1, byteorder='big'))
         out = h.digest()
         return out
 
