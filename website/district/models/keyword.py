@@ -5,7 +5,7 @@ from district.models.exercise import Exercise
 
 class KeyWord(models.Model):
 
-    word = models.CharField(max_length=64)
+    word = models.CharField(max_length=64, unique=True)
     exercises = models.ManyToManyField(Exercise)
 
     def __str__(self):

@@ -13,7 +13,7 @@ def ansi_to_html(ansi):
             R = max(0, min(255, R))
             G = max(0, min(255, G))
             B = max(0, min(255, B))
-            color = "#"+("000" + hex(((R*256)+G)*256+B)[2:])[-6:].upper()
+            color = "#"+("00000" + hex(((R*256)+G)*256+B)[2:])[-6:].upper()
             # Replace regex group
             str_to_replace = f"\u001B[38;2;{R};{G};{B}m"
             html_str       = f"</span><span style=\"color:{color}\">"
