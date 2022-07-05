@@ -84,7 +84,7 @@ migrate_langs = [{
          }
     ]
 
-def language_migration(apps, schema_editor):
+def language_migration():
     # Create default languages
     print()
     print("  [DATA MIGRATION][LANGUAGES]")

@@ -13,7 +13,7 @@ migrate_group = [{
          }
     ]
 
-def group_migration(apps, schema_editor):
+def group_migration():
     # create default groups
     print()
     print("  [DATA MIGRATION][GROUPS]")
