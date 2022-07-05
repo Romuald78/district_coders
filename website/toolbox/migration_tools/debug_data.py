@@ -145,23 +145,23 @@ def createGroups():
         obj = GroupDC()
         obj.name = f"Group #{i+1}"
         obj.register_key = f"group{i+1}"
-        obj.description = "Group #{i+1} for all allowed users"
+        obj.description = f"Group #{i+1} for all allowed users"
         obj.save()
         print(f"    > Group [{obj.id}] added !")
 
 def createAssess(tests):
     # assessment data
     ASSESS = [
-        {"name": "Assessment T1",    "test_id": 1, "group": 1,"today": "training"},
-        {"name": "Assessment P1",    "test_id": 2, "group": 1,"today": "end"},
-        {"name": "Assessment P2",    "test_id": 2, "group": 2,"today": "end"},
-        {"name": "Assessment C2",    "test_id": 3, "group": 2,"today": "start"},
-        {"name": "Assessment C3",    "test_id": 3, "group": 3,"today": "start"},
-        {"name": "Assessment F3",    "test_id": 4, "group": 3,"today": "future"},
-        {"name": "Assessment T-all", "test_id": 5, "group": 4,"today": "training"},
-        {"name": "Assessment P-all", "test_id": 5, "group": 4,"today": "end"},
-        {"name": "Assessment C-all", "test_id": 5, "group": 4,"today": "start"},
-        {"name": "Assessment F-all", "test_id": 5, "group": 4,"today": "future"},
+        {"name": "Assessment T1",    "test_id": 1, "group": 1, "today": "training"},
+        {"name": "Assessment P1",    "test_id": 2, "group": 1, "today": "end"},
+        {"name": "Assessment P2",    "test_id": 2, "group": 2, "today": "end"},
+        {"name": "Assessment C2",    "test_id": 3, "group": 2, "today": "start"},
+        {"name": "Assessment C3",    "test_id": 3, "group": 3, "today": "start"},
+        {"name": "Assessment F3",    "test_id": 4, "group": 3, "today": "future"},
+        {"name": "Assessment T-all", "test_id": 5, "group": 4, "today": "training"},
+        {"name": "Assessment P-all", "test_id": 5, "group": 4, "today": "end"},
+        {"name": "Assessment C-all", "test_id": 5, "group": 4, "today": "start"},
+        {"name": "Assessment F-all", "test_id": 5, "group": 4, "today": "future"},
     ]
     # Get current date and month delta
     month = timedelta(days=30)
@@ -214,7 +214,7 @@ def createAssess(tests):
         obj.groups.add(grp)
         print(f"    > Assessment [{obj.id}]: test #{obj.test_id} added !")
 
-def createUSers():
+def createUsers():
     groups = [
         "1","2","3","4",
         "12","13","14","23","24","34",
@@ -242,7 +242,7 @@ def createUSers():
             obj.groups.add(grp)
         print(f"    > User [{obj.id}]:'{obj.username}' added !")
 
-def debug_migration(apps, schema_editor):
+def debug_migration():
     # Only process this migration if we are in a debug session
     # In production, it is useless to do it
     if not DEBUG:
@@ -262,4 +262,4 @@ def debug_migration(apps, schema_editor):
     # Now create assessments to tests
     createAssess(tests)
     # Now create users with groups
-    createUSers()
+    createUsers()

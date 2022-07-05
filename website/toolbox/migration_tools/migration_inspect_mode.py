@@ -13,7 +13,7 @@ migrate_inspect_mode = [{
          }
     ]
 
-def mode_migration(apps, schema_editor):
+def mode_migration():
     # create default inspector modes
     print()
     print("  [DATA MIGRATION][INSPECTOR MODES]")

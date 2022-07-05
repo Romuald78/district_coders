@@ -8,7 +8,7 @@ from toolbox.utils.utils import get_icon_tag, upload_imagefield_to, OverwriteSto
 class InspectorMode(models.Model):
 
     name = models.CharField(max_length=32, unique=True)
-    # TODO : add width and height values to ImageField ?
+    #TODO : add width and height values to ImageField ?
     icon = models.ImageField(blank=True, upload_to=upload_imagefield_to, storage=OverwriteStorage)
 
     def get_upload_to_path(self):

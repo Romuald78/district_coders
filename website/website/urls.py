@@ -67,12 +67,12 @@ urlpatterns = [
     path('accounts/sendemailconfirmation/', ctrl_json_sending_email),
 
     # [VIEW] The list of exercises of an assessment View
-    path('assessment/details/<int:id_asse>', ctrl_asse_details),
+    path('assessment/details/<int:id_asse>', ctrl_asse_details, name="assessment_details"),
 
     # [VIEW] The wording(without code editor) of an exercise
-    path('exercise/details/', ctrl_exercise_details),
+    path('exercise/details/', ctrl_exercise_details, name="exercise_details"),
     # [VIEW] The training exercise View (with code editor)
-    path('exercise/write/', ctrl_exercise_write),
+    path('exercise/write/', ctrl_exercise_write, name="exercise_write"),
     # [JSON] Verify an exercise
     path('exercise/inspect/', ctrl_json_exercise_inspect),
     # [JSON] Verify the existence of a TestResult
