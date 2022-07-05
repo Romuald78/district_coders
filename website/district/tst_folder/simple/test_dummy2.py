@@ -37,20 +37,25 @@ class SimpleTest(TransactionTestCase):
         # InspectorMode.objects.create(name="dansmontest")
         management.call_command("populate")
 
-    def test_all(self):
-        self.test_user_profile()
-        self.test_home()
-
-    def test_user_profile(self):
-        request = self.factory.get("/accounts/profile")
+    def test_assessment_details(self):
+        asse = Assessment.objects.all().first()
+        request = self.factory.get(reverse('assessment_details', args=[asse.id]))
         request.user = AnonymousUser()
-        response = ctrl_user_profile(request)
+        response = ctrl_asse_details(request)
         self.assertEqual(response.status_code, 302)
 
-
-    def test_home(self):
-        request = self.factory.get("/")
+    def test_exercise_details(self):
+        ex2tst = Exo2Test.objects.first()
+        asse = Assessment.objects.first()
+        request = self.factory.post(reverse('exercise_details', kwargs={"extest": ex2tst.id, "asse": asse.id}))
         request.user = AnonymousUser()
-        response = ctrl_home(request)
-        self.assertEqual(response.status_code, 200)
+        response = ctrl_exercise_details(request)
+        self.assertEqual(response.status_code, 302)
 
+    def test_exercise_write(self):
+        ex2tst = Exo2Test.objects.first()
+        asse = Assessment.objects.first()
+        request = self.factory.get(reverse('exercise_write', kwargs={"extest": ex2tst.id, "asse": asse.id}))
+        request.user = AnonymousUser()
+        response = ctrl_exercise_write(request)
+        self.assertEqual(response.status_code, 302)

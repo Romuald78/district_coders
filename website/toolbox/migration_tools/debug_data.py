@@ -44,7 +44,7 @@ def createExercises():
         obj.insp_mode = stdio.first()
         obj.save()
         exercises.append(obj)
-        print(f"    > Exercise [{obj.id}]:'{obj.title}' added !")
+#        print(f"    > Exercise [{obj.id}]:'{obj.title}' added !")
     return exercises
 
 def createTests():
@@ -59,7 +59,7 @@ def createTests():
         obj.description = desc
         obj.save()
         tests.append(obj)
-        print(f"    > Test [{obj.id}]:'{obj.title}' added !")
+#        print(f"    > Test [{obj.id}]:'{obj.title}' added !")
     return tests
 
 EX2TST = [
@@ -95,7 +95,7 @@ def createExo2Test(exos, tests):
             obj.score = rank
             rank += 1
             obj.save()
-            print(f"    > Exo2Test [{obj.id}]: test #{t+1} -> exo #{e} added !")
+#            print(f"    > Exo2Test [{obj.id}]: test #{t+1} -> exo #{e} added !")
             exo2tests.append(obj)
     return exo2tests
 
@@ -136,7 +136,7 @@ def createExoTest2Lang(exo2tests):
             obj.exo2test     = e2t
             obj.lang_id            = lang_id
             obj.save()
-            print(f"    > ExoTest2Lang [{obj.id}]: ex2tst #{e2t.id} -> lang #{lang_id} added !")
+#            print(f"    > ExoTest2Lang [{obj.id}]: ex2tst #{e2t.id} -> lang #{lang_id} added !")
 
 def createGroups():
     print()
@@ -147,7 +147,7 @@ def createGroups():
         obj.register_key = f"group{i+1}"
         obj.description = f"Group #{i+1} for all allowed users"
         obj.save()
-        print(f"    > Group [{obj.id}] added !")
+#        print(f"    > Group [{obj.id}] added !")
 
 def createAssess(tests):
     # assessment data
@@ -212,7 +212,7 @@ def createAssess(tests):
         obj.save()
         grp = GroupDC.objects.all().filter(id=grp_id).first()
         obj.groups.add(grp)
-        print(f"    > Assessment [{obj.id}]: test #{obj.test_id} added !")
+#        print(f"    > Assessment [{obj.id}]: test #{obj.test_id} added !")
 
 def createUsers():
     groups = [
@@ -240,7 +240,7 @@ def createUsers():
             search_id = int(grp)+1
             grp = GroupDC.objects.all().filter(id=search_id).first()
             obj.groups.add(grp)
-        print(f"    > User [{obj.id}]:'{obj.username}' added !")
+#        print(f"    > User [{obj.id}]:'{obj.username}' added !")
 
 def debug_migration():
     # Only process this migration if we are in a debug session
