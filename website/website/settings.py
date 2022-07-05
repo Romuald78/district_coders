@@ -85,7 +85,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS':{
             'read_default_file': 'config/secure/mysql_db.cnf'
-        }
+        },
+        'TEST': {
+            'NAME': 'dc_test_db',
+        },
     }
 }
 

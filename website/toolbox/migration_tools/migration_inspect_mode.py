@@ -29,4 +29,4 @@ def mode_migration():
         # Save it to DB
         obj.save()
         # print
-        print(f"    > Mode [{obj.id}]:'{name}' added !")
+#        print(f"    > Mode [{obj.id}]:'{name}' added !")

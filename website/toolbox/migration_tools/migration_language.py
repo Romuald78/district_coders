@@ -104,4 +104,4 @@ def language_migration():
         # Save it to DB
         obj.save()
         # print
-        print(f"    > Language [{obj.id}]:'{name}' added !")
+#        print(f"    > Language [{obj.id}]:'{name}' added !")

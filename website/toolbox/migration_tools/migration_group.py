@@ -33,4 +33,4 @@ def group_migration():
         # Save it to DB
         obj.save()
         # print
-        print(f"    > Group [{obj.id}]:'{name}' added !")
+#        print(f"    > Group [{obj.id}]:'{name}' added !")
