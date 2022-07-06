@@ -4,7 +4,7 @@ function send_email_confirm() {
     const data = new URLSearchParams(new FormData(formElement));
     // const data = new URLSearchParams();
     // data.append("user_id", document.getElementById("user_id").value);
-    fetch('/accounts/sendemailconfirmation/', {
+    fetch('/accounts/email_change_send/', {
         method: 'post',
         body: data,
     })
