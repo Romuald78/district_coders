@@ -1,6 +1,5 @@
-from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path, include
+from django.urls import include
 
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
@@ -11,7 +10,7 @@ from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from toolbox.utils.route_mgr import Page
 
-ROUTES = [
+PAGES = [
     Page('home', '', ctrl_home, log_req=False),
 
     Page('signup', 'accounts/signup/', ctrl_user_signup, log_req=False),
@@ -24,14 +23,15 @@ ROUTES = [
 
     Page('password_reset_request' , 'accounts/password_reset_request/', ctrl_password_reset_request, log_req=False),
     Page('password_reset_done'    , 'accounts/password_reset_done/', auth_views.PasswordResetDoneView.as_view(
-    template_name='registration/password_reset_done.html'), log_req=False),
+        template_name='registration/password_reset_done.html'), log_req=False),
     Page('password_reset_confirm' , 'accounts/password_reset_confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
-    template_name="registration/password_reset_confirm.html"), log_req=False),
-    Page('password_reset_complete','accounts/password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(    template_name='registration/reset_password_complete.html'), log_req=False),
+        template_name="registration/password_reset_confirm.html"), log_req=False),
+    Page('password_reset_complete','accounts/password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(
+        template_name='registration/reset_password_complete.html'), log_req=False),
 
-    Page('password_change_done', 'accounts/password_change/done/', ctrl_password_change_done)
+    Page('password_change_done', 'accounts/password_change/done/', ctrl_password_change_done),
     Page('password_change', 'accounts/password_change/', auth_views.PasswordChangeView.as_view(
-    template_name="registration/change_password.html")),
+        template_name="registration/change_password.html")),
 
     Page('email_change_auth', 'accounts/email_change_auth/', ctrl_email_change_auth),
     Page('email_change_confirm', 'accounts/email_change_confirm/<int:user_id>/', ctrl_email_verification, log_req=False),
