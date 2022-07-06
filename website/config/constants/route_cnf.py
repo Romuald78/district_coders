@@ -1,6 +1,5 @@
-from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path, include
+from django.urls import include
 
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
@@ -11,7 +10,7 @@ from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
 from toolbox.utils.route_mgr import Page
 
-ROUTES = [
+PAGES = [
     Page('home', '', ctrl_home, log_req=False),
 
     Page('signup', 'accounts/signup/', ctrl_user_signup, log_req=False),
