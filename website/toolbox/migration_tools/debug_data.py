@@ -247,8 +247,6 @@ def debug_migration():
     # In production, it is useless to do it
     if not DEBUG:
         return
-    # Create super user (admin/admin)
-    createAdmin()
     # Create 15 exercises
     exos = createExercises()
     # Create 5 tests
