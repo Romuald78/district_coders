@@ -40,10 +40,12 @@ def ctrl_home(request):
         # render home page
         return HttpResponse(template.render(context, request))
 
+
 def ctrl_error(request, err_msg):
     # dictionary for initial data with
     context = {"err_msg": err_msg}
     # Load view template
     template = loader.get_template('district/content/error.html')
     # render home page
-    return HttpResponse(template.render(context, request))
+    # TODO change HTML status code ? add a parameter (=exit_code) and add 300 to it to made a HTML status code ?
+    return HttpResponse(template.render(context, request), status=302)
