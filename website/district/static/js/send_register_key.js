@@ -1,5 +1,5 @@
 function display_user_groups() {
-    fetch('/accounts/mygroups/', {
+    fetch('/accounts/my_groups/', {
         method: 'get'
     })
     .then(function(response) {
@@ -38,7 +38,7 @@ function display_user_groups() {
 function send_register_key() {
     var formElement = document.getElementById("register_form");
     const data = new URLSearchParams(new FormData(formElement));
-    fetch('/accounts/register/', {
+    fetch('/accounts/group_register/', {
         method: 'post',
         body: data,
     })
