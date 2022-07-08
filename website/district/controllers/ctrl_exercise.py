@@ -1,3 +1,4 @@
+import json
 import traceback
 
 from django.contrib.auth.decorators import login_required
@@ -6,6 +7,7 @@ from django.template import loader
 from django.utils import timezone
 
 from district.controllers.ctrl_main import ctrl_error
+from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.models.assessment import Assessment
 from district.models.exotest2lang import ExoTest2Lang
 from config.constants import default_value_cnf, error_message_cnf
@@ -136,10 +138,12 @@ def ctrl_json_exercise_inspect(request):
         (exit_code, stdout, stderr) = ex_insp.process()
 
         # saving result into ExoTest2Lang and TestResult
-        all_testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)
-        if len(all_testresult) == 0:
-            return JsonResponse({"exit_code": 12, "err_msg": error_message_cnf.TESTRESULT_NOT_FOUND})  # Missing testResult
-        testresult = all_testresult[0]["testresult_obj"]
+        json_response = ctrl_json_testresult_exists(request)
+        dict_response = json.loads(json_response.content)
+        if dict_response["exit_code"] != 0:
+            return JsonResponse({"exit_code": 12, "err_msg": dict_response["err_msg"]})  # Missing testResult
+        else:
+            testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)[0]["testresult_obj"]
 
         # is assessment in process or not
         asse_obj = Assessment.objects.get(id=asse_id)

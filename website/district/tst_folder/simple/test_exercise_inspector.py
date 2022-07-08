@@ -1,5 +1,6 @@
+import json
+
 from django.core import management
-from django.db.models import Q
 from django.test import TransactionTestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone
@@ -7,6 +8,8 @@ from django.utils import timezone
 from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_exercise_details, ctrl_exercise_write
 from district.models.assessment import Assessment
 from district.models.exo2test import Exo2Test
+from district.models.exotest2lang import ExoTest2Lang
+from district.models.testresult import TestResult
 from district.models.user import UserDC
 
 
@@ -17,6 +20,17 @@ class ExerciseInspectorTest(TransactionTestCase):
         # clear and populate the db
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
+
+        # solve an exercise to see the behavior
+        user = UserDC.objects.get(username="user_2")
+        exotst2lang = ExoTest2Lang.objects.get(exo2test_id=17, lang__name="JS")
+        TestResult.objects.create(
+            exo_test2lang=exotst2lang,
+            user=user,
+            solve_code=exotst2lang.lang.default_code,
+            solve_percentage=100,
+            assessment_id=4)
+
 
     # python manage.py test district.tst_folder.simple.test_exercise_inspector.ExerciseInspectorTest.test_user_access -v 2 --failfast
     def test_user_access(self):
@@ -41,7 +55,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                                     if len(extst2lng_all.all()) > 0:
                                         extst2lng = extst2lng_all.first()
                                         if len(extst2lng.testresult_set.all()) > 0 \
-                                                and extst2lng.testresult_set.first().solve_percentage < asse_ex2tst.solve_percentage_req:
+                                                and extst2lng.testresult_set.first().solve_percentage <= asse_ex2tst.solve_percentage_req:
                                             min_rank_todo = asse_ex2tst.rank
                                 if ex2tst_item.rank != min_rank_todo:
                                     do_access = False
@@ -71,18 +85,13 @@ class ExerciseInspectorTest(TransactionTestCase):
                             do_access = False
                             do_see = False
                             err_msg = "no past assessment"
-                        # check if the current assessment is in training mode
-                        # elif asse_item.start_time.__lt__(timezone.now()) and asse_item.end_time.__lt__(timezone.now()) and \
-                        #         asse_item.training_time.__le__(timezone.now()):
-                        #     do_access = False
-                        #     err_msg = "only future assessment ?"
                     else:
                         do_access = False
                         do_see = False
                         err_msg = "bad group or something"
 
                     # Test part
-                    # print(f"[user:{curr_user.id}][ex2tst:{ex2tst_item.id}][asse:{asse_item.id}] : {err_msg}")
+                    print(f"[user:{curr_user.id}][ex2tst:{ex2tst_item.id}][asse:{asse_item.id}] : {err_msg}")
                     # test on exercise_details
                     with self.subTest():
                         request = self.factory.get(reverse('exercise_details'),
@@ -117,11 +126,13 @@ class ExerciseInspectorTest(TransactionTestCase):
                                                             "raw_code": lang.default_code})
                             request.user = curr_user
                             response = ctrl_json_exercise_inspect(request)
-                            # TODO : read the json response (exit_code)
-                            if do_access:
-                                self.assertEqual(response.status_code, 200)
-                            else:
-                                self.assertEqual(response.status_code, 200)
+                            dict_json = json.loads(response.content)
+                            # print(dict_json)
+                            # if do_access:
+                            #     self.assertLessEqual(dict_json["exit_code"], 0)
+                            # else:
+                            #     self.assertGreater(dict_json["exit_code"], 0)
+                            self.assertNotEqual(dict_json["exit_code"], 0)
 
     def test_OK(self):
         pass

@@ -255,5 +255,5 @@ def get_title_console():
                 blue = 0
         col_title += letter
     col_title += "\n\33[0m"
-    print("title :", col_title)
+    # print("title :", col_title)
     return col_title
