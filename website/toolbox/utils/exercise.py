@@ -37,7 +37,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     # -P :
     #     si y un en cours
     #         -> link
-    #         -> trainable True
+    #         -> trainable False
     #     s'il y a un P\T
     #         -> trainable False
     #         -> link
@@ -106,7 +106,7 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
     # now, we set elements from exos
     for asse in all_other_asse:
         for ex2test in asse.test.exo2test_set.all():
-            if ex2test.id in exos:
+            if ex2test.id in exos:  # TODO useless condition ?
                 # if assessment is not in process
                 if not Asse.is_date_current(curr_asse):
                     # if assessment is past but not in training mode
@@ -123,6 +123,8 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
                         if Asse.is_date_current(asse):
                             exos[ex2test.id]["asse_id"] = asse.id
                             exos[ex2test.id]["is_redirected"] = True
+                            exos[ex2test.id]["is_triable"] = False
+                            exos[ex2test.id]["not_triable_msg"] = error_message_cnf.DATE_PERMISSION_IN_PROCESS
                         # if not redirected (to in process asse) and if assessment is past but not in training mode
                         elif not exos[ex2test.id]["is_redirected"] and Asse.is_date_past_wo_training(curr_asse):
                             exos[ex2test.id]["is_triable"] = False
@@ -145,7 +147,7 @@ def get_exercise(curr_user, ex_id, asse_id):
         id=ex_id,
         exo2test__test__assessment=asse_id,
         exo2test__test__assessment__groups__userdc=curr_user)
-    if ex_id == 0 or asse_id ==0:
+    if ex_id == 0 or asse_id == 0:
         return {"exit_code": 3, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
     elif len(ex_obj) == 0:
         return {"exit_code": 4, "err_msg": error_message_cnf.GROUP_PERMISSION_EXERCISE}
@@ -173,12 +175,13 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
     if result["exit_code"] != 0:
         return result
 
-    curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
+    curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user, test__exo2test=ex2test_id)
     if len(curr_asse.all()) == 0:
         return {"exit_code": 3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
 
-    if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
-        return {"exit_code": 3, "err_msg": error_message_cnf.DATE_PERMISSION_FUTURE}
+    asse_avail = Asse.is_asse_available(curr_asse)[0]
+    if not asse_avail["is_available"]:
+        return {"exit_code": 3, "err_msg": asse_avail["not_available_msg"]}
 
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:
@@ -205,17 +208,21 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
 #   List of ExoTest2Lang ex_tst_lng}
 def get_exercise_write(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
-    ex_id = Exercise.objects.filter(exo2test=ex2test_id).first().id
+    exercise = Exercise.objects.filter(exo2test=ex2test_id)
+    if len(exercise.all()) == 0:
+        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+    ex_id = exercise.first().id
     result = get_exercise(curr_user, ex_id, asse_id)
     if result["exit_code"] != 0:
         return result
 
-    curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user)
+    curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user, test__exo2test=ex2test_id)
     if len(curr_asse.all()) == 0:
         return {"exit_code": 3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
 
-    if not Asse.is_asse_available(curr_asse)[0]["is_available"]:
-        return {"exit_code": 3, "err_msg": error_message_cnf.DATE_PERMISSION_FUTURE}
+    asse_avail = Asse.is_asse_available(curr_asse)[0]
+    if not asse_avail["is_available"]:
+        return {"exit_code": 3, "err_msg": asse_avail["not_available_msg"]}
 
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:

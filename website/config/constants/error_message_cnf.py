@@ -7,8 +7,8 @@ GROUP_PERMISSION_EXERCISE = ["Not available", "None of your groups can access to
 
 # User permission (dates)
 DATE_PERMISSION_FUTURE = ["Not available yet", "Future assessments aren't accessible"]
-DATE_PERMISSION_PAST_NOT_TRAINING = ["Not available yet", "You can't access to this exercise yet"]
-
+DATE_PERMISSION_PAST_NOT_TRAINING = ["Not available yet", "You cannot access to this exercise yet"]
+DATE_PERMISSION_IN_PROCESS = ["", "This exercise is available in another assessment"]
 # User permission (rank)
 RANK_PERMISSION_TOO_HIGH = ["Locked", "Please complete lower rank exercise"]
 

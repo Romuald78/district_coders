@@ -47,16 +47,20 @@ def get_future_asse(request):
     return future
 
 
-# give the availability of an assessment (future assessment aren't available)
+# give the availability of an assessment (future and past wo training assessment aren't available)
 # param : QuerySet of Assessment
 # return a list of dict of {bool is_available, Assessment assessment, String not_available_msg}
 def is_asse_available(assessments):
     list_asse = []
     for asse in assessments:
-        is_available = not is_date_future(asse)
-        asse = {"is_available": is_available, "assessment": asse}
-        if not is_available:
+        is_available_future = not is_date_future(asse)
+        is_available_past_wo_training = not is_date_past_wo_training(asse)
+        asse = {"is_available": is_available_future and is_available_past_wo_training, "assessment": asse}
+        if not is_available_future:
             asse["not_available_msg"] = error_message_cnf.DATE_PERMISSION_FUTURE
+        elif not is_available_past_wo_training:
+            asse["not_available_msg"] = error_message_cnf.DATE_PERMISSION_PAST_NOT_TRAINING
+
         list_asse.append(asse)
 
 

@@ -28,6 +28,7 @@ class AnonymousTest(TransactionTestCase):
                     response = page.ctrl(request)
                     if page.log_req:
                         self.assertEqual(response.status_code, 302)
+                        # self.assertRedirects(response, '')
                     else:
                         self.assertEqual(response.status_code, 200)
 
