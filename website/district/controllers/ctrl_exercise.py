@@ -126,7 +126,7 @@ def ctrl_json_exercise_inspect(request):
             if i.lang.id == lang_id:
                 language_missing = False
         if language_missing:
-            return JsonResponse({"exit_code": 4})  # Please enter a valid programming language"
+            return JsonResponse({"exit_code": 4, "err_msg": error_message_cnf.LANGUAGE_NOT_AVAILABLE})
 
         # proceed the inspection
         queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
