@@ -7,8 +7,24 @@ from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, 
     ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done, ctrl_email_change_auth
 from district.controllers.ctrl_main import ctrl_home
 from district.controllers.ctrl_assessment import ctrl_asse_details
-from toolbox.utils.route_mgr import Page
 
+
+# ---------------------------------------
+class Page():
+
+    def __init__(self, name, url, ctrl, type="view", log_req=True, parameters=False):
+        self.name = name
+        self.url = url
+        self.ctrl = ctrl
+        self.type = type
+        self.log_req= log_req
+        self.params = parameters
+
+    def __str__(self):
+        return "Page", self.name
+
+
+# ---------------------------------------
 PAGES = [
     Page('home', '', ctrl_home, log_req=False),
 
