@@ -27,7 +27,8 @@ def ansi_to_html(ansi):
             html_str = "</span>"
             out = out.replace(str_to_replace, html_str, 1)
 
-        out = "<span>" + out
+        if out != "":
+            out = "<span>" + out
         out = out.replace("\r", "")
         out = out.replace("\n", "<br>")
         return out
