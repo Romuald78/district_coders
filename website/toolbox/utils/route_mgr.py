@@ -1,18 +1,5 @@
-import config.constants.route_cnf as route_cnf
+from config.constants import route_cnf
 
-
-class Page():
-
-    def __init__(self, name, url, ctrl, type="view", log_req=True, parameters=False):
-        self.name = name
-        self.url = url
-        self.ctrl = ctrl
-        self.type = type
-        self.log_req= log_req
-        self.params = parameters
-
-    def __str__(self):
-        return "Page", self.name
 
 
 class PageManager():
@@ -46,7 +33,10 @@ class PageManager():
 
     def get_URL(self, name):
         page = self.get_page(name)
-        return page.url
+        url = page.url
+        if url[0] != '/':
+            url = '/' + url
+        return url
 
     def get_controller(self, name):
         page = self.get_page(name)
