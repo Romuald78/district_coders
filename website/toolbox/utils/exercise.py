@@ -74,11 +74,9 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
                 #         )
                 # )
                 is_accessible = ex2test.solve_percentage_req == 0 or (
-                        len(exotest2lang_set.all()) > 0 and (
-                            len(exotest2lang_set.first().testresult_set.all()) > 0 and
-                            exotest2lang_set.first().testresult_set.first().solve_percentage >= ex2test.solve_percentage_req
-                        ) or
-                        len(exotest2lang_set.first().testresult_set.all()) == 0
+                        len(exotest2lang_set.all()) > 0 and
+                        len(exotest2lang_set.first().testresult_set.all()) > 0 and
+                        exotest2lang_set.first().testresult_set.first().solve_percentage >= ex2test.solve_percentage_req
                 )
                 if not is_accessible:
                     can_go_ahead = False

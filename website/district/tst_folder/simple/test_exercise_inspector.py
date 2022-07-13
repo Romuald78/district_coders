@@ -133,10 +133,10 @@ class ExerciseInspectorTest(TransactionTestCase):
             assessment_id=my_asse_1050.id)
 
         # TEST PART
-        for asse_item in Assessment.objects.order_by("-id").all():
-            rank_access = True
-            for ex2tst_item in Exo2Test.objects.all():
-                for curr_user in UserDC.objects.all():
+        for asse_item in Assessment.objects.all():
+            for curr_user in UserDC.objects.all():
+                rank_access = True
+                for ex2tst_item in Exo2Test.objects.order_by("rank").all():
                     asse_qs = Assessment.objects.filter(test__exo2test=ex2tst_item, groups__userdc=curr_user, id=asse_item.id)
                     do_access = len(asse_qs.all()) > 0
                     do_see = len(asse_qs.all()) > 0
@@ -150,17 +150,29 @@ class ExerciseInspectorTest(TransactionTestCase):
                                 if rank_access:
                                     # either solve_percentage_req = 0
                                     # either solver_percentage_req <= solve_percentage
+                                    is_there_extstlng = len(ex2tst_item.exotest2lang_set.all()) > 0
+                                    if is_there_extstlng:
+                                        test_result_not_nul = ex2tst_item.exotest2lang_set.order_by("-testresult__solve_percentage").first()
+                                        is_there_testresult = len(test_result_not_nul.testresult_set.all()) > 0
+                                        if is_there_testresult:
+                                            is_solve_percentage_valid = test_result_not_nul.testresult_set.first().solve_percentage >= ex2tst_item.solve_percentage_req
+                                        else:
+                                            is_solve_percentage_valid = False
+                                    else:
+                                        is_there_testresult = False
+                                        is_solve_percentage_valid = False
+
                                     condition = ex2tst_item.solve_percentage_req == 0 or (
-                                        len(ex2tst_item.exotest2lang_set.all()) > 0 and
-                                        (
-                                            (
-                                                len(ex2tst_item.exotest2lang_set.first().testresult_set.all()) > 0 and
-                                                ex2tst_item.exotest2lang_set.first().testresult_set.first().solve_percentage >= ex2tst_item.solve_percentage_req
-                                            ) or
-                                            len(ex2tst_item.exotest2lang_set.first().testresult_set.all()) == 0
-                                        )
+                                        is_there_extstlng and
+                                        is_there_testresult and
+                                        is_solve_percentage_valid
                                     )
                                     if not condition:
+                                        print("je passe ici")
+                                        print("A", ex2tst_item.solve_percentage_req == 0)
+                                        print("B", is_there_extstlng)
+                                        print("C", is_there_testresult)
+                                        print("D", is_solve_percentage_valid)
                                         rank_access = False
                                 else:
                                     do_access = False
@@ -196,7 +208,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                         err_msg = "bad group or something"
 
                     # Test part
-                    print(f"[asse:{asse_item.id}][ex2tst:{ex2tst_item.id}][user:{curr_user.id}] : {err_msg}")
+                    print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
                     # test on exercise_details
                     with self.subTest():
                         request = self.factory.get(reverse('exercise_details'),
