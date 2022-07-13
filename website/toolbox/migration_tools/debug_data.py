@@ -152,16 +152,16 @@ def createGroups():
 def createAssess(tests):
     # assessment data
     ASSESS = [
-        {"name": "Assessment T1",    "test_id": 1, "group": 1, "today": "training"},
-        {"name": "Assessment P1",    "test_id": 2, "group": 1, "today": "end"},
-        {"name": "Assessment P2",    "test_id": 2, "group": 2, "today": "end"},
-        {"name": "Assessment C2",    "test_id": 3, "group": 2, "today": "start"},
-        {"name": "Assessment C3",    "test_id": 3, "group": 3, "today": "start"},
-        {"name": "Assessment F3",    "test_id": 4, "group": 3, "today": "future"},
-        {"name": "Assessment T-all", "test_id": 5, "group": 4, "today": "training"},
-        {"name": "Assessment P-all", "test_id": 5, "group": 4, "today": "end"},
-        {"name": "Assessment C-all", "test_id": 5, "group": 4, "today": "start"},
-        {"name": "Assessment F-all", "test_id": 5, "group": 4, "today": "future"},
+        {"name": "Assessment T1",      "test_id": 1, "group": 1, "today": "training"},
+        {"name": "Assessment P1",      "test_id": 2, "group": 1, "today": "end"},
+        {"name": "Assessment P2",      "test_id": 2, "group": 2, "today": "end"},
+        {"name": "Assessment C2",      "test_id": 3, "group": 2, "today": "start"},
+        {"name": "Assessment C3",      "test_id": 3, "group": 3, "today": "start"},
+        {"name": "Assessment F3",      "test_id": 4, "group": 3, "today": "future"},
+        {"name": "Assessment T-all",   "test_id": 5, "group": 4, "today": "training"},
+        {"name": "Assessment P-all",   "test_id": 5, "group": 4, "today": "end"},
+        {"name": "Assessment C-all",   "test_id": 5, "group": 4, "today": "start"},
+        {"name": "Assessment F-all",   "test_id": 5, "group": 4, "today": "future"},
     ]
     # Get current date and month delta
     month = timedelta(days=30)
