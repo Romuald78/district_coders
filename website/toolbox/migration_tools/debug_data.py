@@ -11,7 +11,9 @@ from district.models.exo2test import Exo2Test
 from district.models.exotest2lang import ExoTest2Lang
 from district.models.group import GroupDC
 from district.models.inspector_mode import InspectorMode
+from district.models.language import Language
 from district.models.test import TestDC
+from district.models.testresult import TestResult
 from district.models.user import UserDC
 from config.secure.admin_cnf import ADMIN_EMAIL
 from website.settings import DEBUG
@@ -51,7 +53,7 @@ def createTests():
     print()
     print("  [DATA MIGRATION][TESTS]")
     tests = []
-    for num in "12345":
+    for num in "1234567":
         name = f"Test_#{num}"
         desc = f"Test #{num} that contains some exercices"
         obj = TestDC()
@@ -68,6 +70,17 @@ EX2TST = [
     [3,6,7,10,11,12,14,15],
     [4,7,8,9,11,12,13,15],
     [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+    [1,2,3],
+    [1,2,3,4],
+]
+EX2TST_SOLVE_PER_REQ = [
+    [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],
+    [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],
+    [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],
+    [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],
+    [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],
+    [0.0,0.0,0.0],
+    [100.0,0.0,50.0,0.0],
 ]
 
 def createExo2Test(exos, tests):
@@ -76,23 +89,31 @@ def createExo2Test(exos, tests):
     if len(tests) != len(EX2TST):
         print(f"    > ERROR : bad lengths for test lists !")
         exit(1)
-    if len(exos) != len(EX2TST[-1]):
+    if len(exos) != len(EX2TST[4]):
         print(f"    > ERROR : bad lengths for exo lists !")
         print(exos)
         print(EX2TST[-1])
         exit(2)
+    if len(EX2TST_SOLVE_PER_REQ) != len(EX2TST):
+        print(f"    > ERROR : bad lengths for EX2TST and EX2TST_SOLVE_PER_REQ lists !")
+        exit(3)
+    if [len(i) for i in EX2TST_SOLVE_PER_REQ] != [len(i) for i in EX2TST]:
+        print(f"    > ERROR : bad lengths for EX2TST_SOLVE_PER_REQ lists !")
+        exit(4)
     # for each tests
     exo2tests = []
     for t in range(len(EX2TST)):
         # init rank to 1
         rank = 1
         # for each exercise in the test
-        for e in EX2TST[t]:
+        for i in range(len(EX2TST[t])):
+            e = EX2TST[t][i]
             obj = Exo2Test()
             obj.test = tests[t]
             obj.exercise = exos[e - 1]
             obj.rank = rank
             obj.score = rank
+            obj.solve_percentage_req = EX2TST_SOLVE_PER_REQ[t][i]
             rank += 1
             obj.save()
 #            print(f"    > Exo2Test [{obj.id}]: test #{t+1} -> exo #{e} added !")
@@ -149,20 +170,24 @@ def createGroups():
         obj.save()
 #        print(f"    > Group [{obj.id}] added !")
 
+# assessment data
+ASSESS = [
+    {"name": "Assessment T1",      "test_id": 1, "group": 1, "today": "training", "user_ex_done": []},
+    {"name": "Assessment P1",      "test_id": 2, "group": 1, "today": "end"     , "user_ex_done": []},
+    {"name": "Assessment P2",      "test_id": 2, "group": 2, "today": "end"     , "user_ex_done": []},
+    {"name": "Assessment C2",      "test_id": 3, "group": 2, "today": "start"   , "user_ex_done": [(3, 3)]},
+    {"name": "Assessment C3",      "test_id": 3, "group": 3, "today": "start"   , "user_ex_done": []},
+    {"name": "Assessment F3",      "test_id": 4, "group": 3, "today": "future"  , "user_ex_done": []},
+    {"name": "Assessment C3-done", "test_id": 4, "group": 3, "today": "start"   , "user_ex_done": [(3, ex_id) for ex_id in EX2TST[4-1]]},
+    {"name": "Assessment T-all",   "test_id": 5, "group": 4, "today": "training", "user_ex_done": []},
+    {"name": "Assessment P-all",   "test_id": 5, "group": 4, "today": "end"     , "user_ex_done": []},
+    {"name": "Assessment C-all",   "test_id": 5, "group": 4, "today": "start"   , "user_ex_done": []},
+    {"name": "Assessment F-all",   "test_id": 5, "group": 4, "today": "future"  , "user_ex_done": []},
+    {"name": "Assessment C2-0%",   "test_id": 6, "group": 2, "today": "start"   , "user_ex_done": []},
+    {"name": "Assessment C2-1050", "test_id": 7, "group": 2, "today": "start"   , "user_ex_done": [(3, 1)]},
+]
 def createAssess(tests):
-    # assessment data
-    ASSESS = [
-        {"name": "Assessment T1",      "test_id": 1, "group": 1, "today": "training"},
-        {"name": "Assessment P1",      "test_id": 2, "group": 1, "today": "end"},
-        {"name": "Assessment P2",      "test_id": 2, "group": 2, "today": "end"},
-        {"name": "Assessment C2",      "test_id": 3, "group": 2, "today": "start"},
-        {"name": "Assessment C3",      "test_id": 3, "group": 3, "today": "start"},
-        {"name": "Assessment F3",      "test_id": 4, "group": 3, "today": "future"},
-        {"name": "Assessment T-all",   "test_id": 5, "group": 4, "today": "training"},
-        {"name": "Assessment P-all",   "test_id": 5, "group": 4, "today": "end"},
-        {"name": "Assessment C-all",   "test_id": 5, "group": 4, "today": "start"},
-        {"name": "Assessment F-all",   "test_id": 5, "group": 4, "today": "future"},
-    ]
+
     # Get current date and month delta
     month = timedelta(days=30)
     today = timezone.now()
@@ -242,6 +267,27 @@ def createUsers():
             obj.groups.add(grp)
 #        print(f"    > User [{obj.id}]:'{obj.username}' added !")
 
+def createTestResult():
+    lang_available = ["C", "JS", "PHP"]
+
+    for i in range(len(ASSESS)):
+        asse = Assessment.objects.get(id=i+1)
+        for (user_id, ex_id) in ASSESS[i]["user_ex_done"]:
+            search_valid_lang = True
+            ex2tst = Exo2Test.objects.get(test_id=asse.test.id, exercise=ex_id)
+            user = UserDC.objects.get(id=user_id)
+            for language in lang_available:
+                if search_valid_lang:
+                    extst2lang = ex2tst.exotest2lang_set.filter(lang__name=language)
+                    if len(extst2lang.all()) > 0:
+                        search_valid_lang = False
+                        TestResult.objects.create(
+                            exo_test2lang=extst2lang.first(),
+                            user=user,
+                            solve_code=extst2lang.first().lang.default_code,
+                            solve_percentage=100,
+                            assessment_id=i+1)
+
 def debug_migration():
     # Only process this migration if we are in a debug session
     # In production, it is useless to do it
@@ -261,3 +307,5 @@ def debug_migration():
     createAssess(tests)
     # Now create users with groups
     createUsers()
+    # Now create test results
+    createTestResult()
