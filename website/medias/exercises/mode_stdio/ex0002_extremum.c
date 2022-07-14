@@ -19,12 +19,13 @@ Result generate(int seed){
     return RES_OK;
 }
 
-Result verify(int seed){
-    int    answer = 0;
-    int    user   = 0;
+Result verify(int seed, float* result_perc){
     int    N      = 0;
+    int    answer = 0;
     int    mini   = 0;
     int    maxi   = 0;
+    int    user   = 0;
+    int    good   = 0;
     srand(seed);
     N = rand()%91 + 10;
 
@@ -49,24 +50,31 @@ Result verify(int seed){
     // If we cannot read from the stdin: we stop the verification
     if( fscanf(stdin, "%d\n", &user ) != 1){
         error("Impossible to read standard input !\n");            
+        *result_perc = 0.0;
         return RES_ERR;
     }
-    // Check user answer
+    // Check user answer for mini
     if(user != mini){
         error("Received '%d' / Expected '%d'\n", user, mini);            
-        return RES_ERR;
+    }
+    else{
+        good += 1;
     }
     // If we cannot read from the stdin: we stop the verification
     if( fscanf(stdin, "%d\n", &user ) != 1){
         error("Impossible to read standard input !\n");            
+        *result_perc = (100.0*good)/2;
         return RES_ERR;
     }
-    // Check user answer
+    // Check user answer for maxi
     if(user != maxi){
         error("Received '%d' / Expected '%d'\n", user, maxi);            
-        return RES_ERR;
+    }
+    else{
+        good += 1;
     }
     // return result of verification
+    *result_perc = (100.0*good)/2;
     return RES_OK;
 }
 

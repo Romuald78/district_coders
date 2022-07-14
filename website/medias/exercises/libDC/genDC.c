@@ -18,8 +18,8 @@ void prepareTitle(){
     // allocate title string
     TITLE = malloc(sizeof(char) * 512);
     if(TITLE == NULL){
-        error("Internal error 100 !\n", stderr);
-        exit(100);
+        error("Internal error -1000 !\n", stderr);
+        exit(0xFF);
     }    
     // Process each character
     for(int i=0;i<17;i++){
@@ -97,114 +97,160 @@ void message(const char* format, ...){
 // -g : generation
 // -v : verification
 // -sxxx : xxx is the seed used for the process  
+// -txxx : xxx i the threshold to indicate if exercice is either passed or failed
+// output will be a positive value from 0 to 200 [0.0% to 100.0%] if no error encountered
+// else it will be a negative value for errors
+// That means the program gives a score with 0.5% precision, rounded to the nearest 0.5%
 int main(int argc, char** argv){
     // Local variables
-    int    seed_index = -1;
-    int    mode_index = -1;
-    int    L1     = 0;
-    int    L2     = 0;
-    Mode   mode   = 0;
-    Result result = RES_ERR;
-    unsigned long seed = 0;
+    Mode   mode        =  MODE_NONE;
+    Result result      =  RES_ERR;
+    float  result_perc =  0.0;
+    int    ret_val     =  0;
+    float  thres_perc  =  0.0;
+    unsigned long seed =  0;
+    int seed_index     =  0;
+    int thres_index    =  0;
+
     // prepare title
     // prepareTitle();
     // Check number of arguments
-    if(argc != 3){
+    if(argc != 4){
         error("Bad number of arguments (%d-1) !\n", argc);
-        exit(1);
+        exit(-1);
     }  
     // Check argv are ok
-    if(argv[1] == NULL || argv[2] == NULL){
+    if(argv[1] == NULL || argv[2] == NULL || argv[3] == NULL){
         error("Empty arguments (%p/%p) !\n", argv[1], argv[2]);
-        exit(2);
+        exit(-2);
     }  
-    // Check argv lengths are ok
-    L1 = strlen(argv[1]);
-    L2 = strlen(argv[2]);
-    if(L1 < 2 || L2 < 2){
-        error("Bad argument lengths (%d/%d) !\n", L1, L2);
-        exit(3);
-    }
     // Check option starts
-    if( argv[1][0] != '-' || argv[2][0] != '-' ){
-        error("Bad argument starts (%c/%c) !\n", argv[1][0], argv[2][0]);
-        exit(4);
+    if( argv[1][0] != '-' || argv[2][0] != '-'  || argv[3][0] != '-'){
+        error("Bad argument starts (%c/%c/%c) !\n", argv[1][0], argv[2][0], argv[3][0]);
+        exit(-3);
     }
-    // Check seed position
-    if ( argv[1][1] == 's'){
-        seed_index = 1;
-        mode_index = 2;
+    // Get parameters
+    for(int i=1; i<argc; i++){
+        if (argv[i][1] == 's'){
+            // Check seed length
+            if(strlen(argv[i])<=2){
+                error("Bad param length (-s) !\n");
+                exit(-4);
+            } 
+            seed_index = i;            
+        }
+        else if (argv[i][1] == 't'){
+            // Check seed length
+            if(strlen(argv[i])<=2){
+                error("Bad param length (-t) !\n");
+                exit(-5);
+            } 
+            thres_index = i;            
+        }
+        else if (argv[i][1] == 'g'){
+            if (mode != MODE_NONE){
+                error("Bad mode (impossible to generate AND verify at the same time) !\n");
+                exit(-6);
+            }
+            if(strlen(argv[i])!=2){
+                error("Bad param length (-g) !\n");
+                exit(-7);
+            } 
+            mode = MODE_GENERATE;
+        }
+        else if (argv[i][1] == 'v'){
+            if (mode != MODE_NONE){
+                error("Bad mode (impossible to generate AND verify at the same time) !\n");
+                exit(-8);
+            }
+            if(strlen(argv[i])!=2){
+                error("Bad param length (-v) !\n");
+                exit(-9);
+            } 
+            mode = MODE_VERIFY;
+        }
+        else{
+            error("Bad mode value (-%c) !\n", argv[i][1]);
+            exit(-10);
+        }  
     }
-    else if( argv[2][1] == 's'){
-        seed_index = 2;
-        mode_index = 1;    
-    }
-    else{
-        error("Seed option cannot be found (%s/%s) !\n", argv[1], argv[2]);
-        exit(5);
-    }  
-    // Now check mode position
-    if( argv[mode_index][1] == 'g' ){
-        mode = MODE_GENERATE;
-    }
-    else if( argv[mode_index][1] == 'v' ){
-        mode = MODE_VERIFY;
-    }    
-    else{
-        error("Bad mode value (-%c) !\n", argv[mode_index][1]);
-        exit(5);
-    }  
-    // Check mode argument length
-    if( strlen(argv[mode_index]) != 2 ){
-        error("Bad option (%s) !\n", argv[mode_index]);
-        exit(6);
-    }    
+
     // Check seed characters
     for(int i=2; i<strlen(argv[seed_index]); i++){
         if(argv[seed_index][i] < '0' || argv[seed_index][i] > '9'){
             error("Bad seed characters (%s) !\n", argv[seed_index]);
-            exit(7);
+            exit(-11);
         }
     }
     // Check seed length (max 9 digits)
     if( strlen(argv[seed_index]) > 11 ){
         error("Bad seed length (%s) !\n", argv[seed_index]);
-        exit(8);
+        exit(-12);
     }    
     // Check seed value
     if( sscanf(argv[seed_index]+2, "%ld", &seed) != 1 ){
-        error("Impossible to retrieve seed !\n", stderr);
-        exit(9);
+        error("Impossible to retrieve seed !\n");
+        exit(-13);
     }
+
+    // Check threshold characters
+    for(int i=2; i<strlen(argv[thres_index]); i++){
+        if( argv[thres_index][i] != '.' && (argv[thres_index][i] < '0' || argv[thres_index][i] > '9') ){
+            error("Bad threshold characters (%s) !\n", argv[thres_index]);
+            exit(-14);
+        }
+    }
+/*
+    // Check seed length (max 9 digits)
+    if( strlen(argv[thres_index]) > 11 ){
+        error("Bad threshold length (%s) !\n", argv[thres_index]);
+        exit(-13);
+    }
+*/
+    // Check threshold value
+    if( sscanf(argv[thres_index]+2, "%f", &thres_perc) != 1 ){
+        error("Impossible to retrieve threshold !\n");
+        exit(-15);
+    }
+    if (thres_perc < 0 || thres_perc > 100){
+        error("Threshold must be between 0 and 100 included !\n");
+        exit(-16);
+    }
+
     // Now we can call the exercice function and retrieve result
     if( mode == MODE_GENERATE ){
         result = generate(seed);
         if(result != RES_OK){
-            error("Internal error 10 !\n", stderr);
-            exit(10);
+            error("Internal error !\n");
+            exit(-17);
         }
+        result_perc = 100.0;
     }        
     else if( mode == MODE_VERIFY ){
-        result = verify(seed);
+        result = verify(seed, &result_perc);
         // Display title
         // displayTitleOnce();
         // display result
         fputs("Test result ", stdout);
-        if(result == RES_OK){
+        if((result == RES_OK) && (result_perc >= thres_perc)){
             fputs(CLR_GREEN"[PASS]", stdout);
         }        
         else{
             fputs(CLR_RED"[FAIL]", stdout);
         }
-        fputs(CLR_NORMAL"\n", stdout);
+        float disp_perc = (int)((2*result_perc+1)/2.0);
+        fprintf(stdout, CLR_NORMAL" (result=%.1f%%/target=%.1f%%)\n", disp_perc, thres_perc);
     }
     else{
-        error("Internal error 11 !\n", stderr);
-        exit(11);
+        error("Internal error !\n");
+        exit(-18);
+    }
+    // Check result percent is between 0 and 100.0
+    if(result_perc < 0 || result_perc > 100){
+        error("Internal error : result percent is not between 0 and 100 (%.1f)!\n", result_perc);
+        exit(-19);
     }
     // Free title
     // free(TITLE);
-    // Return result of process
-    return (result != RES_OK);    
+    return (int)(2*result_perc + 1);
 }
-

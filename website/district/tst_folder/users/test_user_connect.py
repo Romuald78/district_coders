@@ -1,3 +1,6 @@
+import random
+import string
+
 from django.core import management
 from django.test import TransactionTestCase, RequestFactory, Client
 
@@ -17,12 +20,29 @@ class UserConnectTest(TransactionTestCase):
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
-    def test_user_connect(self):
+    def __login(self, username, password):
         url = "/accounts/login/"
         response = self.client.post(url, data={
-            "username" : "admin",
-            "password" : "admin",
+            "username" : username,
+            "password" : password,
         })
-        # If connection ok, redirect to profile page
+        return response
+
+    def __randomLogin(self):
+        msg1 = "Please enter a correct username and password."
+        msg2 = "Note that both fields may be case-sensitive."
+        username = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+        password = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+        response = self.__login(username, password)
+        self.assertContains(response, msg1)
+        self.assertContains(response, msg2)
+
+    def __adminLogin(self):
+        response = self.__login("admin", "admin")
         self.assertRedirects(response, PageManager().get_URL("profile"))
 
+    def test_user_connect(self):
+        # Check random user name and password
+        self.__randomLogin()
+        # Check admin user
+        self.__adminLogin()
