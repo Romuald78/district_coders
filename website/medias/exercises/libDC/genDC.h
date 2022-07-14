@@ -9,15 +9,16 @@
         RES_OK  = 0xA5,
         RES_ERR = 0x5A
     } Result;
-    
+
     typedef enum{
+        MODE_NONE     = 0x00,
         MODE_GENERATE = 0x49,
         MODE_VERIFY   = 0x94
     } Mode;
     
     // Implement the following functions
-    Result generate(int seed);    
-    Result verify  (int seed);
+    Result generate(int seed);
+    Result verify  (int seed, float* result_perc);
     void   error   (const char* format, ...); 
     void   message (const char* format, ...); 
 

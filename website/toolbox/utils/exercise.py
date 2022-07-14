@@ -148,9 +148,9 @@ def get_exercise(curr_user, ex_id, asse_id):
         exo2test__test__assessment=asse_id,
         exo2test__test__assessment__groups__userdc=curr_user)
     if ex_id == 0 or asse_id == 0:
-        return {"exit_code": 3, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+        return {"exit_code": -3, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
     elif len(ex_obj) == 0:
-        return {"exit_code": 4, "err_msg": error_message_cnf.GROUP_PERMISSION_EXERCISE}
+        return {"exit_code": -4, "err_msg": error_message_cnf.GROUP_PERMISSION_EXERCISE}
 
     return {"exit_code": 0, "ex_obj": ex_obj}
 
@@ -169,7 +169,7 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
     exercise = Exercise.objects.filter(exo2test=ex2test_id)
     if len(exercise.all()) == 0:
-        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+        return {"exit_code": -4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
     ex_id = exercise.first().id
     result = get_exercise(curr_user, ex_id, asse_id)
     if result["exit_code"] != 0:
@@ -177,15 +177,15 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
 
     curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user, test__exo2test=ex2test_id)
     if len(curr_asse.all()) == 0:
-        return {"exit_code": 3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
+        return {"exit_code": -3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
 
     asse_avail = Asse.is_asse_available(curr_asse)[0]
     if not asse_avail["is_available"]:
-        return {"exit_code": 3, "err_msg": asse_avail["not_available_msg"]}
+        return {"exit_code": -3, "err_msg": asse_avail["not_available_msg"]}
 
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:
-        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+        return {"exit_code": -4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
 
     exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
     rtn_obj = {
@@ -210,7 +210,7 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
     exercise = Exercise.objects.filter(exo2test=ex2test_id)
     if len(exercise.all()) == 0:
-        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+        return {"exit_code": -4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
     ex_id = exercise.first().id
     result = get_exercise(curr_user, ex_id, asse_id)
     if result["exit_code"] != 0:
@@ -218,21 +218,21 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
 
     curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user, test__exo2test=ex2test_id)
     if len(curr_asse.all()) == 0:
-        return {"exit_code": 3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
+        return {"exit_code": -3, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
 
     asse_avail = Asse.is_asse_available(curr_asse)[0]
     if not asse_avail["is_available"]:
-        return {"exit_code": 3, "err_msg": asse_avail["not_available_msg"]}
+        return {"exit_code": -3, "err_msg": asse_avail["not_available_msg"]}
 
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
     if len(all_exo2test.all()) == 0:
-        return {"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
+        return {"exit_code": -4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
 
     exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
     if exos[ex2test_id]["is_triable"]:
         return {"exit_code": 0, "ex2tst_obj": exos[ex2test_id]["ex2tst_obj"], "ex_tst_lng": exos[ex2test_id]["ex_tst_lng"]}
     else:
-        return {"exit_code": 3, "err_msg": exos[ex2test_id]["not_triable_msg"]}
+        return {"exit_code": -3, "err_msg": exos[ex2test_id]["not_triable_msg"]}
 
 
 # return an ANSI title

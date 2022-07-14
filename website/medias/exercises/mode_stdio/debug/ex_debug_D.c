@@ -19,10 +19,11 @@ Result generate(int seed){
     return RES_OK;
 }
 
-Result verify(int seed){
+Result verify(int seed, float* result_perc){
     int    answer = 0;
     int    user   = 0;
     int    N      = 0;
+    int    good   = 0;
     Result res    = RES_OK;
     srand(seed);
     N = rand()%91 + 10;
@@ -43,18 +44,18 @@ Result verify(int seed){
             //break;
         }
         // Check user answer
-        if(user != answer){
+        else if(user != answer){
             error("Received '%d' / Expected '%d'\n", user, answer);            
             res = RES_ERR;
         }
-/*        
         else{
             // Displaying message when an answer is correct
-            message("Received '%d' / Expected '%d'\n", user, answer);
+            //message("Received '%d' / Expected '%d'\n", user, answer);
+            good++;
         }
-//*/
     }
     // return result of verification
-    return res;
+    *result_perc = (100.0*good)/N;
+    return RES_OK;
 }
 

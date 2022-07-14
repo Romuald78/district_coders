@@ -14,11 +14,12 @@ from website.settings import MEDIA_ROOT
 # TODO pour le mode include il faudra modifier la classe exec_inspect pour passer des parametres optionnels pour gerer les imports dynamiques
 class ExerciseInspector():
 
-    def __init__(self, user_id, ex_id, lang_id, raw_code, timeout):
+    def __init__(self, user_id, ex_id, lang_id, raw_code, threshold, timeout):
         self.user_id = user_id
         self.raw_code = raw_code
         self.ex_id = ex_id
         self.language = Language.objects.get(id=lang_id)
+        self.threshold = threshold
         self.timeout = timeout
         # if the string is overweighted (>1Mo)
         self.is_file_created = True
@@ -49,11 +50,10 @@ class ExerciseInspector():
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)
         if exercise.insp_mode.name == INSPECTOR_MODE_STDIO:  # mode stdio
             # Call the system
-            # .../...../exo.exe -g -sXXXXX | execcommandstring | .../...../exo.exe -v -sXXXXX
-            # print("commande : ", [ex_corr, "-g", f"-s{seed}", "|", exec_cmd, "|", ex_corr, "-v", f"-s{seed}"])
-            part1 = subprocess.Popen([ex_corr, "-g", f"-s{seed}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # .../...../exo.exe -g -sXXXXX -tYYYYY | execcommandstring | .../...../exo.exe -v -sXXXXX -tYYYYY
+            part1 = subprocess.Popen([ex_corr, "-g", f"-s{seed}", f"-t{self.threshold}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen(exec_cmd, stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}", f"-t{self.threshold}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             try:
                 result = part3.communicate(timeout=self.timeout)

@@ -24,10 +24,12 @@ Result generate(int seed){
     return RES_OK;
 }
 
-Result verify(int seed){
+Result verify(int seed, float* result_perc){
     int    answer = 0;
     int    user   = 0;
     int    N      = 0;
+    int    total  = 0;
+    int    good   = 0;
     Result res    = RES_OK;
     srand(seed);
     N = getN();
@@ -36,24 +38,27 @@ Result verify(int seed){
     // So it is easier for the user to see which values work and which don't 
     // unless there is no [INFO] displayed for this exercice or we don't want.
     // to flood the stderr    
-    for(int i=0; i<N && res==RES_OK; i++){
+    for(int i=0; i<N; i++){
         answer = getValue();
         if(answer%2 == 1){
             continue;
         }
+        total++;
         // If we cannot read from the stdin: we stop the verification
         if( fscanf(stdin, "%d\n", &user ) != 1){
-            error("Impossible to read standard input !\n");            
-            res = RES_ERR;
-            //break;
+            error("Impossible to read standard input !\n");
+            *result_perc = (100.0*good)/total;
+            return RES_ERR;
         }
-        // Check user answer
         if(user != answer){
-            error("Received '%d' / Expected '%d'\n", user, answer);            
-            res = RES_ERR;
+            error("Received '%d' / Expected '%d'\n", user, answer);
+        }
+        else{
+            good++;
         }
     }
     // return result of verification
-    return res;
+    *result_perc = (100.0*good)/total;
+    return RES_OK;
 }
 

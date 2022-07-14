@@ -109,7 +109,7 @@ def ctrl_json_exercise_inspect(request):
 
         # verif the code is short enough
         if len(user_code.encode("UTF-8")) > default_value_cnf.MAX_LENGTH_USER_RAW_CODE:
-            return JsonResponse({"exit_code": 3,
+            return JsonResponse({"exit_code": -3,
                                  "err_msg": error_message_cnf.USER_RAW_CODE_TOO_BIG,
                                  "stdout": ansi_to_html(get_title_console()),
                                  "stderr": error_message_cnf.USER_RAW_CODE_TOO_BIG[1]})
@@ -117,7 +117,7 @@ def ctrl_json_exercise_inspect(request):
         # make sure the user is able to access to the inspection
         response = get_exercise_write(user_id, ex2tst_id, asse_id)
 
-        if response["exit_code"] != 0:
+        if response["exit_code"] < 0:
             return JsonResponse({"exit_code": response["exit_code"], "err_msg": response["err_msg"]})
 
         # make sure the language selected is available for this exo2test
@@ -126,22 +126,22 @@ def ctrl_json_exercise_inspect(request):
             if i.lang.id == lang_id:
                 language_missing = False
         if language_missing:
-            return JsonResponse({"exit_code": 4, "err_msg": error_message_cnf.LANGUAGE_NOT_AVAILABLE})
+            return JsonResponse({"exit_code": -4, "err_msg": error_message_cnf.LANGUAGE_NOT_AVAILABLE})
 
         # proceed the inspection
         queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
         if len(queryset_exotest2lang.all()) == 0:
-            return JsonResponse({"exit_code": 4, "err_msg": error_message_cnf.EXOTEST2LANG_NOT_FOUND})
+            return JsonResponse({"exit_code": -4, "err_msg": error_message_cnf.EXOTEST2LANG_NOT_FOUND})
         exotest2lang = queryset_exotest2lang.first()
 
-        ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code, exotest2lang.exec_timeout)
+        ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code, response["ex2tst_obj"].solve_percentage_req, exotest2lang.exec_timeout)
         (exit_code, stdout, stderr) = ex_insp.process()
 
         # saving result into ExoTest2Lang and TestResult
         json_response = ctrl_json_testresult_exists(request)
         dict_response = json.loads(json_response.content)
-        if dict_response["exit_code"] != 0:
-            return JsonResponse({"exit_code": 12, "err_msg": dict_response["err_msg"]})  # Missing testResult
+        if dict_response["exit_code"] < 0:
+            return JsonResponse({"exit_code": -12, "err_msg": dict_response["err_msg"]})  # Missing testResult
         else:
             testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)[0]["testresult_obj"]
 
@@ -151,14 +151,19 @@ def ctrl_json_exercise_inspect(request):
             testresult.nb_test_try += 1
             exotest2lang.nb_test_try += 1
 
-            # TODO making different level of success (in %)
             # according to testresult.solve_percentage
-            if exit_code == 0:  # success
-                exotest2lang.nb_test_pass += 1
-                if testresult.solve_percentage < 100:
+            if exit_code >= 0: # exercise has been processed
+                # update max result
+                if testresult.solve_percentage < exit_code:
+                    testresult.solve_percentage = exit_code//2
                     testresult.solve_code = user_code
-                    testresult.solve_percentage = 100
                     testresult.solve_time = timezone.now()
+                # if the actual solve percentage is above the required limit
+                # the test can be count as passed (so the same user can pass this exo several times)
+                # it is not compulsory to have 100% : just the solve_percentage_req value or above
+                if testresult.solve_percentage >= response["ex2tst_obj"].solve_percentage_req:
+                    exotest2lang.nb_test_pass += 1
+
         else:
             exotest2lang.nb_train_try += 1
             if exit_code == 0:  # success
