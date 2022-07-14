@@ -47,61 +47,43 @@ def is_exo_triable(curr_user, curr_asse, all_exo2test):
         groups__userdc=curr_user
     )
 
-    # getting the higher rank of the solved exercises
-    ranking_max_all_exo2test = Exo2Test.objects.filter(
-        test__assessment=curr_asse,
-        solve_percentage_req__lte=F("exotest2lang__testresult__solve_percentage")
-    ).order_by("-rank")
-    # if no exercises have been completed yet
-    if len(ranking_max_all_exo2test.all()) == 0:
-        # the user start the assessment
-        # getting the lower rank exercise
-        min_unsolved_rank = Exo2Test.objects.filter(test__assessment=curr_asse).order_by("rank").first().rank
-    else:
-        max_solved_rank = ranking_max_all_exo2test.first().rank
-        # getting the lower rank greater than max_solved_rank
-        ranking_min_all_exo2test = Exo2Test.objects.filter(
-            test__assessment=curr_asse,
-            rank__gt=max_solved_rank
-        ).order_by("rank")
-        # if no exercises have been tested yet
-        if len(ranking_min_all_exo2test.all()) == 0:
-            # the user end the assessment
-            # letting the user access to nonexistent exercise (rank too high)
-            min_unsolved_rank = max_solved_rank + 1
-        else:
-            min_unsolved_rank = ranking_min_all_exo2test.first().rank
-
-
     exos = {}
-    for ex2test in all_exo2test:
-        # getting languages available
-        all_ex_tst_lng = []
-        for ex_tst_lng in ex2test.exotest2lang_set.all():
-            # lang = ex_tst_lng.lang_id
-            all_ex_tst_lng.append(ex_tst_lng)
-        # set is_triable to False the exercise of a rank already passed
-        exos[ex2test.id] = {
-            "ex2tst_obj": ex2test,
-            "is_triable": True,
-            "ex_tst_lng": all_ex_tst_lng,
-            "is_redirected": False,
-            "asse_id": curr_asse.id
-        }
+    can_go_ahead = True
+    for ex2test in Exo2Test.objects.filter(test__assessment=curr_asse).order_by("rank"):
+        if ex2test in all_exo2test:
+            # getting languages available
+            all_ex_tst_lng = []
+            for ex_tst_lng in ex2test.exotest2lang_set.all():
+                # lang = ex_tst_lng.lang_id
+                all_ex_tst_lng.append(ex_tst_lng)
+            # set is_triable to False the exercise of a rank already passed
+            exos[ex2test.id] = {
+                "ex2tst_obj": ex2test,
+                "is_triable": True,
+                "ex_tst_lng": all_ex_tst_lng,
+                "is_redirected": False,
+                "asse_id": curr_asse.id
+            }
         if Asse.is_date_current(curr_asse):
-            # filter : rank too high or complete exercise (during in process assessment) aren't accessible
-            if ex2test.rank >= min_unsolved_rank:
-                exos[ex2test.id]["is_triable"] = ex2test.rank == min_unsolved_rank
-                if not exos[ex2test.id]["is_triable"]:
-                    exos[ex2test.id]["not_triable_msg"] = error_message_cnf.RANK_PERMISSION_TOO_HIGH
+            if can_go_ahead:
+                exotest2lang_set = ex2test.exotest2lang_set.order_by("-testresult__solve_percentage")
+                # is_accessible = len(exotest2lang_set.all()) > 0 and (
+                #         ex2test.solve_percentage_req == 0 or (
+                #             len(exotest2lang_set.first().testresult_set.all()) > 0 and
+                #              exotest2lang_set.first().testresult_set.first().solve_percentage >= ex2test.solve_percentage_req
+                #         )
+                # )
+                is_accessible = ex2test.solve_percentage_req == 0 or (
+                        len(exotest2lang_set.all()) > 0 and
+                        len(exotest2lang_set.first().testresult_set.all()) > 0 and
+                        exotest2lang_set.first().testresult_set.first().solve_percentage >= ex2test.solve_percentage_req
+                )
+                if not is_accessible:
+                    can_go_ahead = False
             else:
-                is_exo_solved = False
-                for etl in all_ex_tst_lng:
-                    if len(etl.testresult_set.all()) != 0 and etl.testresult_set.first().solve_percentage >= etl.exo2test.solve_percentage_req:
-                        is_exo_solved = True
-                exos[ex2test.id]["is_triable"] = not is_exo_solved
-                if not exos[ex2test.id]["is_triable"]:
-                    exos[ex2test.id]["not_triable_msg"] = error_message_cnf.RANK_PERMISSION_COMPLETE
+                if ex2test in all_exo2test:
+                    exos[ex2test.id]["is_triable"] = False
+                    exos[ex2test.id]["not_triable_msg"] = error_message_cnf.RANK_PERMISSION_TOO_HIGH
 
     # now, we set elements from exos
     for asse in all_other_asse:

@@ -1,8 +1,11 @@
+import json
+
 from django.contrib.auth.models import AnonymousUser
 from django.test import TransactionTestCase, RequestFactory
 from django.urls import reverse
 
 from config.constants.route_cnf import PAGES
+from district.models.group import GroupDC
 from district.models.user import UserDC
 from toolbox.utils.route_mgr import PageManager
 
@@ -62,4 +65,34 @@ class AnonymousTest(TransactionTestCase):
             request.user = AnonymousUser()
             response = page.ctrl(request, rand_id)
             self.assertEqual(response.status_code, 302)
+
+    def test_json_group_register(self):
+        pass
+        # pm = PageManager()
+        # page = pm.get_page('group_register')
+        #
+        # request = self.client.post(page.url, {"register_key": "Robert De Niro"})
+        # request.user = AnonymousUser()
+        # response = page.ctrl(request)
+        #
+        # self.assertRedirects(request, "/accounts/login/")
+
+
+
+# Page('group_register', 'accounts/group_register/', ctrl_json_user_register, type="json", parameters=True),
+# Page('my_groups', 'accounts/my_groups/', ctrl_json_user_groups, type="json"),
+#
+# Page('email_change_confirm', 'accounts/email_change_confirm/<int:user_id>/', ctrl_email_verification, log_req=False, parameters=True),
+# Page('email_change_send', 'accounts/email_change_send/', ctrl_json_sending_email, type="json", log_req=False),
+# Page('exercise_inspect', 'exercise/inspect/', ctrl_json_exercise_inspect, type='json', parameters=True),
+# Page('exercise_stats', 'exercise/stats/', ctrl_json_testresult_exists, type='json', parameters=True),
+
+
+
+
+
+
+
+
+
 
