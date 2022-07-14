@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_exercise_details, ctrl_exercise_write
 from district.models.assessment import Assessment
+from district.models.exercise import Exercise
 from district.models.exo2test import Exo2Test
 from district.models.exotest2lang import ExoTest2Lang
 from district.models.group import GroupDC
@@ -32,65 +33,16 @@ class ExerciseInspectorTest(TransactionTestCase):
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
-        # solve an exercise to see the behavior
-        user = UserDC.objects.get(username="user_2")
-        exotst2lang = ExoTest2Lang.objects.get(exo2test_id=17, lang__name="JS")
-        TestResult.objects.create(
-            exo_test2lang=exotst2lang,
-            user=user,
-            solve_code=exotst2lang.lang.default_code,
-            solve_percentage=100,
-            assessment_id=4)
 
-        # create an assessment, and solve it totally
-        month = timedelta(days=30)
-        today = timezone.now()
-        my_test = TestDC.objects.get(title="Test_#4")
-        my_asse = Assessment.objects.create(
-            start_time=today - month,
-            end_time=today + month,
-            training_time=today + month * 2,
-            test_id=my_test.id
-        )
-
-        my_group = GroupDC.objects.get(name="Group #2")
-        my_asse.groups.add(my_group)
-
-        for ex2tst in my_test.exo2test_set.all():
-            search_valid_lang = True
-            for language in self.lang:
-                if search_valid_lang:
-                    extst2lang = ex2tst.exotest2lang_set.filter(lang__name=language)
-                    if len(extst2lang.all()) > 0:
-                        search_valid_lang = False
-                        TestResult.objects.create(
-                            exo_test2lang=extst2lang.first(),
-                            user=user,
-                            solve_code=exotst2lang.lang.default_code,
-                            solve_percentage=100,
-                            assessment_id=my_asse.id)
 
     # python manage.py test district.tst_folder.simple.test_exercise_inspector.ExerciseInspectorTest.test_user_access -v 2 --failfast
     def test_user_access(self):
+
+        # TEST PART
         for asse_item in Assessment.objects.all():
-            # check the rank
-            # getting max rank of complete exercise
-            min_rank_todo = asse_item.test.exo2test_set.order_by("rank").first().rank
-            min_search = True
-            is_test_complete = True
-            for asse_ex2tst in asse_item.test.exo2test_set.order_by("-rank"):
-                if min_search:
-                    extst2lng_all = asse_ex2tst.exotest2lang_set.order_by("-testresult__solve_percentage")
-                    if len(extst2lng_all.all()) > 0:
-                        extst2lng = extst2lng_all.first()
-                        if len(extst2lng.testresult_set.all()) == 0 \
-                                or extst2lng.testresult_set.first().solve_percentage < asse_ex2tst.solve_percentage_req:
-                            is_test_complete = False
-                            min_rank_todo = asse_ex2tst.rank
-                        else:
-                            min_search = False
-            for ex2tst_item in Exo2Test.objects.all():
-                for curr_user in UserDC.objects.all():
+            for curr_user in UserDC.objects.all():
+                rank_access = True
+                for ex2tst_item in Exo2Test.objects.order_by("rank").all():
                     asse_qs = Assessment.objects.filter(test__exo2test=ex2tst_item, groups__userdc=curr_user, id=asse_item.id)
                     do_access = len(asse_qs.all()) > 0
                     do_see = len(asse_qs.all()) > 0
@@ -101,7 +53,34 @@ class ExerciseInspectorTest(TransactionTestCase):
                         if len(other_asse.filter(start_time__lte=timezone.now(), end_time__gt=timezone.now()).all()) > 0:
                             # check if the current assessment is in process
                             if asse_item.start_time.__le__(timezone.now()) and asse_item.end_time.__gt__(timezone.now()):
-                                if ex2tst_item.rank != min_rank_todo or is_test_complete:
+                                if rank_access:
+                                    # either solve_percentage_req = 0
+                                    # either solver_percentage_req <= solve_percentage
+                                    is_there_extstlng = len(ex2tst_item.exotest2lang_set.all()) > 0
+                                    if is_there_extstlng:
+                                        test_result_not_nul = ex2tst_item.exotest2lang_set.order_by("-testresult__solve_percentage").first()
+                                        is_there_testresult = len(test_result_not_nul.testresult_set.all()) > 0
+                                        if is_there_testresult:
+                                            is_solve_percentage_valid = test_result_not_nul.testresult_set.first().solve_percentage >= ex2tst_item.solve_percentage_req
+                                        else:
+                                            is_solve_percentage_valid = False
+                                    else:
+                                        is_there_testresult = False
+                                        is_solve_percentage_valid = False
+
+                                    condition = ex2tst_item.solve_percentage_req == 0 or (
+                                        is_there_extstlng and
+                                        is_there_testresult and
+                                        is_solve_percentage_valid
+                                    )
+                                    if not condition:
+                                        print("je passe ici")
+                                        print("A", ex2tst_item.solve_percentage_req == 0)
+                                        print("B", is_there_extstlng)
+                                        print("C", is_there_testresult)
+                                        print("D", is_solve_percentage_valid)
+                                        rank_access = False
+                                else:
                                     do_access = False
                                     err_msg = "Rank not valid"
                             else:
@@ -135,7 +114,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                         err_msg = "bad group or something"
 
                     # Test part
-                    # print(f"[asse:{asse_item.id}][ex2tst:{ex2tst_item.id}][user:{curr_user.id}] : {err_msg}")
+                    print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
                     # test on exercise_details
                     with self.subTest():
                         request = self.factory.get(reverse('exercise_details'),
@@ -184,7 +163,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         extst = Exo2Test.objects.get(id=33)
         asse = Assessment.objects.get(id=9)
         lang = Language.objects.get(name="C")
-        with open(os.path.join(MEDIA_ROOT, "..", "..", "tmp", "user001.c"), "r") as f:
+        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001.c"), "r") as f:
             raw_code = f.read()
 
         request = self.factory.post(reverse('exercise_inspect'),
@@ -196,6 +175,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
+        print(dict_json)
         with self.subTest():
             self.assertNotIn("err_msg", dict_json)
         with self.subTest():
@@ -207,7 +187,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         extst = Exo2Test.objects.get(id=33)
         asse = Assessment.objects.get(id=9)
         lang = Language.objects.get(name="C")
-        with open(os.path.join(MEDIA_ROOT, "..", "..", "tmp", "user001 - wrong.c"), "r") as f:
+        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - wrong.c"), "r") as f:
             raw_code = f.read()
 
         request = self.factory.post(reverse('exercise_inspect'),
@@ -252,7 +232,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         extst = Exo2Test.objects.get(id=33)
         asse = Assessment.objects.get(id=9)
         lang = Language.objects.get(name="C")
-        with open(os.path.join(MEDIA_ROOT, "..", "..", "tmp", "user001 - syntax.c"), "r") as f:
+        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - syntax.c"), "r") as f:
             raw_code = f.read()
 
         request = self.factory.post(reverse('exercise_inspect'),
@@ -275,7 +255,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         extst = Exo2Test.objects.get(id=33)
         asse = Assessment.objects.get(id=9)
         lang = Language.objects.get(name="C")
-        with open(os.path.join(MEDIA_ROOT, "..", "..", "tmp", "user001 - infLoop.c"), "r") as f:
+        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - infLoop.c"), "r") as f:
             raw_code = f.read()
 
         request = self.factory.post(reverse('exercise_inspect'),
@@ -300,7 +280,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         lang = Language.objects.get(name="C")
 
         # at the limit size
-        with open(os.path.join(MEDIA_ROOT, "..", "..", "tmp", "user001 - almostTooLong.c"), "r") as f:
+        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - almostTooLong.c"), "r") as f:
             raw_code = f.read()
 
         request = self.factory.post(reverse('exercise_inspect'),
@@ -318,7 +298,7 @@ class ExerciseInspectorTest(TransactionTestCase):
             self.assertEqual(dict_json["exit_code"], 0)
 
         # beyond the limit size
-        with open(os.path.join(MEDIA_ROOT, "..", "..", "tmp", "user001 - tooLong.c"), "r") as f:
+        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - tooLong.c"), "r") as f:
             raw_code = f.read()
 
         request = self.factory.post(reverse('exercise_inspect'),
