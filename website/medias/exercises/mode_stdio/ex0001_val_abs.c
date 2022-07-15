@@ -24,9 +24,9 @@ Result verify(int seed, float* result_perc){
     int    user   = 0;
     int    N      = 0;
     int    good   = 0;
-    Result res    = RES_OK;
     srand(seed);
     N = rand()%91 + 10;
+    *result_perc = 0;
 
     // We dont stop the verification if one value is not correct
     // So it is easier for the user to see which values work and which don't 
@@ -40,22 +40,20 @@ Result verify(int seed, float* result_perc){
         // If we cannot read from the stdin: we stop the verification
         if( fscanf(stdin, "%d\n", &user ) != 1){
             error("Impossible to read standard input !\n");            
-            res = RES_ERR;
-            //break;
+            return RES_ERR;
         }
         // Check user answer
         else if(user != answer){
             error("Received '%d' / Expected '%d'\n", user, answer);            
-            res = RES_ERR;
         }
         else{
             // Displaying message when an answer is correct
             //message("Received '%d' / Expected '%d'\n", user, answer);
             good++;
+            *result_perc = (100.0*good)/N;
         }
     }
     // return result of verification
-    *result_perc = (100.0*good)/N;
     return RES_OK;
 }
 

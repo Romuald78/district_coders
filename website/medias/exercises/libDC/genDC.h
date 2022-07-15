@@ -4,7 +4,8 @@
     #define CLR_NORMAL "\33[0m"
     #define CLR_RED    "\33[38;2;255;0;0m"
     #define CLR_GREEN  "\33[38;2;0;255;0m"
-    
+    #define CLR_YELLOW "\33[38;2;255;255;0m"
+
     typedef enum{
         RES_OK  = 0xA5,
         RES_ERR = 0x5A

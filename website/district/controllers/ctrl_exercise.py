@@ -99,6 +99,16 @@ def ctrl_exercise_write(request):
 
 @login_required(login_url=LOGIN_URL)
 def ctrl_json_exercise_inspect(request):
+    # prepare answer
+    dico_json_response = {
+        "title": ansi_to_html(get_title_console()),
+        "time_stamp": str(timezone.now()), # TODO useless ???
+        "exit_code": None,
+        "err_msg": "",
+        "stdout": "",
+        "stderr": "",
+    }
+
     try:
         # get parameters
         user_id = request.user.id
@@ -109,16 +119,16 @@ def ctrl_json_exercise_inspect(request):
 
         # verif the code is short enough
         if len(user_code.encode("UTF-8")) > default_value_cnf.MAX_LENGTH_USER_RAW_CODE:
-            return JsonResponse({"exit_code": -3,
-                                 "err_msg": error_message_cnf.USER_RAW_CODE_TOO_BIG,
-                                 "stdout": ansi_to_html(get_title_console()),
-                                 "stderr": error_message_cnf.USER_RAW_CODE_TOO_BIG[1]})
+            dico_json_response["exit_code"] = -3
+            dico_json_response["err_msg"]   = error_message_cnf.USER_RAW_CODE_TOO_BIG
+            return JsonResponse(dico_json_response)
 
         # make sure the user is able to access to the inspection
         response = get_exercise_write(user_id, ex2tst_id, asse_id)
-
         if response["exit_code"] < 0:
-            return JsonResponse({"exit_code": response["exit_code"], "err_msg": response["err_msg"]})
+            dico_json_response["exit_code"] = response["exit_code"]
+            dico_json_response["err_msg"]   = response["err_msg"]
+            return JsonResponse(dico_json_response)
 
         # make sure the language selected is available for this exo2test
         language_missing = True
@@ -126,22 +136,30 @@ def ctrl_json_exercise_inspect(request):
             if i.lang.id == lang_id:
                 language_missing = False
         if language_missing:
-            return JsonResponse({"exit_code": -4, "err_msg": error_message_cnf.LANGUAGE_NOT_AVAILABLE})
+            dico_json_response["exit_code"] = -4
+            dico_json_response["err_msg"]   = error_message_cnf.LANGUAGE_NOT_AVAILABLE
+            return JsonResponse(dico_json_response)
 
         # proceed the inspection
         queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
         if len(queryset_exotest2lang.all()) == 0:
-            return JsonResponse({"exit_code": -4, "err_msg": error_message_cnf.EXOTEST2LANG_NOT_FOUND})
-        exotest2lang = queryset_exotest2lang.first()
+            dico_json_response["exit_code"] = -4
+            dico_json_response["err_msg"]   = error_message_cnf.EXOTEST2LANG_NOT_FOUND
+            return JsonResponse(dico_json_response)
 
+        exotest2lang = queryset_exotest2lang.first()
         ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code, response["ex2tst_obj"].solve_percentage_req, exotest2lang.exec_timeout)
         (exit_code, stdout, stderr) = ex_insp.process()
+        # Get exo percentage from exit_code
+        exo_perc = exit_code//2
 
         # saving result into ExoTest2Lang and TestResult
         json_response = ctrl_json_testresult_exists(request)
         dict_response = json.loads(json_response.content)
         if dict_response["exit_code"] < 0:
-            return JsonResponse({"exit_code": -12, "err_msg": dict_response["err_msg"]})  # Missing testResult
+            dico_json_response["exit_code"] = -12
+            dico_json_response["err_msg"]   = dict_response["err_msg"] # Missing testResult
+            return JsonResponse(dico_json_response)
         else:
             testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)[0]["testresult_obj"]
 
@@ -152,10 +170,10 @@ def ctrl_json_exercise_inspect(request):
             exotest2lang.nb_test_try += 1
 
             # according to testresult.solve_percentage
-            if exit_code >= 0: # exercise has been processed
+            if exo_perc >= 0 and exo_perc <= 100: # exercise has been processed
                 # update max result
-                if testresult.solve_percentage < exit_code:
-                    testresult.solve_percentage = exit_code//2
+                if testresult.solve_percentage < exo_perc:
+                    testresult.solve_percentage = exo_perc
                     testresult.solve_code = user_code
                     testresult.solve_time = timezone.now()
                 # if the actual solve percentage is above the required limit
@@ -163,11 +181,12 @@ def ctrl_json_exercise_inspect(request):
                 # it is not compulsory to have 100% : just the solve_percentage_req value or above
                 if testresult.solve_percentage >= response["ex2tst_obj"].solve_percentage_req:
                     exotest2lang.nb_test_pass += 1
-
+            # NO else : the exit_code is an error and not a test_percentage
         else:
             exotest2lang.nb_train_try += 1
-            if exit_code == 0:  # success
+            if exit_code >= response["ex2tst_obj"].solve_percentage_req:# success
                 exotest2lang.nb_train_pass += 1
+
         exotest2lang.save()
         testresult.save()
 
@@ -177,15 +196,10 @@ def ctrl_json_exercise_inspect(request):
         # exit_code : int
         # stdout : str
         # stderr : str
-        dico_json_response = {
-            "ex_id": response["ex2tst_obj"].exercise.id,
-            "user_id": user_id,
-            "timestamp": timezone.now(),
-            "exit_code": exit_code,
-            "stdout": ansi_to_html(get_title_console() + stdout),
-            "stderr": ansi_to_html(stderr)
-        }
-
+        dico_json_response["exit_code"] = exit_code
+        dico_json_response["stdout"]    = ansi_to_html(stdout)
+        dico_json_response["stderr"]    = ansi_to_html(stderr)
+        print(dico_json_response)
         return JsonResponse(dico_json_response)
     except:
         if settings.DEBUG:

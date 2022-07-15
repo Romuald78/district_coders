@@ -13,5 +13,5 @@ class Exo2Test(models.Model):
     solve_percentage_req = models.FloatField(default=100.0) # TODO par défaut on bloque l'accès aux exos suivant (valeur 100%)
 
     def __str__(self):
-        out = f"Exo2Test ex:{self.exercise}/test:{self.test}"
+        out = f"Exo2Test {self.id} ex:{self.exercise}/test:{self.test}"
         return out
