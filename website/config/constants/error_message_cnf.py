@@ -29,7 +29,7 @@ USER_RAW_CODE_TOO_BIG = ["Too many characters", "Your code contains too many cha
 
 # groups register
 GROUP_REGISTER_EMPTY_KEY = ["Unknown", "Please enter a valid group key"]
-GROUP_REGISTER_UNVALIDE_KEY = ["Unvalide key", "Group not found"]
+GROUP_REGISTER_INVALID_KEY = ["Unvalide key", "Group not found"]
 GROUP_REGISTER_ALREADY_IN = ["Already in", "You are already in this group"]
 
 # TestResult
@@ -47,4 +47,13 @@ EMAIL_ALREADY_CONFIRM = ["Email already confirmed", "You already confirm your em
 
 # PASSWORD
 PASSWORD_INVALID = ["Invalid password", "Please enter a valid password"]
+
+
+# Exit code to return from exercise controllers / inspector (python side)
+ERROR_CODE_OK         = 0
+ERROR_CODE_ACCESS     = -3
+ERROR_CODE_NOT_FOUND  = -4
+ERROR_CODE_CONFLICT   = -9
+ERROR_CODE_PARAMS     = -12
+ERROR_CODE_IMPOSSIBLE = -18
 

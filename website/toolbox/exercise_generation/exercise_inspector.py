@@ -3,6 +3,7 @@ import subprocess
 from random import randint
 
 from config.constants import default_value_cnf, error_message_cnf
+from config.constants.error_message_cnf import ERROR_CODE_OK, ERROR_CODE_ACCESS
 from config.constants.inspector_mode_cnf import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
 from district.models.exercise import Exercise
 from district.models.language import Language
@@ -32,7 +33,7 @@ class ExerciseInspector():
 
     def process(self):
         if not self.is_file_created:
-            return (3, "", error_message_cnf.USER_RAW_CODE_TOO_BIG)
+            return (ERROR_CODE_ACCESS, "", error_message_cnf.USER_RAW_CODE_TOO_BIG)
         # retrieve exercise (+genFile)
         exercise = Exercise.objects.get(id=self.ex_id) #TODO check the return of get
         # Get alea seed (XXXXX)
@@ -44,7 +45,7 @@ class ExerciseInspector():
 
         # Compile user code if needed
         (exit_code_comp, stdout_comp, stderr_comp) = self.program.compile(exercise.gen_file, exercise.insp_mode.name)
-        if exit_code_comp != 0:
+        if exit_code_comp != ERROR_CODE_OK:
             return (exit_code_comp, stdout_comp.decode("UTF-8"), stderr_comp.decode("UTF-8"))
 
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)

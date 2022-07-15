@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template import loader
 
+from config.constants.error_message_cnf import ERROR_CODE_OK
 from district.controllers.ctrl_main import ctrl_error
 from toolbox.utils.assessment import get_asse_exercises
 
@@ -12,7 +13,7 @@ from website.settings import LOGIN_URL
 @login_required(login_url=LOGIN_URL)
 def ctrl_asse_details(request, id_asse):
     result = get_asse_exercises(request, id_asse)
-    if result["exit_code"] != 0:
+    if result["exit_code"] != ERROR_CODE_OK:
         return ctrl_error(request, result["err_msg"][1])
 
     # Load view template

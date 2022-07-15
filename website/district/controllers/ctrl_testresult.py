@@ -5,6 +5,7 @@ import traceback
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
+from config.constants.error_message_cnf import ERROR_CODE_NOT_FOUND, ERROR_CODE_ACCESS, ERROR_CODE_OK
 from district.models.assessment import Assessment
 from district.models.exo2test import Exo2Test
 from district.models.exotest2lang import ExoTest2Lang
@@ -28,24 +29,24 @@ def ctrl_json_testresult_exists(request):
         lang_id = int(request.POST.get("lang_id", 0))
 
         if asse_id == 0 or ex2tst_id == 0 or lang_id == 0:
-            return JsonResponse({"exit_code": 4, "err_msg": error_message_cnf.TESTRESULT_NOT_FOUND})
+            return JsonResponse({"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.TESTRESULT_NOT_FOUND})
 
         # check if the assessment is reachable by the user
         asse_objs = Assessment.objects.filter(id=asse_id)
         if len(asse_objs.all()) == 0:
-            return JsonResponse({"exit_code": 4, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT})
+            return JsonResponse({"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT})
         result_asse = is_asse_available(asse_objs)
         if not result_asse[0]["is_available"]:
-            return JsonResponse({"exit_code": 3, "err_msg": result_asse[0]["not_available_msg"]})
+            return JsonResponse({"exit_code": ERROR_CODE_ACCESS, "err_msg": result_asse[0]["not_available_msg"]})
 
         # check if the exercise is triable by the user
         all_exo2test = Exo2Test.objects.filter(id=ex2tst_id) # one result
         if len(all_exo2test.all()) == 0:
-            return JsonResponse({"exit_code": 4, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND})
+            return JsonResponse({"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND})
         result_exo = is_exo_triable(curr_user, asse_objs.first(), all_exo2test)
         exo2test_id = all_exo2test.first().id
         if not result_exo[exo2test_id]["is_triable"]:
-            return JsonResponse({"exit_code": 3, "err_msg": result_asse[exo2test_id]["not_triable_msg"]})
+            return JsonResponse({"exit_code": ERROR_CODE_ACCESS, "err_msg": result_asse[exo2test_id]["not_triable_msg"]})
 
         # check if a test result already exist
         test_result = TestResult.objects.filter(
@@ -62,7 +63,7 @@ def ctrl_json_testresult_exists(request):
 
             new_test_result.save()
 
-        return JsonResponse({"exit_code": 0})
+        return JsonResponse({"exit_code": ERROR_CODE_OK})
     except:
         if settings.DEBUG:
             print(traceback.print_exc())

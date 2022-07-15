@@ -17,6 +17,8 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
 
+from config.constants.error_message_cnf import ERROR_CODE_CONFLICT, ERROR_CODE_NOT_FOUND, ERROR_CODE_PARAMS, \
+    ERROR_CODE_OK, ERROR_CODE_ACCESS
 from config.secure import email_cnf
 from district.controllers.ctrl_main import ctrl_error
 from district.models.user import UserDC
@@ -85,15 +87,15 @@ def ctrl_json_user_register(request):
         user_id = request.user.id
 
         if len(register_key) == 0 or user_id == 0:
-            return JsonResponse({"exit_code": 2, "err_msg": error_message_cnf.GROUP_REGISTER_EMPTY_KEY})
+            return JsonResponse({"exit_code": ERROR_CODE_PARAMS, "err_msg": error_message_cnf.GROUP_REGISTER_EMPTY_KEY})
 
         # check if the key exists. In this case, get the id of the group concerned
         groups = GroupDC.objects.filter(register_key=register_key)
         if not groups.exists():
-            return JsonResponse({"exit_code": 1, "err_msg": error_message_cnf.GROUP_REGISTER_UNVALIDE_KEY})
+            return JsonResponse({"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.GROUP_REGISTER_INVALID_KEY})
 
         if len(GroupDC.objects.filter(id=groups.first().id, userdc=user_id).all()) != 0:
-            return JsonResponse({"exit_code": 9, "err_msg": error_message_cnf.GROUP_REGISTER_ALREADY_IN})
+            return JsonResponse({"exit_code": ERROR_CODE_CONFLICT, "err_msg": error_message_cnf.GROUP_REGISTER_ALREADY_IN})
 
         # link the group to the user
         user_obj = UserDC.objects.get(id=user_id)
@@ -101,7 +103,7 @@ def ctrl_json_user_register(request):
         user_obj.save()
 
         # return a dictionary
-        return JsonResponse({"exit_code": 0})
+        return JsonResponse({"exit_code": ERROR_CODE_OK})
     except:
         if settings.DEBUG:
             print(traceback.print_exc())
@@ -206,9 +208,9 @@ def ctrl_json_sending_email(request):
 
     if curr_user is not None and not curr_user.is_email_validated:
         send_confirm_email(request, curr_user)
-        return JsonResponse({"exit_code": 0})
+        return JsonResponse({"exit_code": ERROR_CODE_OK})
     else:
-        return JsonResponse({"exit_code": 3, "err_msg": error_message_cnf.EMAIL_ALREADY_CONFIRM})
+        return JsonResponse({"exit_code": ERROR_CODE_ACCESS, "err_msg": error_message_cnf.EMAIL_ALREADY_CONFIRM})
 
 
 def ctrl_password_reset_request(request):

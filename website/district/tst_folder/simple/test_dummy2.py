@@ -35,7 +35,7 @@ class SimpleTest(TransactionTestCase):
         # Every test needs access to the request factory.
         self.factory = RequestFactory()
         # InspectorMode.objects.create(name="dansmontest")
-        management.call_command("populate")
+        management.call_command("populate_multi")
 
     def test_assessment_details(self):
         asse = Assessment.objects.all().first()
