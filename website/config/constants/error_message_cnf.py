@@ -10,6 +10,9 @@ DATE_PERMISSION_FUTURE = ["Not available yet", "Future assessments aren't access
 DATE_PERMISSION_PAST_NOT_TRAINING = ["Not available yet", "You cannot access to this exercise yet"]
 DATE_PERMISSION_IN_PROCESS = ["", "This exercise is available in another assessment"]
 
+# Exercice resolving
+COMPILE_ERROR = ["GCC compilation", "Error during compilation phase"]
+
 # User permission (rank)
 RANK_PERMISSION_TOO_HIGH = ["Locked", "Please complete lower rank exercise"]
 
@@ -53,7 +56,8 @@ PASSWORD_INVALID = ["Invalid password", "Please enter a valid password"]
 ERROR_CODE_OK         = 0
 ERROR_CODE_ACCESS     = -3
 ERROR_CODE_NOT_FOUND  = -4
+ERROR_CODE_TIMEOUT    = -8
 ERROR_CODE_CONFLICT   = -9
 ERROR_CODE_PARAMS     = -12
 ERROR_CODE_IMPOSSIBLE = -18
-
+ERROR_CODE_COMPILE    = -22

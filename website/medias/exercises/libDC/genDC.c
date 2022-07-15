@@ -242,7 +242,7 @@ int main(int argc, char** argv){
         else{
             fputs(CLR_RED"[FAIL]", stdout);
         }
-        float disp_perc = (int)((2*result_perc+1)/2.0);
+        float disp_perc = ((int)(2*result_perc+0.5))/2.0;
         fprintf(stdout, CLR_NORMAL" (result=%.1f%%/target=%.1f%%)\n", disp_perc, thres_perc);
     }
     else{
@@ -256,5 +256,5 @@ int main(int argc, char** argv){
     }
     // Free title
     // free(TITLE);
-    return (int)(2*result_perc + 1);
+    return (int)(2*result_perc + 0.5);
 }

@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from config.constants.default_value_cnf import EX_INSPECT_ERROR_RANGE_MIN
+from config.constants.error_message_cnf import ERROR_CODE_OK, USER_RAW_CODE_TOO_BIG, ERROR_CODE_ACCESS, \
+    ERROR_CODE_COMPILE, COMPILE_ERROR, ERROR_CODE_TIMEOUT
 from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_exercise_details, ctrl_exercise_write
 from district.models.assessment import Assessment
 from district.models.exercise import Exercise
@@ -117,7 +119,8 @@ class ExerciseInspectorTest(TransactionTestCase):
                     # Test part
                     #print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
                     # test on exercise_details
-                    with self.subTest():
+                    msg = f"asse:{asse_item.id}/user:{curr_user.id}/ex2tst:{ex2tst_item.id}"
+                    with self.subTest(f"Ex.Details {msg}"):
                         request = self.factory.get(reverse('exercise_details'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
                         request.user = curr_user
@@ -127,7 +130,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                         else:
                             self.assertEqual(response.status_code, 302)
                     # test on exercise_write
-                    with self.subTest():
+                    with self.subTest(f"Ex.Write   {msg}"):
                         request = self.factory.get(reverse('exercise_write'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
                         request.user = curr_user
@@ -137,12 +140,11 @@ class ExerciseInspectorTest(TransactionTestCase):
                         else:
                             self.assertEqual(response.status_code, 302)
                     # test on exercise_inspect
-                    with self.subTest():
-                        for lang in Language.objects.filter(name__in=self.lang).all():
+                    for lang in Language.objects.filter(name__in=self.lang).all():
+                        with self.subTest(f"Ex.Inspect {msg}/lang{lang.id}:{lang.name}"):
                             lang_access = True
                             if len(ex2tst_item.exotest2lang_set.filter(lang__name=lang.name).all()) == 0:
                                 lang_access = False
-                            # print(f"--> {lang.name}")
                             request = self.factory.post(reverse('exercise_inspect'),
                                                         {
                                                             "ex2tst_id": ex2tst_item.id,
@@ -157,12 +159,13 @@ class ExerciseInspectorTest(TransactionTestCase):
                             else:
                                 self.assertIn("err_msg", dict_json)
 
+
     # TODO only works for C script
     def test_OK(self):
         # getting the user
         user = UserDC.objects.get(username="user_4")
         extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=9)
+        asse = Assessment.objects.get(id=10)
         lang = Language.objects.get(name="C")
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001.c"), "r") as f:
             raw_code = f.read()
@@ -176,17 +179,18 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
-        print(dict_json)
-        with self.subTest():
-            self.assertNotEqual(dict_json["err_msg"], "")
-        with self.subTest():
-            self.assertEqual(dict_json["exit_code"], 0)
+        with self.subTest("error message"):
+            self.assertEqual(dict_json["err_msg"], "")
+        with self.subTest("percentage value"):
+            threshold = extst.solve_percentage_req
+            self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
+            self.assertGreaterEqual(dict_json["exit_code"], threshold)
 
     def test_NOK(self):
         # getting the user
         user = UserDC.objects.get(username="user_4")
         extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=9)
+        asse = Assessment.objects.get(id=10)
         lang = Language.objects.get(name="C")
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - wrong.c"), "r") as f:
             raw_code = f.read()
@@ -200,16 +204,19 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
-        with self.subTest():
-            self.assertNotEqual(dict_json["err_msg"], "")
-        with self.subTest():
-            self.assertGreaterEqual(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN)
+        with self.subTest("error message"):
+            self.assertEqual(dict_json["err_msg"], "")
+        with self.subTest("percentage value"):
+            # The user has answered the question
+            threshold = extst.solve_percentage_req
+            self.assertIn(dict_json["exit_code"], range(0,EX_INSPECT_ERROR_RANGE_MIN))
+            self.assertLess(dict_json["exit_code"], threshold)
 
     def test_empty_code(self):
         # getting the user
         user = UserDC.objects.get(username="user_4")
         extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=9)
+        asse = Assessment.objects.get(id=10)
         lang = Language.objects.get(name="C")
         raw_code = ""
 
@@ -222,16 +229,16 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
-        with self.subTest():
-            self.assertNotEqual(dict_json["err_msg"], "")
-        with self.subTest():
-            self.assertGreaterEqual(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN)
+        with self.subTest("error message"):
+            self.assertEqual(dict_json["err_msg"], COMPILE_ERROR)
+        with self.subTest("exit code"):
+            self.assertEqual(dict_json["exit_code"], ERROR_CODE_COMPILE)
 
     def test_syntax_error(self):
         # getting the user
         user = UserDC.objects.get(username="user_4")
         extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=9)
+        asse = Assessment.objects.get(id=10)
         lang = Language.objects.get(name="C")
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - syntax.c"), "r") as f:
             raw_code = f.read()
@@ -245,16 +252,16 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
-        with self.subTest():
-            self.assertNotEqual(dict_json["err_msg"], "")
-        with self.subTest():
-            self.assertEqual(dict_json["exit_code"], 1)
+        with self.subTest("error message"):
+            self.assertEqual(dict_json["err_msg"], COMPILE_ERROR)
+        with self.subTest("exit code"):
+            self.assertEqual(dict_json["exit_code"], ERROR_CODE_COMPILE)
 
     def test_infinite_loop(self):
         # getting the user
         user = UserDC.objects.get(username="user_4")
         extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=9)
+        asse = Assessment.objects.get(id=10)
         lang = Language.objects.get(name="C")
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - infLoop.c"), "r") as f:
             raw_code = f.read()
@@ -268,16 +275,16 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
-        with self.subTest():
-            self.assertNotEqual(dict_json["err_msg"], "")
-        with self.subTest():
-            self.assertEqual(dict_json["exit_code"], 1)
+        with self.subTest("error message"):
+            self.assertEqual(dict_json["err_msg"], "")
+        with self.subTest("exit code"):
+            self.assertEqual(dict_json["exit_code"], ERROR_CODE_TIMEOUT)
 
     def test_code_too_long(self):
         # getting the user
         user = UserDC.objects.get(username="user_4")
         extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=9)
+        asse = Assessment.objects.get(id=10)
         lang = Language.objects.get(name="C")
 
         # at the limit size
@@ -294,9 +301,9 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest():
-            self.assertNotEqual(dict_json["err_msg"], "")
+            self.assertEqual(dict_json["err_msg"], "")
         with self.subTest():
-            self.assertEqual(dict_json["exit_code"], 0)
+            self.assertEqual(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN-1)
 
         # beyond the limit size
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - tooLong.c"), "r") as f:
@@ -311,7 +318,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
-        with self.subTest():
-            self.assertIn("err_msg", dict_json)
-        with self.subTest():
-            self.assertEqual(dict_json["exit_code"], -3)
+        with self.subTest("error message"):
+            self.assertNotEqual("err_msg", USER_RAW_CODE_TOO_BIG)
+        with self.subTest("exit code"):
+            self.assertEqual(dict_json["exit_code"], ERROR_CODE_ACCESS)
