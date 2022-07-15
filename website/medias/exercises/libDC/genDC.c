@@ -228,13 +228,17 @@ int main(int argc, char** argv){
     }        
     else if( mode == MODE_VERIFY ){
         result = verify(seed, &result_perc);
+        // TODO check the user does not send too much data
         // Display title
         // displayTitleOnce();
         // display result
         fputs("Test result ", stdout);
         if((result == RES_OK) && (result_perc >= thres_perc)){
             fputs(CLR_GREEN"[PASS]", stdout);
-        }        
+        }
+        else if(result_perc >= thres_perc){
+            fputs(CLR_YELLOW"[WARNING]", stdout);
+        }
         else{
             fputs(CLR_RED"[FAIL]", stdout);
         }
