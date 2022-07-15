@@ -25,8 +25,6 @@ function send_user_code() {
         console_view.appendChild(html_out.body);
         console_view.appendChild(html_err.body);
         console_view.appendChild(err_msg.body);
-
-        console.log(json.exit_code);
     });
 }
 

@@ -3,7 +3,7 @@ import subprocess
 from random import randint
 
 from config.constants import default_value_cnf, error_message_cnf
-from config.constants.error_message_cnf import ERROR_CODE_OK, ERROR_CODE_ACCESS
+from config.constants.error_message_cnf import ERROR_CODE_OK, ERROR_CODE_ACCESS, ERROR_CODE_COMPILE, ERROR_CODE_TIMEOUT
 from config.constants.inspector_mode_cnf import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
 from district.models.exercise import Exercise
 from district.models.language import Language
@@ -46,7 +46,7 @@ class ExerciseInspector():
         # Compile user code if needed
         (exit_code_comp, stdout_comp, stderr_comp) = self.program.compile(exercise.gen_file, exercise.insp_mode.name)
         if exit_code_comp != ERROR_CODE_OK:
-            return (exit_code_comp, stdout_comp.decode("UTF-8"), stderr_comp.decode("UTF-8"))
+            return (ERROR_CODE_COMPILE, stdout_comp.decode("UTF-8"), stderr_comp.decode("UTF-8"))
 
         # Executable creation : either the user code only (mode STDIO) OR the exo+user code (mode INCLUDE)
         if exercise.insp_mode.name == INSPECTOR_MODE_STDIO:  # mode stdio
@@ -69,9 +69,11 @@ class ExerciseInspector():
                 part3.kill()
                 result = part3.communicate()
                 exit_code_exec = part3.returncode
-                # (stdout_exec, stderr_exec) = result
-                stdout_exec = "".encode("UTF-8")
-                stderr_exec = "Error timeout".encode("UTF-8")
+                stdout_exec, stderr_exec = result
+                if exit_code_exec == -9:
+                    exit_code_exec = ERROR_CODE_TIMEOUT
+                    stdout_exec = "".encode("UTF-8")
+                    stderr_exec = "Error timeout".encode("UTF-8")
 
         elif exercise.insp_mode.name == INSPECTOR_MODE_INCLUDE: # mode include
             # Call the system
