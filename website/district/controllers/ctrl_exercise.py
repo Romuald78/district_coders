@@ -6,6 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.utils import timezone
 
+from config.constants.error_message_cnf import ERROR_CODE_ACCESS, ERROR_CODE_NOT_FOUND, ERROR_CODE_PARAMS, ERROR_CODE_OK
 from district.controllers.ctrl_main import ctrl_error
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.models.assessment import Assessment
@@ -31,7 +32,7 @@ def ctrl_exercise_details(request):
     asse_id = int(request.GET.get('asse', 0))
 
     response = get_exercise_details(curr_user, ex2tst_id, asse_id)
-    if response["exit_code"] != 0:
+    if response["exit_code"] != ERROR_CODE_OK:
         return ctrl_error(request, response["err_msg"][1])
 
     # dictionary for initial data
@@ -68,7 +69,7 @@ def ctrl_exercise_write(request):
     asse_id = int(request.GET.get('asse', 0))
 
     response = get_exercise_write(curr_user, ex2tst_id, asse_id)
-    if response["exit_code"] != 0:
+    if response["exit_code"] != ERROR_CODE_OK:
         return ctrl_error(request, response["err_msg"][1])
 
     # dictionary for initial data
@@ -119,13 +120,13 @@ def ctrl_json_exercise_inspect(request):
 
         # verif the code is short enough
         if len(user_code.encode("UTF-8")) > default_value_cnf.MAX_LENGTH_USER_RAW_CODE:
-            dico_json_response["exit_code"] = -3
+            dico_json_response["exit_code"] = ERROR_CODE_ACCESS
             dico_json_response["err_msg"]   = error_message_cnf.USER_RAW_CODE_TOO_BIG
             return JsonResponse(dico_json_response)
 
         # make sure the user is able to access to the inspection
         response = get_exercise_write(user_id, ex2tst_id, asse_id)
-        if response["exit_code"] < 0:
+        if response["exit_code"] != ERROR_CODE_OK:
             dico_json_response["exit_code"] = response["exit_code"]
             dico_json_response["err_msg"]   = response["err_msg"]
             return JsonResponse(dico_json_response)
@@ -136,17 +137,18 @@ def ctrl_json_exercise_inspect(request):
             if i.lang.id == lang_id:
                 language_missing = False
         if language_missing:
-            dico_json_response["exit_code"] = -4
+            dico_json_response["exit_code"] = ERROR_CODE_NOT_FOUND
             dico_json_response["err_msg"]   = error_message_cnf.LANGUAGE_NOT_AVAILABLE
             return JsonResponse(dico_json_response)
 
         # proceed the inspection
         queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
         if len(queryset_exotest2lang.all()) == 0:
-            dico_json_response["exit_code"] = -4
+            dico_json_response["exit_code"] = ERROR_CODE_NOT_FOUND
             dico_json_response["err_msg"]   = error_message_cnf.EXOTEST2LANG_NOT_FOUND
             return JsonResponse(dico_json_response)
 
+        # Call to system
         exotest2lang = queryset_exotest2lang.first()
         ex_insp = ExerciseInspector(user_id, response["ex2tst_obj"].exercise.id, lang_id, user_code, response["ex2tst_obj"].solve_percentage_req, exotest2lang.exec_timeout)
         (exit_code, stdout, stderr) = ex_insp.process()
@@ -156,8 +158,8 @@ def ctrl_json_exercise_inspect(request):
         # saving result into ExoTest2Lang and TestResult
         json_response = ctrl_json_testresult_exists(request)
         dict_response = json.loads(json_response.content)
-        if dict_response["exit_code"] < 0:
-            dico_json_response["exit_code"] = -12
+        if dict_response["exit_code"] != ERROR_CODE_OK:
+            dico_json_response["exit_code"] = ERROR_CODE_PARAMS
             dico_json_response["err_msg"]   = dict_response["err_msg"] # Missing testResult
             return JsonResponse(dico_json_response)
         else:

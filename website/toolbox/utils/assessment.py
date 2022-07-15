@@ -1,5 +1,6 @@
 from django.utils import timezone
 
+from config.constants.error_message_cnf import ERROR_CODE_NOT_FOUND, ERROR_CODE_ACCESS, ERROR_CODE_OK
 from district.models.assessment import Assessment
 
 # retrieve all the current assessments
@@ -128,11 +129,11 @@ def get_asse_exercises(request, id_asse):
     )
 
     if len(curr_asse.all()) == 0:
-        return {"exit_code": 4, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT}
+        return {"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT}
     result = is_asse_available(curr_asse)[0]
     # only accessible assessments
     if not result["is_available"]:
-        return {"exit_code": 3, "err_msg": result["not_available_msg"]}
+        return {"exit_code": ERROR_CODE_ACCESS, "err_msg": result["not_available_msg"]}
 
     # dictionary for initial data
     # adding stat for each ex2tst
@@ -151,7 +152,7 @@ def get_asse_exercises(request, id_asse):
         exo_triable[ex2tst]["result_train"] = int(0 if nb_train_try == 0 else 100*nb_train_pass/nb_train_try)
 
     context = {
-        "exit_code": 0,
+        "exit_code": ERROR_CODE_OK,
         "assessment": curr_asse.first(),
         "exo2tests": exo_triable
     }

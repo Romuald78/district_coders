@@ -7,6 +7,7 @@ from django.test import TransactionTestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone
 
+from config.constants.default_value_cnf import EX_INSPECT_ERROR_RANGE_MIN
 from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_exercise_details, ctrl_exercise_write
 from district.models.assessment import Assessment
 from district.models.exercise import Exercise
@@ -74,11 +75,11 @@ class ExerciseInspectorTest(TransactionTestCase):
                                         is_solve_percentage_valid
                                     )
                                     if not condition:
-                                        print("je passe ici")
-                                        print("A", ex2tst_item.solve_percentage_req == 0)
-                                        print("B", is_there_extstlng)
-                                        print("C", is_there_testresult)
-                                        print("D", is_solve_percentage_valid)
+                                        #print("je passe ici")
+                                        #print("A", ex2tst_item.solve_percentage_req == 0)
+                                        #print("B", is_there_extstlng)
+                                        #print("C", is_there_testresult)
+                                        #print("D", is_solve_percentage_valid)
                                         rank_access = False
                                 else:
                                     do_access = False
@@ -114,7 +115,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                         err_msg = "bad group or something"
 
                     # Test part
-                    print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
+                    #print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
                     # test on exercise_details
                     with self.subTest():
                         request = self.factory.get(reverse('exercise_details'),
@@ -152,7 +153,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                             response = ctrl_json_exercise_inspect(request)
                             dict_json = json.loads(response.content)
                             if do_access and lang_access:
-                                self.assertNotIn("err_msg", dict_json)
+                                self.assertNotEqual(dict_json["err_msg"], "")
                             else:
                                 self.assertIn("err_msg", dict_json)
 
@@ -177,7 +178,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         dict_json = json.loads(response.content)
         print(dict_json)
         with self.subTest():
-            self.assertNotIn("err_msg", dict_json)
+            self.assertNotEqual(dict_json["err_msg"], "")
         with self.subTest():
             self.assertEqual(dict_json["exit_code"], 0)
 
@@ -200,9 +201,9 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest():
-            self.assertNotIn("err_msg", dict_json)
+            self.assertNotEqual(dict_json["err_msg"], "")
         with self.subTest():
-            self.assertEqual(dict_json["exit_code"], 1)
+            self.assertGreaterEqual(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN)
 
     def test_empty_code(self):
         # getting the user
@@ -222,9 +223,9 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest():
-            self.assertNotIn("err_msg", dict_json)
+            self.assertNotEqual(dict_json["err_msg"], "")
         with self.subTest():
-            self.assertEqual(dict_json["exit_code"], 1)
+            self.assertGreaterEqual(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN)
 
     def test_syntax_error(self):
         # getting the user
@@ -245,7 +246,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest():
-            self.assertNotIn("err_msg", dict_json)
+            self.assertNotEqual(dict_json["err_msg"], "")
         with self.subTest():
             self.assertEqual(dict_json["exit_code"], 1)
 
@@ -268,7 +269,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest():
-            self.assertNotIn("err_msg", dict_json)
+            self.assertNotEqual(dict_json["err_msg"], "")
         with self.subTest():
             self.assertEqual(dict_json["exit_code"], 1)
 
@@ -293,7 +294,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest():
-            self.assertNotIn("err_msg", dict_json)
+            self.assertNotEqual(dict_json["err_msg"], "")
         with self.subTest():
             self.assertEqual(dict_json["exit_code"], 0)
 
@@ -313,4 +314,4 @@ class ExerciseInspectorTest(TransactionTestCase):
         with self.subTest():
             self.assertIn("err_msg", dict_json)
         with self.subTest():
-            self.assertEqual(dict_json["exit_code"], 3)
+            self.assertEqual(dict_json["exit_code"], -3)
