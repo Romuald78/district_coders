@@ -22,7 +22,7 @@ class AnonymousTest(TransactionTestCase):
     # python manage.py test district.tst_folder.simple.test_anonymous
     def test_no_params(self):
         for page in PAGES:
-            if not page.params and page.type == "view":
+            if not page.params:
                 # print(f"[TEST PAGE] {page.name}")
                 with self.subTest(page.url):
                     response = self.client.get(reverse(page.name))
@@ -59,32 +59,28 @@ class AnonymousTest(TransactionTestCase):
             self.assertIn("controller_error_message", response.context.keys())
 
     def test_json_group_register(self):
-        pass
-        # pm = PageManager()
-        # page = pm.get_page('group_register')
-        #
-        # request = self.client.post(page.url, {"register_key": "Robert De Niro"})
-        # request.user = AnonymousUser()
-        # response = page.ctrl(request)
-        #
-        # self.assertRedirects(request, "/accounts/login/")
+        page = PageManager().get_page('group_register')
+        response = self.client.post(reverse(page.name), {"register_key": "Robert De Niro"})
+        self.assertRedirects(response, "/accounts/login/?next=%2F"+page.url.replace("/", "%2F"))
 
+    def test_json_exercise_insepct(self):
+        page = PageManager().get_page('exercise_inspect')
+        response = self.client.post(reverse(page.name), {
+            "ex2tst_id": 1,
+            "lang_id": 1,
+            "raw_code": "",
+            "asse_id": 1,
+        })
+        self.assertRedirects(response, "/accounts/login/?next=%2F" + page.url.replace("/", "%2F"))
 
+    def test_json_exercise_stats(self):
+        page = PageManager().get_page('exercise_inspect')
+        response = self.client.post(reverse(page.name), {
+            "asse_id": 1,
+            "ex2tst_id": 1,
+            "lang_id": 1,
+        })
+        self.assertRedirects(response, "/accounts/login/?next=%2F" + page.url.replace("/", "%2F"))
 
-# Page('group_register', 'accounts/group_register/', ctrl_json_user_register, type="json", parameters=True),
-# Page('my_groups', 'accounts/my_groups/', ctrl_json_user_groups, type="json"),
-#
 # Page('email_change_confirm', 'accounts/email_change_confirm/<int:user_id>/', ctrl_email_verification, log_req=False, parameters=True),
-# Page('email_change_send', 'accounts/email_change_send/', ctrl_json_sending_email, type="json", log_req=False),
-# Page('exercise_inspect', 'exercise/inspect/', ctrl_json_exercise_inspect, type='json', parameters=True),
-# Page('exercise_stats', 'exercise/stats/', ctrl_json_testresult_exists, type='json', parameters=True),
-
-
-
-
-
-
-
-
-
-
+# Page('email_change_send', 'accounts/email_change_send/', ctrl_json_sending_email, type="json", log_req=False, param true),
