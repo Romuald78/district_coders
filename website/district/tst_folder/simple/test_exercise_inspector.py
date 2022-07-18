@@ -78,11 +78,6 @@ class ExerciseInspectorTest(TransactionTestCase):
                                         is_solve_percentage_valid
                                     )
                                     if not condition:
-                                        #print("je passe ici")
-                                        #print("A", ex2tst_item.solve_percentage_req == 0)
-                                        #print("B", is_there_extstlng)
-                                        #print("C", is_there_testresult)
-                                        #print("D", is_solve_percentage_valid)
                                         rank_access = False
                                 else:
                                     do_access = False
@@ -122,24 +117,22 @@ class ExerciseInspectorTest(TransactionTestCase):
                     # test on exercise_details
                     msg = f"asse:{asse_item.id}/user:{curr_user.id}/ex2tst:{ex2tst_item.id}"
                     with self.subTest(f"Ex.Details {msg}"):
-                        request = self.factory.get(reverse('exercise_details'),
+                        self.client.force_login(curr_user)
+                        response = self.client.get(reverse('exercise_details'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
-                        request.user = curr_user
-                        response = ctrl_exercise_details(request)
                         if do_see:
                             self.assertEqual(response.status_code, 200)
                         else:
-                            self.assertEqual(response.status_code, 302)
+                            self.assertIn("controller_error_message", response.context.keys())
                     # test on exercise_write
                     with self.subTest(f"Ex.Write   {msg}"):
-                        request = self.factory.get(reverse('exercise_write'),
+                        self.client.force_login(curr_user)
+                        response = self.client.get(reverse('exercise_write'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
-                        request.user = curr_user
-                        response = ctrl_exercise_write(request)
                         if do_access:
                             self.assertEqual(response.status_code, 200)
                         else:
-                            self.assertEqual(response.status_code, 302)
+                            self.assertIn("controller_error_message", response.context.keys())
                     # test on exercise_inspect
                     for lang in Language.objects.filter(name__in=self.lang).all():
                         with self.subTest(f"Ex.Inspect {msg}/lang{lang.id}:{lang.name}"):
@@ -199,11 +192,11 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest("error message"):
-            self.assertEqual(dict_json["err_msg"], "")
+            self.assertEquals(dict_json["err_msg"], "")
         with self.subTest("percentage value"):
             # The user has answered the question
             threshold = extst.solve_percentage_req
-            self.assertIn(dict_json["exit_code"], range(0,EX_INSPECT_ERROR_RANGE_MIN))
+            self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
             self.assertLess(dict_json["exit_code"], threshold)
 
     def test_empty_code(self):
@@ -220,7 +213,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest("error message"):
-            self.assertEqual(dict_json["err_msg"], COMPILE_ERROR)
+            self.assertEquals(dict_json["err_msg"], COMPILE_ERROR)
         with self.subTest("exit code"):
             self.assertEqual(dict_json["exit_code"], ERROR_CODE_COMPILE)
 
@@ -239,9 +232,9 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest("error message"):
-            self.assertEqual(dict_json["err_msg"], COMPILE_ERROR)
+            self.assertEquals(dict_json["err_msg"], COMPILE_ERROR)
         with self.subTest("exit code"):
-            self.assertEqual(dict_json["exit_code"], ERROR_CODE_COMPILE)
+            self.assertEquals(dict_json["exit_code"], ERROR_CODE_COMPILE)
 
     def test_infinite_loop(self):
         (user, extst, asse, lang) = self.get_param_lang("C")
@@ -258,9 +251,9 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest("error message"):
-            self.assertEqual(dict_json["err_msg"], "")
+            self.assertEquals(dict_json["err_msg"], "")
         with self.subTest("exit code"):
-            self.assertEqual(dict_json["exit_code"], ERROR_CODE_TIMEOUT)
+            self.assertEquals(dict_json["exit_code"], ERROR_CODE_TIMEOUT)
 
     def test_code_too_long(self):
         (user, extst, asse, lang) = self.get_param_lang("C")
@@ -279,9 +272,9 @@ class ExerciseInspectorTest(TransactionTestCase):
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
         with self.subTest():
-            self.assertEqual(dict_json["err_msg"], "")
+            self.assertEquals(dict_json["err_msg"], "")
         with self.subTest():
-            self.assertEqual(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN-1)
+            self.assertEquals(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN-1)
 
         # beyond the limit size
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - tooLong.c"), "r") as f:
@@ -299,4 +292,4 @@ class ExerciseInspectorTest(TransactionTestCase):
         with self.subTest("error message"):
             self.assertNotEqual("err_msg", USER_RAW_CODE_TOO_BIG)
         with self.subTest("exit code"):
-            self.assertEqual(dict_json["exit_code"], ERROR_CODE_ACCESS)
+            self.assertEquals(dict_json["exit_code"], ERROR_CODE_ACCESS)

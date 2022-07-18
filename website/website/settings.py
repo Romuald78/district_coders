@@ -150,8 +150,8 @@ SESSION_EXPIRE_SECONDS = 1000*60              # in seconds
 SESSION_COOKIE_AGE = 1000*60                  # in seconds
 
 # AUTHENTICATION
-LOGIN_URL = "/accounts/login"
-LOGOUT_URL = "/accounts/logout"
+LOGIN_URL = "/accounts/login/"
+LOGOUT_URL = "/accounts/logout/"
 LOGOUT_REDIRECT_URL = "/"
 
 # DISTRICT CODER SETTINGS
