@@ -5,7 +5,6 @@ from django.test import TransactionTestCase, RequestFactory
 from django.urls import reverse
 
 from config.constants.route_cnf import PAGES
-from district.models.group import GroupDC
 from district.models.user import UserDC
 from toolbox.utils.route_mgr import PageManager
 
