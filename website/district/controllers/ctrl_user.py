@@ -154,7 +154,7 @@ def ctrl_user_update(request):
             user.description = form.cleaned_data.get('description')
             user = form.save()
             user.refresh_from_db()
-            return redirect('/accounts/profile')
+            return redirect('/accounts/profile/')
     else:
         form = UserUpdateForm(instance=user)
 
