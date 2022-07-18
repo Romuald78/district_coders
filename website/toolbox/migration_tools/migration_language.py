@@ -86,8 +86,6 @@ migrate_langs = [{
 
 def language_migration():
     # Create default languages
-    print()
-    print("  [DATA MIGRATION][LANGUAGES]")
     for lang in migrate_langs:
         # prepare table field values
         name  = lang["name"]

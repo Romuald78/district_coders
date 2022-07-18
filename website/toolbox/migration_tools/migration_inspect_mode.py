@@ -15,8 +15,6 @@ migrate_inspect_mode = [{
 
 def mode_migration():
     # create default inspector modes
-    print()
-    print("  [DATA MIGRATION][INSPECTOR MODES]")
     for mode in migrate_inspect_mode:
         # prepare table field values
         name = mode["name"]
