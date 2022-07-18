@@ -12,15 +12,9 @@ from config.constants.error_message_cnf import ERROR_CODE_OK, USER_RAW_CODE_TOO_
     ERROR_CODE_COMPILE, COMPILE_ERROR, ERROR_CODE_TIMEOUT
 from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_exercise_details, ctrl_exercise_write
 from district.models.assessment import Assessment
-from district.models.exercise import Exercise
 from district.models.exo2test import Exo2Test
-from district.models.exotest2lang import ExoTest2Lang
-from district.models.group import GroupDC
 from district.models.language import Language
-from district.models.test import TestDC
-from district.models.testresult import TestResult
 from district.models.user import UserDC
-from website.settings import MEDIA_ROOT
 
 
 class ExerciseInspectorTest(TransactionTestCase):
@@ -36,7 +30,14 @@ class ExerciseInspectorTest(TransactionTestCase):
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
-
+    def get_param_lang(self, lang):
+        if lang == "C":
+            user = UserDC.objects.get(username="user_4")
+            extst = Exo2Test.objects.get(id=33)
+            asse = Assessment.objects.get(id=10)
+            lang = Language.objects.get(name="C")
+            return (user, extst, asse, lang)
+        return None
 
     # python manage.py test district.tst_folder.simple.test_exercise_inspector.ExerciseInspectorTest.test_user_access -v 2 --failfast
     def test_user_access(self):
@@ -155,18 +156,14 @@ class ExerciseInspectorTest(TransactionTestCase):
                             response = ctrl_json_exercise_inspect(request)
                             dict_json = json.loads(response.content)
                             if do_access and lang_access:
-                                self.assertNotEqual(dict_json["err_msg"], "")
+                                self.assertEqual(dict_json["err_msg"], "")
                             else:
-                                self.assertIn("err_msg", dict_json)
-
+                                self.assertNotEqual(dict_json["err_msg"], "")
 
     # TODO only works for C script
     def test_OK(self):
-        # getting the user
-        user = UserDC.objects.get(username="user_4")
-        extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=10)
-        lang = Language.objects.get(name="C")
+        (user, extst, asse, lang) = self.get_param_lang("C")
+
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001.c"), "r") as f:
             raw_code = f.read()
 
@@ -187,11 +184,8 @@ class ExerciseInspectorTest(TransactionTestCase):
             self.assertGreaterEqual(dict_json["exit_code"], threshold)
 
     def test_NOK(self):
-        # getting the user
-        user = UserDC.objects.get(username="user_4")
-        extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=10)
-        lang = Language.objects.get(name="C")
+        (user, extst, asse, lang) = self.get_param_lang("C")
+
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - wrong.c"), "r") as f:
             raw_code = f.read()
 
@@ -204,7 +198,6 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
-        print("respos,ser", response.content)
         with self.subTest("error message"):
             self.assertEqual(dict_json["err_msg"], "")
         with self.subTest("percentage value"):
@@ -214,11 +207,7 @@ class ExerciseInspectorTest(TransactionTestCase):
             self.assertLess(dict_json["exit_code"], threshold)
 
     def test_empty_code(self):
-        # getting the user
-        user = UserDC.objects.get(username="user_4")
-        extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=10)
-        lang = Language.objects.get(name="C")
+        (user, extst, asse, lang) = self.get_param_lang("C")
         raw_code = ""
 
         request = self.factory.post(reverse('exercise_inspect'),
@@ -236,11 +225,7 @@ class ExerciseInspectorTest(TransactionTestCase):
             self.assertEqual(dict_json["exit_code"], ERROR_CODE_COMPILE)
 
     def test_syntax_error(self):
-        # getting the user
-        user = UserDC.objects.get(username="user_4")
-        extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=10)
-        lang = Language.objects.get(name="C")
+        (user, extst, asse, lang) = self.get_param_lang("C")
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - syntax.c"), "r") as f:
             raw_code = f.read()
 
@@ -259,11 +244,7 @@ class ExerciseInspectorTest(TransactionTestCase):
             self.assertEqual(dict_json["exit_code"], ERROR_CODE_COMPILE)
 
     def test_infinite_loop(self):
-        # getting the user
-        user = UserDC.objects.get(username="user_4")
-        extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=10)
-        lang = Language.objects.get(name="C")
+        (user, extst, asse, lang) = self.get_param_lang("C")
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - infLoop.c"), "r") as f:
             raw_code = f.read()
 
@@ -282,11 +263,7 @@ class ExerciseInspectorTest(TransactionTestCase):
             self.assertEqual(dict_json["exit_code"], ERROR_CODE_TIMEOUT)
 
     def test_code_too_long(self):
-        # getting the user
-        user = UserDC.objects.get(username="user_4")
-        extst = Exo2Test.objects.get(id=33)
-        asse = Assessment.objects.get(id=10)
-        lang = Language.objects.get(name="C")
+        (user, extst, asse, lang) = self.get_param_lang("C")
 
         # at the limit size
         with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - almostTooLong.c"), "r") as f:
