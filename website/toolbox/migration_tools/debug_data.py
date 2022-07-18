@@ -19,8 +19,6 @@ from config.secure.admin_cnf import ADMIN_EMAIL
 from website.settings import DEBUG
 
 def createAdmin():
-    print()
-    print("  [DATA MIGRATION][ADMIN]")
     # create admin user
     admin = UserDC()
     admin.username = "admin"
@@ -30,11 +28,9 @@ def createAdmin():
     admin.set_password("admin")
     admin.email = ADMIN_EMAIL
     admin.save()
-    print(f"    > Admin [{admin.id}]:'{admin.username}' added !")
+    #print(f"    > Admin [{admin.id}]:'{admin.username}' added !")
 
 def createExercises():
-    print()
-    print("  [DATA MIGRATION][EXERCISES]")
     exercises = []
     for i in range(15):
         letter = chr(65+i)
@@ -46,12 +42,10 @@ def createExercises():
         obj.insp_mode = stdio.first()
         obj.save()
         exercises.append(obj)
-#        print(f"    > Exercise [{obj.id}]:'{obj.title}' added !")
+        #print(f"    > Exercise [{obj.id}]:'{obj.title}' added !")
     return exercises
 
 def createTests():
-    print()
-    print("  [DATA MIGRATION][TESTS]")
     tests = []
     for num in "1234567":
         name = f"Test_#{num}"
@@ -61,7 +55,7 @@ def createTests():
         obj.description = desc
         obj.save()
         tests.append(obj)
-#        print(f"    > Test [{obj.id}]:'{obj.title}' added !")
+        #print(f"    > Test [{obj.id}]:'{obj.title}' added !")
     return tests
 
 EX2TST = [
@@ -84,8 +78,6 @@ EX2TST_SOLVE_PER_REQ = [
 ]
 
 def createExo2Test(exos, tests):
-    print()
-    print("  [DATA MIGRATION][EXO 2 TEST]")
     if len(tests) != len(EX2TST):
         print(f"    > ERROR : bad lengths for test lists !")
         exit(1)
@@ -141,8 +133,6 @@ def createExoTest2Lang(exo2tests):
     # for each exo2test
     # find the exercise object and according to its ID,
     # link to the correct languages
-    print()
-    print("  [DATA MIGRATION][EXO-TEST 2 LANG]")
     for e2t in exo2tests:
         ex_id = e2t.exercise.id - 1
         lang_list = langs[ex_id]
@@ -160,8 +150,6 @@ def createExoTest2Lang(exo2tests):
 #            print(f"    > ExoTest2Lang [{obj.id}]: ex2tst #{e2t.id} -> lang #{lang_id} added !")
 
 def createGroups():
-    print()
-    print("  [DATA MIGRATION][GROUPS]")
     for i in range(5):
         obj = GroupDC()
         obj.name = f"Group #{i+1}"
@@ -187,7 +175,6 @@ ASSESS = [
     {"name": "Assessment C2-1050", "test_id": 7, "group": 2, "today": "start"   , "user_ex_done": [(3, 1)]},
 ]
 def createAssess(tests):
-
     # Get current date and month delta
     month = timedelta(days=30)
     today = timezone.now()
@@ -198,8 +185,6 @@ def createAssess(tests):
     p2 = today + month * 2
     p3 = today + month * 3
     # now create all assessments according to the array data
-    print()
-    print("  [DATA MIGRATION][ASSESSMENTS]")
     for assess in ASSESS:
         # Get assessment information
         test_id = assess["test_id"]
@@ -246,8 +231,6 @@ def createUsers():
         "123","234","124","134",
         "1234"
     ]
-    print()
-    print("  [DATA MIGRATION][USERS]")
     for grp_list in groups:
         name = f"user_{grp_list}"
         # create user here
