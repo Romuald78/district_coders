@@ -204,6 +204,7 @@ class ExerciseInspectorTest(TransactionTestCase):
         request.user = user
         response = ctrl_json_exercise_inspect(request)
         dict_json = json.loads(response.content)
+        print("respos,ser", response.content)
         with self.subTest("error message"):
             self.assertEqual(dict_json["err_msg"], "")
         with self.subTest("percentage value"):

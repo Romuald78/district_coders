@@ -53,7 +53,7 @@ function send_register_key() {
         err_p.classList.add("infobox");
         if (json.exit_code !== 0) {
             err_p.appendChild(document.createTextNode(json.err_msg[1]));
-            if (json.exit_code == 9) {
+            if (json.exit_code === -9) {
                 err_p.classList.add("warning");
             } else {
                 err_p.classList.add("error");
