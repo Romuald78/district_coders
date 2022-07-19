@@ -51,6 +51,8 @@ EMAIL_ALREADY_CONFIRM = ["Email already confirmed", "You already confirm your em
 # PASSWORD
 PASSWORD_INVALID = ["Invalid password", "Please enter a valid password"]
 
+# LANGUAGE PROGRAM NOT SUPPORTED
+LANGUAGE_NOT_SUPPORTED = ["Unsupported language", "The language given is not supported"]
 
 # Exit code to return from exercise controllers / inspector (python side)
 ERROR_CODE_OK         = 0
@@ -59,5 +61,6 @@ ERROR_CODE_NOT_FOUND  = -4
 ERROR_CODE_TIMEOUT    = -8
 ERROR_CODE_CONFLICT   = -9
 ERROR_CODE_PARAMS     = -12
+ERROR_CODE_UNSUPPORTED= -15
 ERROR_CODE_IMPOSSIBLE = -18
 ERROR_CODE_COMPILE    = -22

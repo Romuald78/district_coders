@@ -1,0 +1,8 @@
+var n = read_line();
+for (var i=0; i<n; i++) {
+    var val = read_line();
+    if (val < 0) {
+        val = -val;
+    }
+    console.log(val);
+}

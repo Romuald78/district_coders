@@ -63,7 +63,7 @@ class PYTHONProgram(UserProgram):
         return self.exec_cmd
 
     def compile(self, gen_file, insp_mode):
-        return (0, "".encode("UTF-8"), "".encode("UTF-8"))
+        return (ERROR_CODE_OK, "".encode("UTF-8"), "".encode("UTF-8"))
 
     def __str__(self):
         return f"raw code: {self.raw_code}"
@@ -118,7 +118,7 @@ class JSProgram(UserProgram):
         return self.exec_cmd
 
     def compile(self, gen_file, insp_mode):
-        return (0, "".encode("UTF-8"), "".encode("UTF-8"))
+        return (ERROR_CODE_OK, "".encode("UTF-8"), "".encode("UTF-8"))
 
     def __str__(self):
         return f"raw code: {self.raw_code}"

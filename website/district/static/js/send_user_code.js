@@ -1,5 +1,9 @@
 
 function send_user_code() {
+    // get the console
+    var console_view = document.getElementById("console_view");
+    console_view.innerHTML = '';
+
     var formElement = document.getElementById("user_form");
     const data = new URLSearchParams(new FormData(formElement));
     fetch('/exercise/inspect/', {
@@ -17,9 +21,7 @@ function send_user_code() {
 	    var html_err   = parser.parseFromString(json.stderr, 'text/html');
         var err_msg    = parser.parseFromString(json.err_msg, 'text/html');
         var time_stamp = parser.parseFromString(json.time_stamp, 'text/html');
-        // get the console, clear and populate it
-        var console_view = document.getElementById("console_view");
-        console_view.innerHTML = '';
+        // clear the console and populate it
         console_view.appendChild(title.body);
         console_view.appendChild(time_stamp.body);
         console_view.appendChild(html_out.body);

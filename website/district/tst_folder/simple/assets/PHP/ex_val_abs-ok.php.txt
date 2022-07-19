@@ -1,0 +1,12 @@
+<?php
+$f = fopen( 'php://stdin', 'r' );
+$n = fgets($f); // marche aussi avec STDIN à la place de $f
+for($i=0; $i<$n; $i++) {
+    $val = fgets($f);
+    if ($val < 0) {
+        $val = -$val;
+    }
+    echo $val;
+}
+fclose( $f );
+?>
