@@ -92,9 +92,11 @@ class ExerciseInspector():
                 part2.kill()
                 result = part2.communicate()
                 exit_code_exec = part2.returncode
-                # (stdout_exec, stderr_exec) = result
-                stdout_exec = "".encode("UTF-8")
-                stderr_exec = "Error timeout".encode("UTF-8")
+                stdout_exec, stderr_exec = result
+                if exit_code_exec == -9:  # killing code
+                    exit_code_exec = ERROR_CODE_TIMEOUT
+                    stdout_exec = "".encode("UTF-8")
+                    stderr_exec = "Error timeout".encode("UTF-8")
         else:
             raise Exception(f"Bad inspector mode value {exercise.insp_mode.name}")
 
