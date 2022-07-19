@@ -22,9 +22,6 @@ class Page():
 
     def __str__(self):
         return "Page", self.name
-
-
-# ---------------------------------------
 PAGES = [
     Page('home', '', ctrl_home, log_req=False),
 
@@ -36,7 +33,7 @@ PAGES = [
     Page('group_register', 'accounts/group_register/', ctrl_json_user_register, type="json", parameters=True),
     Page('my_groups', 'accounts/my_groups/', ctrl_json_user_groups, type="json"),
 
-    Page('password_reset_request' , 'accounts/password_reset/', ctrl_password_reset_request, log_req=False),
+    Page('password_reset_request', 'accounts/password_reset/', ctrl_password_reset_request, log_req=False),
     # Page('password_reset_done'    , 'accounts/password_reset_done/', auth_views.PasswordResetDoneView.as_view(
     #     template_name='registration/password_reset_done.html'), log_req=False),
     # Page('password_reset_confirm' , 'accounts/password_reset_confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
@@ -50,12 +47,16 @@ PAGES = [
 
     Page('email_change_auth', 'accounts/email_change_auth/', ctrl_email_change_auth),
     Page('email_change_confirm', 'accounts/email_change_confirm/<int:user_id>/', ctrl_email_verification, log_req=False, parameters=True),
-    Page('email_change_send', 'accounts/email_change_send/', ctrl_json_sending_email, type="json", log_req=False),
+    Page('email_change_send', 'accounts/email_change_send/', ctrl_json_sending_email, type="json", log_req=False, parameters=True),
 
     Page('assessment_details', 'assessment/details/<int:id_asse>/', ctrl_asse_details, parameters=True),
+
     Page('exercise_details', 'exercise/details/', ctrl_exercise_details, parameters=True),
     Page('exercise_write', 'exercise/write/', ctrl_exercise_write, parameters=True),
     Page('exercise_inspect', 'exercise/inspect/', ctrl_json_exercise_inspect, type='json', parameters=True),
     Page('exercise_stats', 'exercise/stats/', ctrl_json_testresult_exists, type='json', parameters=True),
 
 ]
+
+
+# ---------------------------------------

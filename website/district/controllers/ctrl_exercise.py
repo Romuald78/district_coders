@@ -200,16 +200,12 @@ def ctrl_json_exercise_inspect(request):
         exotest2lang.save()
         testresult.save()
 
-        # ex_id : int
-        # user_id : int
-        # timestamp (date et heure de début de la requete (reception de la requete))
         # exit_code : int
         # stdout : str
         # stderr : str
         dico_json_response["exit_code"] = exit_code
         dico_json_response["stdout"]    = ansi_to_html(stdout)
         dico_json_response["stderr"]    = ansi_to_html(stderr)
-        print(dico_json_response)
         return JsonResponse(dico_json_response)
     except:
         if settings.DEBUG:

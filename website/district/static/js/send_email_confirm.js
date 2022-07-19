@@ -12,12 +12,16 @@ function send_email_confirm() {
         return response.json();
     })
     .then(function(json) {
-        var stat = document.getElementById("stat")
-        stat.innerText = ''
-        stat.appendChild(document.createTextNode("Email successfully sent !"));
-        setTimeout(() => {
+        // if email sending succeed
+        if (json.exit_code === 0) {
+            var stat = document.getElementById("stat")
             stat.innerText = ''
-        }, 8000);
+            stat.appendChild(document.createTextNode("Email successfully sent !"));
+            setTimeout(() => {
+                stat.innerText = ''
+            }, 5000);
+        }
+
         console.log(json);
     });
 }
