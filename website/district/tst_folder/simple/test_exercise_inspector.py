@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from config.constants.default_value_cnf import EX_INSPECT_ERROR_RANGE_MIN
 from config.constants.error_message_cnf import ERROR_CODE_OK, USER_RAW_CODE_TOO_BIG, ERROR_CODE_ACCESS, \
-    ERROR_CODE_COMPILE, COMPILE_ERROR, ERROR_CODE_TIMEOUT
+    ERROR_CODE_COMPILE, COMPILE_ERROR, ERROR_CODE_TIMEOUT, ERROR_CODE_IMPOSSIBLE, ERROR_CODE_UNSUPPORTED
 from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_exercise_details, ctrl_exercise_write
 from district.models.assessment import Assessment
 from district.models.exo2test import Exo2Test
@@ -20,7 +20,21 @@ from district.models.user import UserDC
 class ExerciseInspectorTest(TransactionTestCase):
 
     def __init__(self, methodName='test_user_access'):
-        self.lang = ["C", "JS", "PHP"]
+        # TODO putting back PHP
+        self.lang = ["C", "JS", "Python"]
+        self.lang_meta = {"C": {"extension": "c", "is_compiled": True},
+                          "JS": {"extension": "js", "is_compiled": False},
+                          "PHP": {"extension": "php", "is_compiled": False},
+                          "Python": {"extension": "py", "is_compiled": False},
+                          }
+
+        self.CODE_TEST_OK = 1
+        self.CODE_TEST_NOK = 2
+        self.CODE_TEST_EMPTY = 3
+        self.CODE_TEST_SYNTAX = 4
+        self.CODE_TEST_INF_LOOP = 5
+        self.CODE_TEST_NOT_TOO_LONG = 6
+        self.CODE_TEST_TOO_LONG = 7
         super().__init__(methodName)
 
     def setUp(self):
@@ -30,20 +44,38 @@ class ExerciseInspectorTest(TransactionTestCase):
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
-    def get_param_lang(self, lang):
-        if lang == "C":
-            user = UserDC.objects.get(username="user_4")
-            extst = Exo2Test.objects.get(id=33)
-            asse = Assessment.objects.get(id=10)
-            lang = Language.objects.get(name="C")
-            return (user, extst, asse, lang)
+    def get_param_lang(self):
+            user = UserDC.objects.get(username="user_2")
+            extst = Exo2Test.objects.get(id=55)
+            asse = Assessment.objects.get(id=14)
+            return (user, extst, asse)
+
+    def get_test_file(self, lang, code_test):
+        if lang.name in self.lang:
+            # get test file
+            case = ""
+            if code_test == self.CODE_TEST_OK:
+                case = "ok"
+            elif code_test == self.CODE_TEST_NOK:
+                case = "nok"
+            elif code_test == self.CODE_TEST_EMPTY:
+                case = "empty"
+            elif code_test == self.CODE_TEST_SYNTAX:
+                case = "syntax"
+            elif code_test == self.CODE_TEST_INF_LOOP:
+                case = "loop"
+            elif code_test == self.CODE_TEST_NOT_TOO_LONG:
+                case = "not_long"
+            elif code_test == self.CODE_TEST_TOO_LONG:
+                case = "long"
+
+            return f"ex_val_abs-{case}.{self.lang_meta[lang.name]['extension']}.txt"
+
         return None
 
     # python manage.py test district.tst_folder.simple.test_exercise_inspector.ExerciseInspectorTest.test_user_access -v 2 --failfast
     def test_user_access(self):
-
-        # TEST PART
-        for asse_item in Assessment.objects.all():
+        for asse_item in Assessment.objects.order_by("-id").all(): # TODO change id order
             for curr_user in UserDC.objects.all():
                 rank_access = True
                 for ex2tst_item in Exo2Test.objects.order_by("rank").all():
@@ -115,8 +147,8 @@ class ExerciseInspectorTest(TransactionTestCase):
                     # Test part
                     #print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
                     # test on exercise_details
-                    msg = f"asse:{asse_item.id}/user:{curr_user.id}/ex2tst:{ex2tst_item.id}"
-                    with self.subTest(f"Ex.Details {msg}"):
+                    info = f"asse:{asse_item.id}/user:{curr_user.id}/ex2tst:{ex2tst_item.id}"
+                    with self.subTest(f"Ex.Details {info}"):
                         self.client.force_login(curr_user)
                         response = self.client.get(reverse('exercise_details'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
@@ -125,7 +157,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                         else:
                             self.assertIn("controller_error_message", response.context.keys())
                     # test on exercise_write
-                    with self.subTest(f"Ex.Write   {msg}"):
+                    with self.subTest(f"Ex.Write   {info}"):
                         self.client.force_login(curr_user)
                         response = self.client.get(reverse('exercise_write'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
@@ -134,11 +166,12 @@ class ExerciseInspectorTest(TransactionTestCase):
                         else:
                             self.assertIn("controller_error_message", response.context.keys())
                     # test on exercise_inspect
-                    for lang in Language.objects.filter(name__in=self.lang).all():
-                        with self.subTest(f"Ex.Inspect {msg}/lang{lang.id}:{lang.name}"):
+                    for lang in Language.objects.all():
+                        with self.subTest(f"Ex.Inspect {info}/lang{lang.id}:{lang.name}"):
                             lang_access = True
                             if len(ex2tst_item.exotest2lang_set.filter(lang__name=lang.name).all()) == 0:
                                 lang_access = False
+
                             request = self.factory.post(reverse('exercise_inspect'),
                                                         {
                                                             "ex2tst_id": ex2tst_item.id,
@@ -149,147 +182,208 @@ class ExerciseInspectorTest(TransactionTestCase):
                             response = ctrl_json_exercise_inspect(request)
                             dict_json = json.loads(response.content)
                             if do_access and lang_access:
-                                self.assertEqual(dict_json["err_msg"], "")
+                                if lang.name in self.lang:
+                                    self.assertEqual(dict_json["err_msg"], "")
+                                else:
+                                    self.assertEquals(dict_json["exit_code"], ERROR_CODE_UNSUPPORTED)
                             else:
                                 self.assertNotEqual(dict_json["err_msg"], "")
 
     # TODO only works for C script
     def test_OK(self):
-        (user, extst, asse, lang) = self.get_param_lang("C")
+        (user, extst, asse) = self.get_param_lang()
+        for lang in Language.objects.all():
+            info = f"[lang{lang.id}:{lang.name}]"
 
-        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001.c"), "r") as f:
-            raw_code = f.read()
+            if lang.name in self.lang:
+                with open(os.path.join(".", "district", "tst_folder", "simple", "assets", lang.name, self.get_test_file(lang, self.CODE_TEST_OK)), "r") as f:
+                    raw_code = f.read()
 
-        request = self.factory.post(reverse('exercise_inspect'),
-                                    {
-                                        "ex2tst_id": extst.id,
-                                        "asse_id": asse.id,
-                                        "lang_id": lang.id,
-                                        "raw_code": raw_code})
-        request.user = user
-        response = ctrl_json_exercise_inspect(request)
-        dict_json = json.loads(response.content)
-        with self.subTest("error message"):
-            self.assertEqual(dict_json["err_msg"], "")
-        with self.subTest("percentage value"):
-            threshold = extst.solve_percentage_req
-            self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
-            self.assertGreaterEqual(dict_json["exit_code"], threshold)
+                request = self.factory.post(reverse('exercise_inspect'),
+                                            {
+                                                "ex2tst_id": extst.id,
+                                                "asse_id": asse.id,
+                                                "lang_id": lang.id,
+                                                "raw_code": raw_code})
+                request.user = user
+                response = ctrl_json_exercise_inspect(request)
+                dict_json = json.loads(response.content)
+                with self.subTest(f"{info} error message"):
+                    self.assertEquals(dict_json["err_msg"], "")
+                with self.subTest(f"{info} percentage value"):
+                    threshold = extst.solve_percentage_req
+                    self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
+                    self.assertGreaterEqual(dict_json["exit_code"], threshold)
+            else:
+                with self.subTest(f"{info} language not supported"):
+                    self.assertTrue(True)
 
     def test_NOK(self):
-        (user, extst, asse, lang) = self.get_param_lang("C")
+        (user, extst, asse) = self.get_param_lang()
+        for lang in Language.objects.all():
+            info = f"[lang{lang.id}:{lang.name}]"
 
-        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - wrong.c"), "r") as f:
-            raw_code = f.read()
+            if lang.name in self.lang:
+                with open(os.path.join(".", "district", "tst_folder", "simple", "assets", lang.name, self.get_test_file(lang, self.CODE_TEST_NOK)), "r") as f:
+                    raw_code = f.read()
 
-        request = self.factory.post(reverse('exercise_inspect'),
-                                    {
-                                        "ex2tst_id": extst.id,
-                                        "asse_id": asse.id,
-                                        "lang_id": lang.id,
-                                        "raw_code": raw_code})
-        request.user = user
-        response = ctrl_json_exercise_inspect(request)
-        dict_json = json.loads(response.content)
-        with self.subTest("error message"):
-            self.assertEquals(dict_json["err_msg"], "")
-        with self.subTest("percentage value"):
-            # The user has answered the question
-            threshold = extst.solve_percentage_req
-            self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
-            self.assertLess(dict_json["exit_code"], threshold)
+                request = self.factory.post(reverse('exercise_inspect'),
+                                            {
+                                                "ex2tst_id": extst.id,
+                                                "asse_id": asse.id,
+                                                "lang_id": lang.id,
+                                                "raw_code": raw_code})
+                request.user = user
+                response = ctrl_json_exercise_inspect(request)
+                dict_json = json.loads(response.content)
+                with self.subTest(f"{info} error message"):
+                    self.assertEquals(dict_json["err_msg"], "")
+                with self.subTest(f"{info} percentage value"):
+                    threshold = extst.solve_percentage_req
+                    self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
+                    self.assertLess(dict_json["exit_code"], threshold)
+            else:
+                with self.subTest(f"{info} language not supported"):
+                    self.assertTrue(True)
 
     def test_empty_code(self):
-        (user, extst, asse, lang) = self.get_param_lang("C")
+        (user, extst, asse) = self.get_param_lang()
         raw_code = ""
+        for lang in Language.objects.all():
+            info = f"[lang{lang.id}:{lang.name}]"
 
-        request = self.factory.post(reverse('exercise_inspect'),
-                                    {
-                                        "ex2tst_id": extst.id,
-                                        "asse_id": asse.id,
-                                        "lang_id": lang.id,
-                                        "raw_code": raw_code})
-        request.user = user
-        response = ctrl_json_exercise_inspect(request)
-        dict_json = json.loads(response.content)
-        with self.subTest("error message"):
-            self.assertEquals(dict_json["err_msg"], COMPILE_ERROR)
-        with self.subTest("exit code"):
-            self.assertEqual(dict_json["exit_code"], ERROR_CODE_COMPILE)
+            if lang.name in self.lang:
+                request = self.factory.post(reverse('exercise_inspect'),
+                                            {
+                                                "ex2tst_id": extst.id,
+                                                "asse_id": asse.id,
+                                                "lang_id": lang.id,
+                                                "raw_code": raw_code})
+                request.user = user
+                response = ctrl_json_exercise_inspect(request)
+                dict_json = json.loads(response.content)
+                if self.lang_meta[lang.name]["is_compiled"]:
+                    with self.subTest(f"{info} error message"):
+                        self.assertEquals(dict_json["err_msg"], COMPILE_ERROR)
+                    with self.subTest(f"{info} exit code"):
+                        self.assertEquals(dict_json["exit_code"], ERROR_CODE_COMPILE)
+                else:
+                    with self.subTest(f"{info} error message"):
+                        self.assertEquals(dict_json["err_msg"], "")
+                    with self.subTest(f"{info} percentage value"):
+                        threshold = extst.solve_percentage_req
+                        self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
+                        self.assertLess(dict_json["exit_code"], threshold)
+            else:
+                with self.subTest(f"{info} language not supported"):
+                    self.assertTrue(True)
 
     def test_syntax_error(self):
-        (user, extst, asse, lang) = self.get_param_lang("C")
-        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - syntax.c"), "r") as f:
-            raw_code = f.read()
+        (user, extst, asse) = self.get_param_lang()
+        for lang in Language.objects.all():
+            info = f"[lang{lang.id}:{lang.name}]"
 
-        request = self.factory.post(reverse('exercise_inspect'),
-                                    {
-                                        "ex2tst_id": extst.id,
-                                        "asse_id": asse.id,
-                                        "lang_id": lang.id,
-                                        "raw_code": raw_code})
-        request.user = user
-        response = ctrl_json_exercise_inspect(request)
-        dict_json = json.loads(response.content)
-        with self.subTest("error message"):
-            self.assertEquals(dict_json["err_msg"], COMPILE_ERROR)
-        with self.subTest("exit code"):
-            self.assertEquals(dict_json["exit_code"], ERROR_CODE_COMPILE)
+            if lang.name in self.lang:
+                with open(os.path.join(".", "district", "tst_folder", "simple", "assets", lang.name,
+                                       self.get_test_file(lang, self.CODE_TEST_SYNTAX)), "r") as f:
+                    raw_code = f.read()
+
+                request = self.factory.post(reverse('exercise_inspect'),
+                                            {
+                                                "ex2tst_id": extst.id,
+                                                "asse_id": asse.id,
+                                                "lang_id": lang.id,
+                                                "raw_code": raw_code})
+                request.user = user
+                response = ctrl_json_exercise_inspect(request)
+                dict_json = json.loads(response.content)
+                if self.lang_meta[lang.name]["is_compiled"]:
+                    with self.subTest(f"{info} error message"):
+                        self.assertEquals(dict_json["err_msg"], COMPILE_ERROR)
+                    with self.subTest(f"{info} exit code"):
+                        self.assertEquals(dict_json["exit_code"], ERROR_CODE_COMPILE)
+                else:
+                    with self.subTest(f"{info} error message"):
+                        self.assertEquals(dict_json["err_msg"], "")
+                    with self.subTest(f"{info} percentage value"):
+                        threshold = extst.solve_percentage_req
+                        self.assertIn(dict_json["exit_code"], range(0, EX_INSPECT_ERROR_RANGE_MIN))
+                        self.assertLess(dict_json["exit_code"], threshold)
+            else:
+                with self.subTest(f"{info} language not supported"):
+                    self.assertTrue(True)
 
     def test_infinite_loop(self):
-        (user, extst, asse, lang) = self.get_param_lang("C")
-        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - infLoop.c"), "r") as f:
-            raw_code = f.read()
+        (user, extst, asse) = self.get_param_lang()
+        for lang in Language.objects.all():
+            info = f"[lang{lang.id}:{lang.name}]"
 
-        request = self.factory.post(reverse('exercise_inspect'),
-                                    {
-                                        "ex2tst_id": extst.id,
-                                        "asse_id": asse.id,
-                                        "lang_id": lang.id,
-                                        "raw_code": raw_code})
-        request.user = user
-        response = ctrl_json_exercise_inspect(request)
-        dict_json = json.loads(response.content)
-        with self.subTest("error message"):
-            self.assertEquals(dict_json["err_msg"], "")
-        with self.subTest("exit code"):
-            self.assertEquals(dict_json["exit_code"], ERROR_CODE_TIMEOUT)
+            if lang.name in self.lang:
+                with open(os.path.join(".", "district", "tst_folder", "simple", "assets", lang.name, self.get_test_file(lang, self.CODE_TEST_INF_LOOP)), "r") as f:
+                    raw_code = f.read()
+
+                request = self.factory.post(reverse('exercise_inspect'),
+                                            {
+                                                "ex2tst_id": extst.id,
+                                                "asse_id": asse.id,
+                                                "lang_id": lang.id,
+                                                "raw_code": raw_code})
+                request.user = user
+                response = ctrl_json_exercise_inspect(request)
+                dict_json = json.loads(response.content)
+                print(dict_json)
+                with self.subTest(f"{info} error message"):
+                    self.assertEquals(dict_json["err_msg"], "")
+                with self.subTest(f"{info} exit code"):
+                    self.assertEquals(dict_json["exit_code"], ERROR_CODE_TIMEOUT)
+            else:
+                with self.subTest(f"{info} language not supported"):
+                    self.assertTrue(True)
 
     def test_code_too_long(self):
-        (user, extst, asse, lang) = self.get_param_lang("C")
+        (user, extst, asse) = self.get_param_lang()
+        for lang in Language.objects.all():
+            info = f"[lang{lang.id}:{lang.name}]"
 
-        # at the limit size
-        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - almostTooLong.c"), "r") as f:
-            raw_code = f.read()
+            if lang.name in self.lang:
+                # at the limit size
+                with open(os.path.join(".", "district", "tst_folder", "simple", "assets", lang.name,
+                                       self.get_test_file(lang, self.CODE_TEST_NOT_TOO_LONG)), "r") as f:
+                    raw_code = f.read()
 
-        request = self.factory.post(reverse('exercise_inspect'),
-                                    {
-                                        "ex2tst_id": extst.id,
-                                        "asse_id": asse.id,
-                                        "lang_id": lang.id,
-                                        "raw_code": raw_code})
-        request.user = user
-        response = ctrl_json_exercise_inspect(request)
-        dict_json = json.loads(response.content)
-        with self.subTest():
-            self.assertEquals(dict_json["err_msg"], "")
-        with self.subTest():
-            self.assertEquals(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN-1)
+                request = self.factory.post(reverse('exercise_inspect'),
+                                            {
+                                                "ex2tst_id": extst.id,
+                                                "asse_id": asse.id,
+                                                "lang_id": lang.id,
+                                                "raw_code": raw_code})
+                request.user = user
+                response = ctrl_json_exercise_inspect(request)
+                dict_json = json.loads(response.content)
+                with self.subTest(f"{info} error message"):
+                    self.assertEquals(dict_json["err_msg"], "")
+                with self.subTest(f"{info} percentage value"):
+                    self.assertEquals(dict_json["exit_code"], EX_INSPECT_ERROR_RANGE_MIN-1)
 
-        # beyond the limit size
-        with open(os.path.join(".", "district", "tst_folder", "simple", "assets", "user001 - tooLong.c"), "r") as f:
-            raw_code = f.read()
+                # beyond the limit size
+                with open(os.path.join(".", "district", "tst_folder", "simple", "assets", lang.name,
+                                       self.get_test_file(lang, self.CODE_TEST_TOO_LONG)), "r") as f:
+                    raw_code = f.read()
 
-        request = self.factory.post(reverse('exercise_inspect'),
-                                    {
-                                        "ex2tst_id": extst.id,
-                                        "asse_id": asse.id,
-                                        "lang_id": lang.id,
-                                        "raw_code": raw_code})
-        request.user = user
-        response = ctrl_json_exercise_inspect(request)
-        dict_json = json.loads(response.content)
-        with self.subTest("error message"):
-            self.assertNotEqual("err_msg", USER_RAW_CODE_TOO_BIG)
-        with self.subTest("exit code"):
-            self.assertEquals(dict_json["exit_code"], ERROR_CODE_ACCESS)
+                request = self.factory.post(reverse('exercise_inspect'),
+                                            {
+                                                "ex2tst_id": extst.id,
+                                                "asse_id": asse.id,
+                                                "lang_id": lang.id,
+                                                "raw_code": raw_code})
+                request.user = user
+                response = ctrl_json_exercise_inspect(request)
+                dict_json = json.loads(response.content)
+                with self.subTest(f"{info} error message"):
+                    self.assertNotEqual("err_msg", USER_RAW_CODE_TOO_BIG)
+                with self.subTest(f"{info} percentage value"):
+                    self.assertEquals(dict_json["exit_code"], ERROR_CODE_ACCESS)
+            else:
+                with self.subTest(f"{info} language not supported"):
+                    self.assertTrue(True)
+

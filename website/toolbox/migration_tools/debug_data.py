@@ -47,7 +47,7 @@ def createExercises():
 
 def createTests():
     tests = []
-    for num in "1234567":
+    for num in "12345678":
         name = f"Test_#{num}"
         desc = f"Test #{num} that contains some exercices"
         obj = TestDC()
@@ -66,6 +66,7 @@ EX2TST = [
     [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
     [1,2,3],
     [1,2,3,4],
+    [15],
 ]
 EX2TST_SOLVE_PER_REQ = [
     [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],
@@ -75,6 +76,7 @@ EX2TST_SOLVE_PER_REQ = [
     [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],
     [0.0,0.0,0.0],
     [100.0,0.0,50.0,0.0],
+    [100.0],
 ]
 
 def createExo2Test(exos, tests):
@@ -173,6 +175,7 @@ ASSESS = [
     {"name": "Assessment F-all",   "test_id": 5, "group": 4, "today": "future"  , "user_ex_done": []},
     {"name": "Assessment C2-0%",   "test_id": 6, "group": 2, "today": "start"   , "user_ex_done": []},
     {"name": "Assessment C2-1050", "test_id": 7, "group": 2, "today": "start"   , "user_ex_done": [(3, 1)]},
+    {"name": "Assessment C2-ex15", "test_id": 8, "group": 2, "today": "start"   , "user_ex_done": []},
 ]
 def createAssess(tests):
     # Get current date and month delta
