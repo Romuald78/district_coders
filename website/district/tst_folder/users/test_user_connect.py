@@ -129,12 +129,12 @@ class UserConnectTest(TransactionTestCase):
             pwd = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
             self.__randomLogin(nam, pwd)
         # Check random user name and known password
-        with self.subTest("user_1 + random pass"):
+        with self.subTest("user_1 + random login"):
             nam = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
             pwd = "pass_1"
             self.__randomLogin(nam, pwd)
         # Check admin user
-        with self.subTest("user_1"):
+        with self.subTest("user admin ok"):
             self.__userLogin()
 
     def test_user_update(self):
