@@ -16,7 +16,7 @@ from district.models.test import TestDC
 from district.models.testresult import TestResult
 from district.models.user import UserDC
 from config.secure.admin_cnf import ADMIN_EMAIL
-from website.settings import DEBUG
+from website.settings import DEBUG, DEFAULT_GROUP_KEY
 
 def createAdmin():
     # create admin user
@@ -248,6 +248,11 @@ def createUsers():
             search_id = int(grp)+1
             grp = GroupDC.objects.all().filter(id=search_id).first()
             obj.groups.add(grp)
+        # Add to default group
+        def_grp = GroupDC.objects.filter(register_key=DEFAULT_GROUP_KEY)
+        obj.groups.add(def_grp.first())
+
+
 #        print(f"    > User [{obj.id}]:'{obj.username}' added !")
 
 def createTestResult():
