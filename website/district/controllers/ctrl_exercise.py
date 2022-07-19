@@ -7,7 +7,7 @@ from django.template import loader
 from django.utils import timezone
 
 from config.constants.error_message_cnf import ERROR_CODE_ACCESS, ERROR_CODE_NOT_FOUND, ERROR_CODE_PARAMS, \
-    ERROR_CODE_OK, ERROR_CODE_COMPILE, COMPILE_ERROR
+    ERROR_CODE_OK, ERROR_CODE_COMPILE, COMPILE_ERROR, ERROR_CODE_IMPOSSIBLE, ERROR_CODE_UNSUPPORTED
 from district.controllers.ctrl_main import ctrl_error
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.models.assessment import Assessment
@@ -207,7 +207,14 @@ def ctrl_json_exercise_inspect(request):
         dico_json_response["stdout"]    = ansi_to_html(stdout)
         dico_json_response["stderr"]    = ansi_to_html(stderr)
         return JsonResponse(dico_json_response)
-    except:
+    except AttributeError as atrerr:
+        if settings.DEBUG:
+            print(traceback.print_exc())
+        # raise AttributeError("Language program not found") from atrerr
+        dico_json_response["exit_code"] = ERROR_CODE_UNSUPPORTED
+        dico_json_response["err_msg"] = error_message_cnf.LANGUAGE_NOT_SUPPORTED
+        return JsonResponse(dico_json_response)
+    except ():
         if settings.DEBUG:
             print(traceback.print_exc())
         return JsonResponse({})
