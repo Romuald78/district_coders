@@ -8,10 +8,12 @@ from django.core import management
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TransactionTestCase, RequestFactory, Client
 
+from config.constants.error_message_cnf import ERROR_CODE_CONFLICT, GROUP_REGISTER_ALREADY_IN, ERROR_CODE_PARAMS, \
+    GROUP_REGISTER_EMPTY_KEY, ERROR_CODE_NOT_FOUND, GROUP_REGISTER_INVALID_KEY
 from district.models.group import GroupDC
 from district.models.user import UserDC
 from toolbox.utils.route_mgr import PageManager
-from website.settings import MEDIA_ROOT
+from website.settings import MEDIA_ROOT, DEFAULT_GROUP_KEY
 
 
 class UserConnectTest(TransactionTestCase):
@@ -20,9 +22,8 @@ class UserConnectTest(TransactionTestCase):
         super().__init__(methodName)
 
     def setUp(self):
-        # Every test needs access to the request factory.
-        self.factory = RequestFactory()
-        self.client  = Client()
+        # in django the client is instanciated in _pre_setup()
+        #self.client  = Client()
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
@@ -43,7 +44,7 @@ class UserConnectTest(TransactionTestCase):
         user     = response.context['user']
         self.assertContains(response, msg1)
         self.assertContains(response, msg2)
-        self.assertEqual(user.__class__, AnonymousUser)
+        self.assertEquals(user.__class__, AnonymousUser)
 
     def __userLogin(self):
         profile_url = PageManager().get_URL("profile")
@@ -55,9 +56,9 @@ class UserConnectTest(TransactionTestCase):
         self.assertIn('user', response.context.keys())
         user = response.context['user']
         # Check the user object has the correct class
-        self.assertEqual(user.__class__, UserDC)
+        self.assertEquals(user.__class__, UserDC)
         # Check the user is the one
-        self.assertEqual(user.id, 2)
+        self.assertEquals(user.id, 2)
 
     def __init_update_data(self, user, field=None, new_value=None):
         data = {
@@ -77,7 +78,7 @@ class UserConnectTest(TransactionTestCase):
         update_url = PageManager().get_URL('update')
         profile_url = PageManager().get_URL('profile')
         response = self.client.get(update_url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEquals(response.status_code, 200)
         # get user and default values
         user = response.context['user']
         data = {
@@ -86,10 +87,10 @@ class UserConnectTest(TransactionTestCase):
             "description": user.description,
         }
         # check default values for user_1
-        self.assertEqual(user.first_name, '')
-        self.assertEqual(user.last_name, '')
-        self.assertEqual(user.icon, '')
-        self.assertEqual(user.description, '')
+        self.assertEquals(user.first_name, '')
+        self.assertEquals(user.last_name, '')
+        self.assertEquals(user.icon, '')
+        self.assertEquals(user.description, '')
         # Update each data
         for field in update_data:
             # update value
@@ -109,7 +110,7 @@ class UserConnectTest(TransactionTestCase):
             self.assertRedirects(response, profile_url)
             # Display new info
             response = self.client.get(profile_url)
-            self.assertEqual(response.status_code, 200)
+            self.assertEquals(response.status_code, 200)
             # Get user
             user = response.context['user']
             self.assertTrue(hasattr(user, field))
@@ -149,51 +150,70 @@ class UserConnectTest(TransactionTestCase):
         }
         self.__update_info(data)
 
-
-
-
-
-
-
-
     def test_json_group_register(self):
-        page = PageManager().get_page('group_register')
+        json_url = PageManager().get_URL('group_register')
         for user in UserDC.objects.filter(id__gt=0).all():
-            for group in GroupDC.objects.all():
-                request = self.factory.post(page.url, {"register_key": group.register_key})
-                request.user = user
-                response = page.ctrl(request)
-                dict_json = json.loads(response.content)
-                print(f"[user: {user.username}][group: {group.id}]")
-                print("groups:", GroupDC.objects.filter(id=group.id, userdc=user.id).all())
-                # district.GroupDC.None -> not a group but counted as one
-                if len(GroupDC.objects.filter(id=group.id, userdc=user.id).all()) != 0:
-                    with self.subTest():
-                        self.assertEqual(dict_json["exit_code"], 9)
-                    with self.subTest():
-                        self.assertIn("err_msg", dict_json)
+            # ----------------------------
+            # User login
+            # ----------------------------
+            self.client.force_login(user)
+            # ----------------------------
+            # register with Empty key
+            # ----------------------------
+            with self.subTest(f"usr{user.id} - empty key"):
+                response = self.client.post(json_url, {"register_key": ""})
+                self.assertEquals(response.status_code, 200)
+                json_result = json.loads(response.content)
+                self.assertIn('exit_code', json_result)
+                self.assertEquals(json_result['exit_code'], ERROR_CODE_PARAMS)
+                self.assertIn('err_msg', json_result)
+                self.assertEquals(json_result['err_msg'], GROUP_REGISTER_EMPTY_KEY)
+            # ----------------------------
+            # Register with random key
+            # ----------------------------
+            with self.subTest(f"usr{user.id} - random key"):
+                rand_key = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+                response = self.client.post(json_url, {"register_key": rand_key})
+                self.assertEquals(response.status_code, 200)
+                json_result = json.loads(response.content)
+                self.assertIn('exit_code', json_result)
+                self.assertEquals(json_result['exit_code'], ERROR_CODE_NOT_FOUND)
+                self.assertIn('err_msg', json_result)
+                self.assertEquals(json_result['err_msg'], GROUP_REGISTER_INVALID_KEY)
+            # ----------------------------
+            # Check already registered to "everyone" group
+            # ----------------------------
+            # if this is not the admin user
+            with self.subTest(f"usr{user.id} - everyone group"):
+                eo_grp = GroupDC.objects.filter(register_key=DEFAULT_GROUP_KEY).first()
+                self.assertIsNotNone(eo_grp)
+                usr_grp = user.groups.filter(id=eo_grp.id).first()
+                # The admin user is not linked to the "everyone" group
+                if user.is_staff:
+                    self.assertEquals(None, usr_grp)
                 else:
-                    with self.subTest():
-                        self.assertEqual(dict_json["exit_code"], 0)
-                    with self.subTest():
-                        self.assertNotIn("err_msg", dict_json)
-
-            # test empty key
-            request = self.factory.post(page.url, {"register_key": ""})
-            request.user = user
-            response = page.ctrl(request)
-            dict_json = json.loads(response.content)
-            with self.subTest():
-                self.assertEqual(dict_json["exit_code"], 2)
-            with self.subTest():
-                self.assertIn("err_msg", dict_json)
-
-            # test key which doesn't exist
-            request = self.factory.post(page.url, {"register_key": "Tu lis mon code ? Bonne chance"})
-            request.user = user
-            response = page.ctrl(request)
-            dict_json = json.loads(response.content)
-            with self.subTest():
-                self.assertEqual(dict_json["exit_code"], 1)
-            with self.subTest():
-                self.assertIn("err_msg", dict_json)
+                    self.assertEquals(eo_grp, usr_grp)
+            # ----------------------------
+            # Connect this user to any group
+            # ----------------------------
+            for group in GroupDC.objects.all():
+                # Store information about user/group link
+                in_group = user.groups.filter(id=group.id)
+                with self.subTest(f"usr{user.id} - grp{group.id} - register"):
+                    # Here we check the group is not linked
+                    if not in_group:
+                        # link the user and the group
+                        response = self.client.post(json_url, {"register_key": group.register_key})
+                        self.assertEquals(response.status_code, 200)
+                        json_result = json.loads(response.content)
+                        self.assertIn('exit_code', json_result)
+                        self.assertEquals(json_result['exit_code'], 0)
+                    # Here we can be sure there is a link between the user and the group
+                    # Check to link a second time
+                    response = self.client.post(json_url, {"register_key": group.register_key})
+                    self.assertEquals(response.status_code, 200)
+                    json_result = json.loads(response.content)
+                    self.assertIn('exit_code', json_result)
+                    self.assertEquals(json_result['exit_code'], ERROR_CODE_CONFLICT)
+                    self.assertIn('err_msg', json_result)
+                    self.assertEquals(json_result['err_msg'], GROUP_REGISTER_ALREADY_IN)
