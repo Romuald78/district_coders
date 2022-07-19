@@ -14,6 +14,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
 
@@ -69,7 +70,7 @@ def ctrl_user_signup(request):
         # user = authenticate(username=username, password=password)
         # login(request, user)
 
-        return redirect(f'/accounts/confirmemail/{user.id}')
+        return redirect(reverse('email_change_confirm', kwargs={"user_id": user.id}))
     else:
         form = SignupForm()
 
@@ -301,7 +302,7 @@ def ctrl_email_change_auth(request):
         curr_user.save()
         send_confirm_email(request, curr_user)
         # redirect
-        return redirect(f"/accounts/confirmemail/{curr_user.id}")
+        return redirect(reverse('email_change_confirm', kwargs={"user_id": curr_user.id}))
     else:
         context = {"err_msg": ""}
         if are_field_not_empty:
