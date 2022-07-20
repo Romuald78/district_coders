@@ -70,7 +70,7 @@ class ExerciseInspector():
                 result = part3.communicate()
                 exit_code_exec = part3.returncode
                 stdout_exec, stderr_exec = result
-                if exit_code_exec == -9:  # killing code
+                if exit_code_exec == -9:  # killing code, POSIX only
                     exit_code_exec = ERROR_CODE_TIMEOUT
                     stdout_exec = "".encode("UTF-8")
                     stderr_exec = "Error timeout".encode("UTF-8")
