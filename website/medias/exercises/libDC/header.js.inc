@@ -1,3 +1,4 @@
+var readline = require('readline');
 
 const interf = readline.createInterface({
   input: process.stdin,

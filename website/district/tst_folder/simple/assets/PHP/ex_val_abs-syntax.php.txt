@@ -1,0 +1,4 @@
+<?php
+$n = fgets(STDIN);
+for($i=0; $i<$n; $i++) {
+    $val = fgets(STDIN)

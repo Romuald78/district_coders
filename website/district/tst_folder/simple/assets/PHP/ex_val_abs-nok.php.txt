@@ -3,6 +3,6 @@ $n = fgets(STDIN);
 for($i=0; $i<$n; $i++) {
     $val = fgets(STDIN);
 
-    print abs($val) . "\n";
+    print -abs($val) . "\n";
 }
 ?>
