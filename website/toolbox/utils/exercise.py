@@ -24,6 +24,11 @@ from config.constants import error_message_cnf
 #       bool is_redirected,
 #       int asse_id
 #       }
+from district.models.exotest2lang import ExoTest2Lang
+from district.models.testresult import TestResult
+from toolbox.utils.testresult import get_testresult
+
+
 def is_exo_triable(curr_user, curr_asse, all_exo2test):
     # on regarde notre assessment
     # - en cours :
@@ -240,3 +245,60 @@ def get_title_console():
     col_title += "\n\33[0m"
     # print("title :", col_title)
     return col_title
+
+
+# getting the stat and solve code of a certain exercise, in every available languages
+# return a dict of {
+#   int exit_code,
+#   String err_msg,
+#   languages dict of lang.id -> {
+#         String name,
+#         String default_code,
+#         String solve_code,
+#         int result_test,
+#         int result_train
+#   },
+#   List of TestResult testresult
+# }
+def get_exercise_stat(curr_user, ex2tst_id, asse_id):
+    languages = {
+        "exit_code": 0,
+        "err_msg": "",
+        "languages": {},
+        "testresult": []
+    }
+    # test if the user have access to those informations
+    response = get_exercise_write(curr_user, ex2tst_id, asse_id)
+    if response["exit_code"] != ERROR_CODE_OK:
+        languages["exit_code"] = response["exit_code"]
+        languages["err_msg"] = response["err_msg"]
+        return languages
+
+    for extstlng in ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id).all():
+        lang_tstres = TestResult.objects.filter(exo_test2lang=extstlng, assessment_id=asse_id, user_id=curr_user)
+        solve_code = ""
+        if lang_tstres.exists():
+            solve_code = lang_tstres.order_by("-solve_percentage").first().solve_code
+        languages["languages"][extstlng.lang.id] = {
+            "name": extstlng.lang.name,
+            "default_code": extstlng.lang.default_code,
+            "solve_code": solve_code,
+            "result_test": int(0 if extstlng.nb_test_try == 0 else 100 * extstlng.nb_test_pass / extstlng.nb_test_try),
+            "result_train": int(
+                0 if extstlng.nb_train_try == 0 else 100 * extstlng.nb_train_pass / extstlng.nb_train_try)
+        }
+    ex_tst_lng_objs = list(ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id).all())
+    languages["testresult"] = [
+        {
+            "testresult_obj": {
+                "nb_test_try": item["testresult_obj"].nb_test_try,
+                "solve_time": item["testresult_obj"].solve_time,
+                "solve_percentage": item["testresult_obj"].solve_percentage,
+                "solve_code": item["testresult_obj"].solve_code
+            },
+            "lang_obj": {
+                "name": item["lang_obj"].name
+            }
+        } for item in get_testresult(curr_user, asse_id, ex_tst_lng_objs)]
+
+    return languages
