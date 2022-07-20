@@ -15,11 +15,11 @@
         editor_content = {};
         def_code = JSON.parse(document.getElementById("languages").textContent);
 
-        {% for key, value in languages.items %}
-            editor_content[{{ key }}] = {"default_code": def_code[{{ key }}]["default_code"], "last_code": ""};
-        {% endfor %}
+        for (const [key, value] of Object.entries(def_code)) {
+            editor_content[key] = {"default_code": def_code[key]["default_code"], "last_code": def_code[key]["solve_code"]};
+        }
 
-        // save the last lang_id
+        // save the last(former) lang_id
         ex_lang_id = 0
 
         function switch_language() {
@@ -46,7 +46,7 @@
 
         function set_default_code() {
             // popup to confirm the choice
-            if (!confirm("oh god, are you sure you wanna make it ?")) {
+            if (!confirm("Are you sure ?")) {
                 return;
             }
 
@@ -71,7 +71,7 @@
             // disable the form
             disable_form(true);
             // fetching
-            fetch('/exercise/stats/', {
+            fetch('/exercise/stats_create/', {
                 method: 'post',
                 body: data,
             })
@@ -105,17 +105,7 @@
             <li>mode: {{ ex2tst.exercise.insp_mode_id }}</li>
             <li>
                 Languages :
-                <ul>
-                    {% for key, value in languages.items %}
-                        <li>
-                            {{ value.name }}:
-                            <ul>
-                                <li>{{ value.result_test }}% of success in test mode</li>
-                                <li>{{ value.result_train }}% of success in train mode</li>
-                            </ul>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <ul id="languages_stats"></ul>
             </li>
         </ul>
     </div>
@@ -134,7 +124,7 @@
                 <input id="ex2tst_id" name="ex2tst_id" type="hidden" value={{ ex2tst.id }}>
                 <input id="asse_id" name="asse_id" type="hidden" value={{ asse_id }}>
 
-                <input type="button" onclick="save_current_code();send_user_code()" value="Submit">
+                <input type="button" onclick="save_current_code();send_user_code();" value="Submit">
                 <input type="button" onclick="set_default_code()" value="Reset editor">
             </fieldset>
         </form>
@@ -146,25 +136,7 @@
 
     <h2>Your last solution</h2>
     <div class="solution">
-        <ul>
-            {% for item in testresults %}
-                {% if item.testresult_obj.solve_percentage != 0 %}
-                <li>
-                    {{ item.lang_obj.name }}
-                    <ul>
-                        <li>nb try: {{ item.testresult_obj.nb_test_try }}</li>
-                        <li>solve time: {{ item.testresult_obj.solve_time }}</li>
-                        <li>solve at: {{ item.testresult_obj.solve_percentage }}%</li>
-                        <li>solve code:
-                            <pre>
-                                <div class="code" id="console_view">{{ item.testresult_obj.solve_code }}</div>
-                            </pre>
-                        </li>
-                    </ul>
-                </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
+        <ul id="languages_solve_code"></ul>
     </div>
 
     <link rel="stylesheet"
@@ -174,7 +146,13 @@
         // load default code display
         // get the language id from the dropdown menu
         var lang_id = document.getElementById("lang_id").value;
-        document.getElementById("raw_code").value = editor_content[lang_id]["default_code"];
+        if (editor_content[lang_id]["last_code"] === "") {
+            document.getElementById("raw_code").value = editor_content[lang_id]["default_code"];
+        } else {
+            document.getElementById("raw_code").value = editor_content[lang_id]["last_code"];
+        }
+
+        display_result_stat();
         check_test_result();
     </script>
 <!-- ----------------------------------- --->

@@ -1,6 +1,7 @@
 from django.contrib.auth import views as auth_views
 
-from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details
+from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details, \
+    ctrl_json_exercise_get_stat
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
     ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email, ctrl_email_verification, \
@@ -54,7 +55,8 @@ PAGES = [
     Page('exercise_details', 'exercise/details/', ctrl_exercise_details, parameters=True),
     Page('exercise_write', 'exercise/write/', ctrl_exercise_write, parameters=True),
     Page('exercise_inspect', 'exercise/inspect/', ctrl_json_exercise_inspect, type='json', parameters=True),
-    Page('exercise_stats', 'exercise/stats/', ctrl_json_testresult_exists, type='json', parameters=True),
+    Page('exercise_stats_create', 'exercise/stats_create/', ctrl_json_testresult_exists, type='json', parameters=True),
+    Page('exercise_stats_get', 'exercise/stats_get/', ctrl_json_exercise_get_stat, type='json', parameters=True),
 
 ]
 
