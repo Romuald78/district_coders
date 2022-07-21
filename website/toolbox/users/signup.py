@@ -18,3 +18,9 @@ class SignupForm(UserCreationForm):
                   'first_name',
                   'last_name',
                   'description')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        if email is None or len(email) == 0:
+            self.add_error('email', 'Empty email')
