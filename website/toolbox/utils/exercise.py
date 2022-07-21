@@ -260,7 +260,7 @@ def get_title_console():
 #   },
 #   List of TestResult testresult
 # }
-def get_exercise_stat(curr_user, ex2tst_id, asse_id):
+def get_exercise_stat(curr_user, ex2tst_id, asse_id, lang_id):
     languages = {
         "exit_code": 0,
         "err_msg": "",
@@ -274,6 +274,7 @@ def get_exercise_stat(curr_user, ex2tst_id, asse_id):
         languages["err_msg"] = response["err_msg"]
         return languages
 
+    # languages part
     for extstlng in ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id).all():
         lang_tstres = TestResult.objects.filter(exo_test2lang=extstlng, assessment_id=asse_id, user_id=curr_user)
         solve_code = ""
@@ -287,7 +288,9 @@ def get_exercise_stat(curr_user, ex2tst_id, asse_id):
             "result_train": int(
                 0 if extstlng.nb_train_try == 0 else 100 * extstlng.nb_train_pass / extstlng.nb_train_try)
         }
-    ex_tst_lng_objs = list(ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id).all())
+
+    # test result part
+    ex_tst_lng_objs = list(ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id).all())
     languages["testresult"] = [
         {
             "testresult_obj": {

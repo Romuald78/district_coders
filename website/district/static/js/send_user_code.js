@@ -73,7 +73,6 @@ function display_result_stat() {
         }
 
         // refreshing user solve code
-        console.log(json.testresult);
         for (const item of json.testresult) {
             if (item.testresult_obj.solve_percentage > 0) {
                 var li_solution = document.createElement("li");
@@ -87,17 +86,21 @@ function display_result_stat() {
                 var li_solvetime = document.createElement("li");
                 var li_solve_per = document.createElement("li");
                 var li_solve_code = document.createElement("li");
+                var btn_solve_code = document.createElement("button")
 
                 li_nb_try.appendChild(document.createTextNode("nb try: " + item.testresult_obj.nb_test_try));
                 li_solvetime.appendChild(document.createTextNode("solve time: " + item.testresult_obj.solve_time));
                 li_solve_per.appendChild(document.createTextNode("solve at: " + item.testresult_obj.solve_percentage + "%"));
                 li_solve_code.appendChild(document.createTextNode("solve code: "));
+                btn_solve_code.onclick = () => set_solve_code(item.testresult_obj.solve_code);
+                btn_solve_code.appendChild(document.createTextNode("edit"));
                 pre_solve_code = document.createElement("pre");
                 div_solve_code = document.createElement("div");
                 div_solve_code.classList.add("code");
                 div_solve_code.appendChild(document.createTextNode(item.testresult_obj.solve_code))
                 // div_solve_code.id = "console_view";
                 pre_solve_code.appendChild(div_solve_code);
+                li_solve_code.appendChild(btn_solve_code)
                 li_solve_code.appendChild(pre_solve_code);
 
                 ul_details.appendChild(li_nb_try);

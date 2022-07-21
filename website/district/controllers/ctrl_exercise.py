@@ -82,16 +82,15 @@ def ctrl_exercise_write(request):
     # get current assessment
     context["ex2tst"] = response["ex2tst_obj"]
 
-    result = get_exercise_stat(curr_user, ex2tst_id, asse_id)
+    if len(response["ex_tst_lng"]) == 0:
+        return ctrl_error(request, error_message_cnf.LANGUAGE_NOT_AVAILABLE)
+    result = get_exercise_stat(curr_user, ex2tst_id, asse_id, response["ex_tst_lng"][0].id)
     if result["exit_code"] != ERROR_CODE_OK:
         return ctrl_error(request, result["err_msg"][1])
 
     context["languages"] = result["languages"]
     context["asse_id"] = asse_id
     context["max_raw_code"] = default_value_cnf.MAX_LENGTH_USER_RAW_CODE
-
-    # adding testresult stat
-    context["testresults"] = get_testresult(curr_user.id, asse_id, response["ex_tst_lng"])
 
     # Use context in the template and render response view
     return HttpResponse(template.render(context, request))
@@ -225,11 +224,12 @@ def ctrl_json_exercise_get_stat(request):
         curr_user = request.user
         ex2tst_id = int(request.POST.get('ex2tst_id', 0))
         asse_id = int(request.POST.get("asse_id", 0))
+        lang_id = int(request.POST.get('lang_id', 0))
 
         if asse_id == 0 or ex2tst_id == 0:
             return JsonResponse({"exit_code": ERROR_CODE_PARAMS, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT})
 
-        result = get_exercise_stat(curr_user, ex2tst_id, asse_id)
+        result = get_exercise_stat(curr_user, ex2tst_id, asse_id, lang_id)
 
         return JsonResponse(result)
     except ():
