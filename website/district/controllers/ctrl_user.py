@@ -50,27 +50,23 @@ def ctrl_user_signup(request):
     form = SignupForm(request.POST, request.FILES)
     # Get default group
     groups = GroupDC.objects.filter(register_key=DEFAULT_GROUP_KEY)
-
-    if form.is_valid() and groups.exists():
-        # retrieve form data
-        user = form.save()
-        user.refresh_from_db()
-        user.first_name = form.cleaned_data.get('first_name')
-        user.last_name = form.cleaned_data.get('last_name')
-        user.email = form.cleaned_data.get('email')
-        user.icon = form.cleaned_data.get('icon')
-        user.description = form.cleaned_data.get('description')
-        user.groups.add(groups.first())
-        # confirmation email
-        user.is_active = False
-        user.save()
-        # login after signup
-        # username = form.cleaned_data.get('username')
-        # password = form.cleaned_data.get('password1')
-        # user = authenticate(username=username, password=password)
-        # login(request, user)
-
-        return redirect(reverse('email_change_confirm', kwargs={"user_id": user.id}))
+    if request.method == "POST":
+        if form.is_valid() and groups.exists():
+            # retrieve form data
+            user = form.save()
+            user.refresh_from_db()
+            user.first_name = form.cleaned_data.get('first_name')
+            user.last_name = form.cleaned_data.get('last_name')
+            user.email = form.cleaned_data.get('email')
+            user.icon = form.cleaned_data.get('icon')
+            user.description = form.cleaned_data.get('description')
+            user.groups.add(groups.first())
+            # Check email is not empty
+            if user.email is not None and user.email != '':
+                # confirmation email
+                user.is_active = False
+                user.save()
+                return redirect(reverse('email_change_confirm', kwargs={"user_id": user.id}))
     else:
         form = SignupForm()
 
