@@ -1,6 +1,7 @@
 from django.db.models import Q, F
 
-from config.constants.error_message_cnf import ERROR_CODE_ACCESS, ERROR_CODE_NOT_FOUND, ERROR_CODE_OK
+from config.constants.error_message_cnf import ERROR_CODE_ACCESS, ERROR_CODE_NOT_FOUND, ERROR_CODE_OK, \
+    ERROR_CODE_UNSUPPORTED
 from district.models.assessment import Assessment
 from district.models.exercise import Exercise
 from district.models.exo2test import Exo2Test
@@ -197,7 +198,7 @@ def get_exercise_details(curr_user, ex2test_id, asse_id):
 def get_exercise_write(curr_user, ex2test_id, asse_id):
     # check if the assessment is reachable in this assessment
     exercise = Exercise.objects.filter(exo2test=ex2test_id)
-    if len(exercise.all()) == 0:
+    if not exercise.exists():
         return {"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
     ex_id = exercise.first().id
     result = get_exercise(curr_user, ex_id, asse_id)
@@ -205,7 +206,7 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
         return result
 
     curr_asse = Assessment.objects.filter(id=asse_id, groups__userdc=curr_user, test__exo2test=ex2test_id)
-    if len(curr_asse.all()) == 0:
+    if not curr_asse.exists():
         return {"exit_code": ERROR_CODE_ACCESS, "err_msg": error_message_cnf.GROUP_PERMISSION_ASSESSMENT}
 
     asse_avail = Asse.is_asse_available(curr_asse)[0]
@@ -213,7 +214,7 @@ def get_exercise_write(curr_user, ex2test_id, asse_id):
         return {"exit_code": ERROR_CODE_ACCESS, "err_msg": asse_avail["not_available_msg"]}
 
     all_exo2test = Exo2Test.objects.filter(id=ex2test_id, test__assessment__groups__userdc=curr_user)
-    if len(all_exo2test.all()) == 0:
+    if not all_exo2test.exists():
         return {"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.EXERCISE_NOT_FOUND}
 
     exos = is_exo_triable(curr_user, curr_asse.first(), all_exo2test)
@@ -260,7 +261,7 @@ def get_title_console():
 #   },
 #   List of TestResult testresult
 # }
-def get_exercise_stat(curr_user, ex2tst_id, asse_id):
+def get_exercise_stat(curr_user, ex2tst_id, asse_id, lang_id):
     languages = {
         "exit_code": 0,
         "err_msg": "",
@@ -268,26 +269,30 @@ def get_exercise_stat(curr_user, ex2tst_id, asse_id):
         "testresult": []
     }
     # test if the user have access to those informations
-    response = get_exercise_write(curr_user, ex2tst_id, asse_id)
+    response = get_exercise_details(curr_user, ex2tst_id, asse_id)
     if response["exit_code"] != ERROR_CODE_OK:
         languages["exit_code"] = response["exit_code"]
         languages["err_msg"] = response["err_msg"]
         return languages
 
+    # test if the language is available in a certain exercise
+    if not ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id).exists():
+        languages["exit_code"] = ERROR_CODE_UNSUPPORTED
+        languages["err_msg"] = error_message_cnf.LANGUAGE_NOT_SUPPORTED
+        return languages
+
+    # languages part
     for extstlng in ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id).all():
-        lang_tstres = TestResult.objects.filter(exo_test2lang=extstlng, assessment_id=asse_id, user_id=curr_user)
-        solve_code = ""
-        if lang_tstres.exists():
-            solve_code = lang_tstres.order_by("-solve_percentage").first().solve_code
         languages["languages"][extstlng.lang.id] = {
             "name": extstlng.lang.name,
             "default_code": extstlng.lang.default_code,
-            "solve_code": solve_code,
             "result_test": int(0 if extstlng.nb_test_try == 0 else 100 * extstlng.nb_test_pass / extstlng.nb_test_try),
             "result_train": int(
                 0 if extstlng.nb_train_try == 0 else 100 * extstlng.nb_train_pass / extstlng.nb_train_try)
         }
-    ex_tst_lng_objs = list(ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id).all())
+
+    # test result part
+    ex_tst_lng_objs = list(ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id).all())
     languages["testresult"] = [
         {
             "testresult_obj": {

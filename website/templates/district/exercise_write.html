@@ -16,7 +16,7 @@
         def_code = JSON.parse(document.getElementById("languages").textContent);
 
         for (const [key, value] of Object.entries(def_code)) {
-            editor_content[key] = {"default_code": def_code[key]["default_code"], "last_code": def_code[key]["solve_code"]};
+            editor_content[key] = {"default_code": def_code[key]["default_code"], "last_code": ""};
         }
 
         // save the last(former) lang_id
@@ -24,6 +24,7 @@
 
         function switch_language() {
 
+            display_result_stat();
             check_test_result();
 
             // get the language id from the dropdown menu
@@ -55,6 +56,19 @@
             // reset the last_code
             editor_content[lang_id]["last_code"] = "";
             document.getElementById("raw_code").value = editor_content[lang_id]["default_code"];
+        }
+
+        function set_solve_code(solve_code) {
+            // popup to confirm the choice
+            if (!confirm("Are you sure ?")) {
+                return;
+            }
+
+            // get the language id from the dropdown menu
+            var lang_id = document.getElementById("lang_id").value;
+            // reset the last_code
+            editor_content[lang_id]["last_code"] = solve_code;
+            document.getElementById("raw_code").value = solve_code;
         }
 
         function save_current_code() {
