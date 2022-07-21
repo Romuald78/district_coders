@@ -13,10 +13,11 @@ from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.models.assessment import Assessment
 from district.models.exotest2lang import ExoTest2Lang
 from config.constants import default_value_cnf, error_message_cnf
+from district.models.testresult import TestResult
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
 from toolbox.utils.assessment import is_date_current
-from toolbox.utils.exercise import get_exercise_details, get_exercise_write, get_title_console
+from toolbox.utils.exercise import get_exercise_details, get_exercise_write, get_title_console, get_exercise_stat
 from toolbox.utils.testresult import get_testresult
 from website import settings
 
@@ -80,15 +81,12 @@ def ctrl_exercise_write(request):
 
     # get current assessment
     context["ex2tst"] = response["ex2tst_obj"]
-    # convert the list of languages into dict of lang_id -> {String name, String default_code, int result_test, int result_train}
-    languages = {}
-    for extstlng in response["ex_tst_lng"]:
-        languages[extstlng.lang.id] = {
-            "name": extstlng.lang.name,
-            "default_code": extstlng.lang.default_code,
-            "result_test": int(0 if extstlng.nb_test_try == 0 else 100*extstlng.nb_test_pass/extstlng.nb_test_try),
-            "result_train": int(0 if extstlng.nb_train_try == 0 else 100*extstlng.nb_train_pass/extstlng.nb_train_try)}
-    context["languages"] = languages
+
+    result = get_exercise_stat(curr_user, ex2tst_id, asse_id)
+    if result["exit_code"] != ERROR_CODE_OK:
+        return ctrl_error(request, result["err_msg"][1])
+
+    context["languages"] = result["languages"]
     context["asse_id"] = asse_id
     context["max_raw_code"] = default_value_cnf.MAX_LENGTH_USER_RAW_CODE
 
@@ -214,6 +212,26 @@ def ctrl_json_exercise_inspect(request):
         dico_json_response["exit_code"] = ERROR_CODE_UNSUPPORTED
         dico_json_response["err_msg"] = error_message_cnf.LANGUAGE_NOT_SUPPORTED
         return JsonResponse(dico_json_response)
+    except ():
+        if settings.DEBUG:
+            print(traceback.print_exc())
+        return JsonResponse({})
+
+
+@login_required(login_url=LOGIN_URL)
+def ctrl_json_exercise_get_stat(request):
+    try:
+        # get params
+        curr_user = request.user
+        ex2tst_id = int(request.POST.get('ex2tst_id', 0))
+        asse_id = int(request.POST.get("asse_id", 0))
+
+        if asse_id == 0 or ex2tst_id == 0:
+            return JsonResponse({"exit_code": ERROR_CODE_PARAMS, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT})
+
+        result = get_exercise_stat(curr_user, ex2tst_id, asse_id)
+
+        return JsonResponse(result)
     except ():
         if settings.DEBUG:
             print(traceback.print_exc())

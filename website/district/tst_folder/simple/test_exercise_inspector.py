@@ -20,8 +20,7 @@ from district.models.user import UserDC
 class ExerciseInspectorTest(TransactionTestCase):
 
     def __init__(self, methodName='test_user_access'):
-        # TODO putting back PHP
-        self.lang = ["C", "JS", "Python"]
+        self.lang = ["C", "JS", "PHP", "Python"]
         self.lang_meta = {"C": {"extension": "c", "is_compiled": True},
                           "JS": {"extension": "js", "is_compiled": False},
                           "PHP": {"extension": "php", "is_compiled": False},
