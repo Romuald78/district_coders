@@ -74,48 +74,63 @@ class UserConnectTest(TransactionTestCase):
         return data
 
     def __update_info(self, update_data):
-        # go to update page
-        update_url = PageManager().get_URL('update')
-        profile_url = PageManager().get_URL('profile')
-        response = self.client.get(update_url)
-        self.assertEquals(response.status_code, 200)
-        # get user and default values
-        user = response.context['user']
-        data = {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "description": user.description,
-        }
-        # check default values for user_1
-        self.assertEquals(user.first_name, '')
-        self.assertEquals(user.last_name, '')
-        self.assertEquals(user.icon, '')
-        self.assertEquals(user.description, '')
+        with self.subTest("display update"):
+            # go to update page
+            update_url = PageManager().get_URL('update')
+            profile_url = PageManager().get_URL('profile')
+            response = self.client.get(update_url)
+            self.assertEquals(response.status_code, 200)
+            # get user and default values
+            user = response.context['user']
+            data = {
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "description": user.description,
+            }
+            forbidden_data = {
+                "username":'user_1_new',
+                "email"   :'email_1_new@toto.fr',
+                "password":'pass_1_new'
+            }
+            # check default values for user_1
+            self.assertEquals(user.first_name, '')
+            self.assertEquals(user.last_name, '')
+            self.assertEquals(user.icon, '')
+            self.assertEquals(user.description, '')
         # Update each data
         for field in update_data:
-            # update value
-            data[field]   = update_data[field]
-            compare_value = update_data[field]
-            # prepare image if needed
-            if field == 'icon':
-                compare_value = f'icons/users/{user.username}/{user.username}_icon.png'
-                img_path = os.path.join(MEDIA_ROOT, update_data[field])
-                data[field] = SimpleUploadedFile(
-                    name=img_path,
-                    content=open(img_path, 'rb').read(),
-                    content_type='image/png')
-            # post data
-            response = self.client.post(update_url, data)
-            # Check redirect
-            self.assertRedirects(response, profile_url)
-            # Display new info
-            response = self.client.get(profile_url)
-            self.assertEquals(response.status_code, 200)
-            # Get user
-            user = response.context['user']
-            self.assertTrue(hasattr(user, field))
-            self.assertEquals(getattr(user, field), compare_value)
-            print(user.icon)
+            with self.subTest(f"update {field}"):
+                # update value
+                data[field]   = update_data[field]
+                compare_value = update_data[field]
+                # prepare image if needed
+                if field == 'icon':
+                    compare_value = f'icons/users/{user.username}/{user.username}_icon.png'
+                    img_path = os.path.join(MEDIA_ROOT, update_data[field])
+                    data[field] = SimpleUploadedFile(
+                        name=img_path,
+                        content=open(img_path, 'rb').read(),
+                        content_type='image/png')
+                # post data
+                response = self.client.post(update_url, data)
+                # Check redirect
+                self.assertRedirects(response, profile_url)
+                # Display new info
+                response = self.client.get(profile_url)
+                self.assertEquals(response.status_code, 200)
+                # Get user
+                user = response.context['user']
+                self.assertTrue(hasattr(user, field))
+                self.assertEquals(getattr(user, field), compare_value)
+        for field in forbidden_data:
+            with self.subTest(f"update {field}"):
+                data[field] = forbidden_data[field]
+                # post data
+                response = self.client.post(update_url, data)
+                self.assertEquals(response.status_code, 200)
+                self.assertEquals(response.context['user'].username, user.username)
+                self.assertEquals(response.context['user'].email, user.email)
+                self.assertEquals(response.context['user'].password, user.password)
 
     def test_user_connect(self):
         # Check random user name and password
