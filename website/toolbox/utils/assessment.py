@@ -128,7 +128,7 @@ def get_asse_exercises(request, id_asse):
         groups__userdc=curr_user
     )
 
-    if len(curr_asse.all()) == 0:
+    if not curr_asse.exists():
         return {"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT}
     result = is_asse_available(curr_asse)[0]
     # only accessible assessments

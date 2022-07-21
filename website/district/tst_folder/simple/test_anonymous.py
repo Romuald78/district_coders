@@ -11,7 +11,7 @@ from toolbox.utils.route_mgr import PageManager
 
 class AnonymousTest(TransactionTestCase):
 
-    def __init__(self, methodName='test_all'):
+    def __init__(self, methodName='test_no_params'):
         print(f"\33[38;2;0;255;0m INIT {methodName}\33[0m")
         super().__init__(methodName)
 

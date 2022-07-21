@@ -1,6 +1,5 @@
 import json
 import os.path
-from datetime import timedelta
 
 from django.core import management
 from django.test import TransactionTestCase, RequestFactory
@@ -8,13 +7,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from config.constants.default_value_cnf import EX_INSPECT_ERROR_RANGE_MIN
-from config.constants.error_message_cnf import ERROR_CODE_OK, USER_RAW_CODE_TOO_BIG, ERROR_CODE_ACCESS, \
-    ERROR_CODE_COMPILE, COMPILE_ERROR, ERROR_CODE_TIMEOUT, ERROR_CODE_IMPOSSIBLE, ERROR_CODE_UNSUPPORTED
-from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_exercise_details, ctrl_exercise_write
+from config.constants.error_message_cnf import USER_RAW_CODE_TOO_BIG, ERROR_CODE_ACCESS, \
+    ERROR_CODE_COMPILE, COMPILE_ERROR, ERROR_CODE_TIMEOUT, ERROR_CODE_UNSUPPORTED
+from district.controllers.ctrl_exercise import ctrl_json_exercise_inspect, ctrl_json_exercise_get_stat
 from district.models.assessment import Assessment
 from district.models.exo2test import Exo2Test
 from district.models.language import Language
 from district.models.user import UserDC
+from district.tst_folder.simple.assets.test_case_getter import get_param_lang
 
 
 class ExerciseInspectorTest(TransactionTestCase):
@@ -43,12 +43,6 @@ class ExerciseInspectorTest(TransactionTestCase):
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
-    def get_param_lang(self):
-            user = UserDC.objects.get(username="user_2")
-            extst = Exo2Test.objects.get(id=55)
-            asse = Assessment.objects.get(id=14)
-            return (user, extst, asse)
-
     def get_test_file(self, lang, code_test):
         if lang.name in self.lang:
             # get test file
@@ -74,27 +68,27 @@ class ExerciseInspectorTest(TransactionTestCase):
 
     # python manage.py test district.tst_folder.simple.test_exercise_inspector.ExerciseInspectorTest.test_user_access -v 2 --failfast
     def test_user_access(self):
-        for asse_item in Assessment.objects.order_by("-id").all(): # TODO change id order
+        for asse_item in Assessment.objects.all():
             for curr_user in UserDC.objects.all():
                 rank_access = True
                 for ex2tst_item in Exo2Test.objects.order_by("rank").all():
                     asse_qs = Assessment.objects.filter(test__exo2test=ex2tst_item, groups__userdc=curr_user, id=asse_item.id)
-                    do_access = len(asse_qs.all()) > 0
-                    do_see = len(asse_qs.all()) > 0
+                    do_access = asse_qs.exists()
+                    do_see = asse_qs.exists()
                     err_msg = "VALID"
                     if do_access:
                         other_asse = Assessment.objects.filter(test__exo2test=ex2tst_item, groups__userdc=curr_user)
                         # check if there are assessments in process
-                        if len(other_asse.filter(start_time__lte=timezone.now(), end_time__gt=timezone.now()).all()) > 0:
+                        if other_asse.filter(start_time__lte=timezone.now(), end_time__gt=timezone.now()).exists():
                             # check if the current assessment is in process
                             if asse_item.start_time.__le__(timezone.now()) and asse_item.end_time.__gt__(timezone.now()):
                                 if rank_access:
                                     # either solve_percentage_req = 0
                                     # either solver_percentage_req <= solve_percentage
-                                    is_there_extstlng = len(ex2tst_item.exotest2lang_set.all()) > 0
+                                    is_there_extstlng = ex2tst_item.exotest2lang_set.exists()
                                     if is_there_extstlng:
                                         test_result_not_nul = ex2tst_item.exotest2lang_set.order_by("-testresult__solve_percentage").first()
-                                        is_there_testresult = len(test_result_not_nul.testresult_set.all()) > 0
+                                        is_there_testresult = test_result_not_nul.testresult_set.exists()
                                         if is_there_testresult:
                                             is_solve_percentage_valid = test_result_not_nul.testresult_set.first().solve_percentage >= ex2tst_item.solve_percentage_req
                                         else:
@@ -123,18 +117,18 @@ class ExerciseInspectorTest(TransactionTestCase):
                                     do_see = False
                                 err_msg = "available in another assessment"
                         # else check if no one is in past without training mode
-                        elif len(other_asse.filter(
+                        elif other_asse.filter(
                                 start_time__lt=timezone.now(),
                                 end_time__lte=timezone.now(),
-                                training_time__gt=timezone.now()).all()) > 0:
+                                training_time__gt=timezone.now()).exists():
                             do_access = False
                             do_see = False
                             err_msg = "not training mode"
                         # check if one asse is in training mode
-                        elif not len(other_asse.filter(
+                        elif not other_asse.filter(
                                 start_time__lt=timezone.now(),
                                 end_time__lt=timezone.now(),
-                                training_time__lte=timezone.now()).all()) > 0:
+                                training_time__lte=timezone.now()).exists():
                             do_access = False
                             do_see = False
                             err_msg = "no past assessment"
@@ -144,7 +138,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                         err_msg = "bad group or something"
 
                     # Test part
-                    #print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
+                    # print(f"[asse:{asse_item.id}][user:{curr_user.id}][ex2tst:{ex2tst_item.id}] : {err_msg}")
                     # test on exercise_details
                     info = f"asse:{asse_item.id}/user:{curr_user.id}/ex2tst:{ex2tst_item.id}"
                     with self.subTest(f"Ex.Details {info}"):
@@ -152,7 +146,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                         response = self.client.get(reverse('exercise_details'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
                         if do_see:
-                            self.assertEqual(response.status_code, 200)
+                            self.assertEquals(response.status_code, 200)
                         else:
                             self.assertIn("controller_error_message", response.context.keys())
                     # test on exercise_write
@@ -161,16 +155,15 @@ class ExerciseInspectorTest(TransactionTestCase):
                         response = self.client.get(reverse('exercise_write'),
                                                    {"extest": ex2tst_item.id, "asse": asse_item.id})
                         if do_access:
-                            self.assertEqual(response.status_code, 200)
+                            self.assertEquals(response.status_code, 200)
                         else:
                             self.assertIn("controller_error_message", response.context.keys())
-                    # test on exercise_inspect
                     for lang in Language.objects.all():
+                        lang_access = True
+                        if not ex2tst_item.exotest2lang_set.filter(lang__name=lang.name).exists():
+                            lang_access = False
+                        # test on exercise_inspect
                         with self.subTest(f"Ex.Inspect {info}/lang{lang.id}:{lang.name}"):
-                            lang_access = True
-                            if len(ex2tst_item.exotest2lang_set.filter(lang__name=lang.name).all()) == 0:
-                                lang_access = False
-
                             request = self.factory.post(reverse('exercise_inspect'),
                                                         {
                                                             "ex2tst_id": ex2tst_item.id,
@@ -182,15 +175,29 @@ class ExerciseInspectorTest(TransactionTestCase):
                             dict_json = json.loads(response.content)
                             if do_access and lang_access:
                                 if lang.name in self.lang:
-                                    self.assertEqual(dict_json["err_msg"], "")
+                                    self.assertEquals(dict_json["err_msg"], "")
                                 else:
                                     self.assertEquals(dict_json["exit_code"], ERROR_CODE_UNSUPPORTED)
                             else:
+                                self.assertNotEquals(dict_json["err_msg"], "")
+
+                        # test on exercise_stats_get
+                        with self.subTest(f"Ex.Stat_get {info}/lang{lang.id}:{lang.name}"):
+                            request = self.factory.post(reverse('exercise_stats_get'),
+                                                        {
+                                                            "ex2tst_id": ex2tst_item.id,
+                                                            "asse_id": asse_item.id,
+                                                            "lang_id": lang.id})
+                            request.user = curr_user
+                            response = ctrl_json_exercise_get_stat(request)
+                            dict_json = json.loads(response.content)
+                            if do_see and lang_access:
+                                self.assertEquals(dict_json["err_msg"], "")
+                            else:
                                 self.assertNotEqual(dict_json["err_msg"], "")
 
-    # TODO only works for C script
     def test_OK(self):
-        (user, extst, asse) = self.get_param_lang()
+        (user, extst, asse) = get_param_lang()
         for lang in Language.objects.all():
             info = f"[lang{lang.id}:{lang.name}]"
 
@@ -218,7 +225,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                     self.assertTrue(True)
 
     def test_NOK(self):
-        (user, extst, asse) = self.get_param_lang()
+        (user, extst, asse) = get_param_lang()
         for lang in Language.objects.all():
             info = f"[lang{lang.id}:{lang.name}]"
 
@@ -246,7 +253,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                     self.assertTrue(True)
 
     def test_empty_code(self):
-        (user, extst, asse) = self.get_param_lang()
+        (user, extst, asse) = get_param_lang()
         raw_code = ""
         for lang in Language.objects.all():
             info = f"[lang{lang.id}:{lang.name}]"
@@ -278,7 +285,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                     self.assertTrue(True)
 
     def test_syntax_error(self):
-        (user, extst, asse) = self.get_param_lang()
+        (user, extst, asse) = get_param_lang()
         for lang in Language.objects.all():
             info = f"[lang{lang.id}:{lang.name}]"
 
@@ -313,7 +320,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                     self.assertTrue(True)
 
     def test_infinite_loop(self):
-        (user, extst, asse) = self.get_param_lang()
+        (user, extst, asse) = get_param_lang()
         for lang in Language.objects.all():
             info = f"[lang{lang.id}:{lang.name}]"
 
@@ -340,7 +347,7 @@ class ExerciseInspectorTest(TransactionTestCase):
                     self.assertTrue(True)
 
     def test_code_too_long(self):
-        (user, extst, asse) = self.get_param_lang()
+        (user, extst, asse) = get_param_lang()
         for lang in Language.objects.all():
             info = f"[lang{lang.id}:{lang.name}]"
 
