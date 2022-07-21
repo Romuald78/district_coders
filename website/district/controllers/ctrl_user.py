@@ -95,7 +95,7 @@ def ctrl_json_user_register(request):
         if not groups.exists():
             return JsonResponse({"exit_code": ERROR_CODE_NOT_FOUND, "err_msg": error_message_cnf.GROUP_REGISTER_INVALID_KEY})
 
-        if len(GroupDC.objects.filter(id=groups.first().id, userdc=user_id).all()) != 0:
+        if GroupDC.objects.filter(id=groups.first().id, userdc=user_id).exists():
             return JsonResponse({"exit_code": ERROR_CODE_CONFLICT, "err_msg": error_message_cnf.GROUP_REGISTER_ALREADY_IN})
 
         # link the group to the user
@@ -289,7 +289,7 @@ def ctrl_email_change_auth(request):
         except ValidationError:
             is_email_validate = False
 
-        if len(UserDC.objects.filter(email=new_email).all()) > 0:
+        if UserDC.objects.filter(email=new_email).exists():
             is_email_validate = False
     else :
         id_password_correct = False

@@ -13,7 +13,6 @@ from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.models.assessment import Assessment
 from district.models.exotest2lang import ExoTest2Lang
 from config.constants import default_value_cnf, error_message_cnf
-from district.models.testresult import TestResult
 from toolbox.exercise_generation.exercise_inspector import ExerciseInspector
 from toolbox.utils.ansi_to_html import ansi_to_html
 from toolbox.utils.assessment import is_date_current
@@ -141,7 +140,7 @@ def ctrl_json_exercise_inspect(request):
 
         # Retrieve the exotest2lang
         queryset_exotest2lang = ExoTest2Lang.objects.filter(exo2test_id=ex2tst_id, lang_id=lang_id)
-        if len(queryset_exotest2lang.all()) == 0:
+        if not queryset_exotest2lang.exists():
             dico_json_response["exit_code"] = ERROR_CODE_NOT_FOUND
             dico_json_response["err_msg"]   = error_message_cnf.EXOTEST2LANG_NOT_FOUND
             return JsonResponse(dico_json_response)
@@ -226,8 +225,12 @@ def ctrl_json_exercise_get_stat(request):
         asse_id = int(request.POST.get("asse_id", 0))
         lang_id = int(request.POST.get('lang_id', 0))
 
-        if asse_id == 0 or ex2tst_id == 0:
+        if asse_id == 0 or ex2tst_id == 0 or lang_id == 0:
             return JsonResponse({"exit_code": ERROR_CODE_PARAMS, "err_msg": error_message_cnf.ASSESSMENT_NOT_FOUNT})
+
+        # response = get_exercise_details(curr_user, ex2tst_id, asse_id)
+        # if response["exit_code"] != ERROR_CODE_OK:
+        #     return JsonResponse({"exit_code": response["exit_code"], "err_msg": response["err_msg"]})
 
         result = get_exercise_stat(curr_user, ex2tst_id, asse_id, lang_id)
 
