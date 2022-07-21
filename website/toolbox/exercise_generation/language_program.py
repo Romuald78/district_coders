@@ -101,14 +101,12 @@ class JSProgram(UserProgram):
         self.exec_cmd = [JS_EXEC, self.filepath]
         # store the raw code into the user file
 
-        dependence = f"var readline = require('readline');\n"
-
         file = open(os.path.join(MEDIA_ROOT, "exercises", "libDC", "header.js.inc"))
         header = file.read()
         file = open(os.path.join(MEDIA_ROOT, "exercises", "libDC", "footer.js.inc"))
         footer = file.read()
         file.close()
-        UserProgram.create_user_file(self.filepath, dependence + header + self.raw_code + footer)
+        UserProgram.create_user_file(self.filepath, header + self.raw_code + footer)
 
     # TODO Remove this useless method ????
     def get_filepath(self):

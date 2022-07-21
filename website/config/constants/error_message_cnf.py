@@ -1,4 +1,4 @@
-# ERROR_CONST = ["the stat", "the error details"]
+# ERROR_CONST = ["the status", "the error details"]
 ## ERROR MESSAGE (for exit_code)
 
 # User permission (groups)
