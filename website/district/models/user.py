@@ -9,7 +9,9 @@ from toolbox.utils.utils import get_icon_tag, recreate_dir
 from district.models.group import GroupDC
 from website.settings import MEDIA_ROOT
 
+
 def user_icon_upload_to(instance, filename):
+    print("filename", filename)
     usrnam = instance.username
     basedir = os.path.join('icons', 'users', usrnam)
     recreate_dir(os.path.join(MEDIA_ROOT, basedir), clear=False)
