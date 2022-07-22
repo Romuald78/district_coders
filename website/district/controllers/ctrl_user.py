@@ -1,3 +1,5 @@
+import os.path
+import shutil
 import traceback
 
 from django.contrib.auth import login
@@ -10,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail, BadHeaderError
 from django.core.validators import validate_email
 from django.db.models import Q
+from django.db.models.fields.files import ImageFieldFile, FieldFile, ImageField
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template import loader
@@ -22,7 +25,7 @@ from config.constants.error_message_cnf import ERROR_CODE_CONFLICT, ERROR_CODE_N
     ERROR_CODE_OK, ERROR_CODE_ACCESS
 from config.secure import email_cnf
 from district.controllers.ctrl_main import ctrl_error
-from district.models.user import UserDC
+from district.models.user import UserDC, user_icon_upload_to
 from config.constants import error_message_cnf
 from toolbox.users.signup import SignupForm
 from district.models.group import GroupDC
@@ -30,7 +33,7 @@ from toolbox.users.tokens import account_activation_token
 from toolbox.users.update import UserUpdateForm
 from toolbox.utils.user import send_confirm_email
 from website import settings
-from website.settings import LOGIN_URL, DEFAULT_GROUP_KEY
+from website.settings import LOGIN_URL, DEFAULT_GROUP_KEY, MEDIA_ROOT
 
 
 @login_required(login_url=LOGIN_URL)
@@ -44,6 +47,11 @@ def ctrl_user_profile(request):
 
     return HttpResponse(template.render(context, request))
 
+def upload_default_icon(user):
+    static_icon_path = os.path.join(MEDIA_ROOT, "..", "district", "static", "images", "logos", "logo_district_128.png")
+    usr_icon_path = user_icon_upload_to(user, '')
+    shutil.copy(static_icon_path, os.path.join(MEDIA_ROOT, usr_icon_path))
+    user.icon = ImageFieldFile(user, user.icon, usr_icon_path)
 
 # No login required to sign up (indeed)
 def ctrl_user_signup(request):
@@ -58,9 +66,10 @@ def ctrl_user_signup(request):
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
             user.email = form.cleaned_data.get('email')
-            user.icon = form.cleaned_data.get('icon')
-            user.description = form.cleaned_data.get('description')
-            user.groups.add(groups.first())
+            if form.cleaned_data.get('icon'):
+                user.icon = form.cleaned_data.get('icon')
+            else:
+                upload_default_icon(user)
             # Check email is not empty
             if user.email is not None and user.email != '':
                 # confirmation email
@@ -147,7 +156,11 @@ def ctrl_user_update(request):
             user.refresh_from_db()
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
-            user.icon = form.cleaned_data.get('icon')
+            if form.cleaned_data.get('icon'):
+                user.icon = form.cleaned_data.get('icon')
+            else:
+                upload_default_icon(user)
+                # user.icon = ImageFieldFile(user, field=ImageField(blank=True, upload_to=user_icon_upload_to, default=user_icon_default), name=os.path.join("..", "static", "images", "logos", "logo_district_128.png"))
             user.description = form.cleaned_data.get('description')
             user = form.save()
             user.refresh_from_db()
