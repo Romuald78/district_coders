@@ -6,7 +6,7 @@ from toolbox.utils.route_mgr import PageManager
 
 class UserConnectTest(TransactionTestCase):
 
-    def __test_signup(self, nam, pwd, pwd2, email):
+    def __test_signup(self, nam, pwd, pwd2, email, err_msgs=[]):
         data = {
             'username' : nam,
             'password' : pwd,
@@ -14,10 +14,11 @@ class UserConnectTest(TransactionTestCase):
             'email'    : email,
         }
         response = self.client.post(self.signup_url, data)
-        return response
-
-    def __check_error(self, response, err_msgs=[]):
         self.assertEquals(response.status_code, 200)
+        # TODO : retrieve field information
+        # to check the related error
+        #print(response.context['form'].fields['username'])
+        .........
         for msg in err_msgs:
             self.assertTrue(msg in response.content.decode())
 
@@ -61,49 +62,35 @@ class UserConnectTest(TransactionTestCase):
     # ----------------------------------------------------
 
     def __empty_form(self):
-        response = self.__test_signup('', '', '', '')
-        self.__check_error(response, ['This field is required.'])
+        self.__test_signup('', '', '', '')
 
     def __one_field(self):
         # username
-        response = self.__test_signup(self.name, '', '', '')
-        self.__check_error(response, ['This field is required.'])
+        self.__test_signup(self.name, '', '', '')
         # pass1
-        response = self.__test_signup('', self.pass_strong, '', '')
-        self.__check_error(response, ['This field is required.'])
+        self.__test_signup('', self.pass_strong, '', '')
         # pass2
-        response = self.__test_signup('', '', self.pass_strong, '')
-        self.__check_error(response, ['This field is required.'])
+        self.__test_signup('', '', self.pass_strong, '')
         # email
-        response = self.__test_signup('', '', '', self.email)
-        self.__check_error(response, ['This field is required.'])
+        self.__test_signup('', '', '', self.email)
 
     def __empty_name(self):
-        response = self.__test_signup('', self.pass_strong, self.pass_strong, self.email)
-        self.__check_error(response)
-        a = response.context['form']
-        print(a.form)
+        self.__test_signup('', self.pass_strong, self.pass_strong, self.email)
 
     def __empty_pass(self):
-        response = self.__test_signup('', '', '', '')
-        self.__check_error(response)
+        self.__test_signup('', '', '', '')
 
     def __empty_email(self):
-        response = self.__test_signup('', '', '', '')
-        self.__check_error(response)
+        self.__test_signup('', '', '', '')
 
     def __different_pass(self):
-        response = self.__test_signup('', '', '', '')
-        self.__check_error(response)
+        self.__test_signup('', '', '', '')
 
     def __weak_pass(self):
-        response = self.__test_signup('', '', '', '')
-        self.__check_error(response)
+        self.__test_signup('', '', '', '')
 
     def existing_user(self):
-        response = self.__test_signup('', '', '', '')
-        self.__check_error(response)
+        self.__test_signup('', '', '', '')
 
     def existing_email(self):
-        response = self.__test_signup('', '', '', '')
-        self.__check_error(response)
+        self.__test_signup('', '', '', '')
