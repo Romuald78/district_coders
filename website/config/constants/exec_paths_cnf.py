@@ -1,10 +1,7 @@
-GCC_EXEC = "gcc"
-PYTHON_EXEC = "python"
-PHP_EXEC = "php"
-JS_EXEC = "node"
+# List of executables for each language interpreters
 
-# constants VINCENT
-#
-
-# constants ROMUALD
+GCC_EXEC    = "gcc"
 PYTHON_EXEC = "python3"
+PHP_EXEC    = "php"
+JS_EXEC     = "node"
+
