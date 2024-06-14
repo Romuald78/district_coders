@@ -19,6 +19,7 @@ from config.secure.admin_cnf import ADMIN_EMAIL
 from website.settings import DEBUG, DEFAULT_GROUP_KEY
 
 def createAdmin():
+    print("admin user creation ...")
     # create admin user
     admin = UserDC()
     admin.username = "admin"
@@ -284,6 +285,7 @@ def debug_migration():
     # In production, it is useless to do it
     if not DEBUG:
         return
+
     # Create 15 exercises
     exos = createExercises()
     # Create 5 tests

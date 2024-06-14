@@ -14,6 +14,7 @@ migrate_inspect_mode = [{
     ]
 
 def mode_migration():
+    print("coding inspector creation ...")
     # create default inspector modes
     for mode in migrate_inspect_mode:
         # prepare table field values

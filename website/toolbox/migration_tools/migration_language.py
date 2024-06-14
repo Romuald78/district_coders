@@ -25,7 +25,7 @@ default C# code
 
 #----------------------------------------------
 defaultJS = """
-console.log("answer);
+console.log("answer");
 """
 
 #----------------------------------------------
@@ -47,44 +47,34 @@ default Java code
 
 
 #----------------------------------------------
-migrate_langs = [{
-            "name" :"C",
-            "value":"c",
-            "code" :defaultC
-         },
-         {
-            "name" :"C++",
-            "value":"cpp",
-            "code" :defaultCPP
-         },
-         {
-            "name" :"C#",
-            "value":"csharp",
-            "code" :defaultCSharp
-         },
-         {
-            "name" :"JS",
-            "value":"js",
-            "code" :defaultJS
-         },
-         {
-            "name" :"Java",
-            "value":"java",
-            "code" :defaultJava
-         },
-         {
-            "name" :"PHP",
-            "value":"php",
-            "code" :defaultPHP
-         },
-         {
-            "name" :"Python",
-            "value":"python",
-            "code" :defaultPython
-         }
-    ]
+migrate_langs = [
+    {"name":"C",                    "value":"c",        "code":defaultC     },
+    {"name":"C++",                  "value":"cpp",      "code":defaultCPP   },
+    {"name":"C#",                   "value":"csharp",   "code":defaultCSharp},
+    {"name":"JS",                   "value":"js",       "code":defaultJS    },
+    {"name":"Java",                 "value":"java",     "code":defaultJava  },
+    {"name":"PHP",                  "value":"php",      "code":defaultPHP   },
+    {"name":"Python",               "value":"python",   "code":defaultPython},
+    {"name":"Visual Basic .NET",    "value":"vbnet",    "code":""           },
+    {"name":"R",                    "value":"r",        "code":""           },
+    {"name":"Go",                   "value":"go",       "code":""           },
+    {"name":"Visual Basic",         "value":"vb",       "code":""           },
+    {"name":"Swift",                "value":"swift",    "code":""           },
+    {"name":"Ruby",                 "value":"ruby",     "code":""           },
+    {"name":"Perl",                 "value":"perl",     "code":""           },
+    {"name":"Objective-C",          "value":"objc",     "code":""           },
+    {"name":"Rust",                 "value":"rust",     "code":""           },
+    {"name":"Kotlin",               "value":"kotlin",   "code":""           },
+    {"name":"Dart",                 "value":"dart",     "code":""           },
+    {"name":"Scala",                "value":"scala",    "code":""           },
+    {"name":"Prolog",               "value":"prolog",   "code":""           },
+    {"name":"Bash",                 "value":"bash",     "code":""           },
+    {"name":"Haskell",              "value":"haskell",  "code":""           },
+    {"name":"Lua",                  "value":"lua",      "code":""           }
+]
 
 def language_migration():
+    print("coding language creation ...")
     # Create default languages
     for lang in migrate_langs:
         # prepare table field values
