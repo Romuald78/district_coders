@@ -1,3 +1,24 @@
+> Launch SQL server
+> create a database called 'district_db'
+> create all tables from the Django admin command   : 'python3 manage.py migrate'
+> create a super user from the Django admin command : 'python3 manage.py createsuperuser'
+> populate the database with the default information 
+    - default coder group ('Everyone')
+    - default inspector modes ('stdin', 'include')
+    - default coding languages ('C', 'C++', 'C#', 'JS', 'Java', 'PHP', 'Python', ...)
+    
+If the server is running, the rest of operations can be done using the following command : 
+python3 manage.py dc_reinit
+
+
+
+
+
+
+
+
+#------------- DJANGO beginner helper -------------#
+
 # Create all django tables into the database
 python3 manage.py migrate
 

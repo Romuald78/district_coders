@@ -18,8 +18,8 @@ class Command(BaseCommand):
                 db_name = row[1]
         # Remove database if it exists
         if db_name is not None:
-            print("db drop")
+            print("database drop ...")
             migrations.RunSQL(f"DROP DATABASE `{db_name}`")
         # Recreate database
-        print("db create")
+        print("database creation ...")
         migrations.RunSQL(f"CREATE DATABASE IF NOT EXISTS `{db_name}`")

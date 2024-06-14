@@ -14,6 +14,7 @@ migrate_group = [{
     ]
 
 def group_migration():
+    print("default group creation ...")
     # create default groups
     for mode in migrate_group:
         # prepare table field values
