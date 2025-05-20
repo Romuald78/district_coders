@@ -83,14 +83,15 @@ WSGI_APPLICATION = 'website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS':{
-            'read_default_file': 'config/secure/mysql_db.cnf'
-        },
-        'TEST': {
-            'NAME': 'dc_test_db',
-        },
+        'NAME': 'district_coder',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': '127.0.0.1',
+        'PORT': '8889',
     }
 }
+
+
 
 AUTH_USER_MODEL = "district.UserDC"
 
