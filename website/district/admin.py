@@ -53,20 +53,26 @@ class MyAssessmentAdminForm(ModelForm):
 
 class AssessmentAdmin(admin.ModelAdmin):
     readonly_fields = ('id',)
-    list_display = ["id", "start_time", "training_time"]
+    list_display = ["id", "start_time", "end_time", "training_time", "result_json"]
     form = MyAssessmentAdminForm
 class ExerciseAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
+    list_display = ["id", "title", "description", "gen_file", "icon"]
 class LanguageAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
+    list_display = ["id", "name", "icon", "default_code", "language_program"]
 class TestDCAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
+    list_display = ["id", "title", "description", "icon"]
 class InspectorModeAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
+    list_display = ["id","name","icon"]
 class GroupDCAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
+    list_display = ["id","name","icon","register_key","description"]
 class UserDCAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
+    list_display = ["id", "password", "last_login", "is_superuser", "username", "first_name", "last_name", "email", "is_staff", "is_active", "date_joined", "icon", "description", "is_email_validated"]
 
 
 admin.site.register(Language, LanguageAdmin)
