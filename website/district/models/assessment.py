@@ -13,6 +13,5 @@ class Assessment(models.Model):
     groups = models.ManyToManyField(GroupDC)
     test = models.ForeignKey(TestDC, on_delete=models.CASCADE)
 
-    def __str__(self):
-        out = f"[{self.id}] Assessment test_id:{self.test}/start:{self.start_time}/end:{self.end_time}/train:{self.training_time}"
-        return out
+
+
