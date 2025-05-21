@@ -53,6 +53,7 @@ class MyAssessmentAdminForm(ModelForm):
 
 class AssessmentAdmin(admin.ModelAdmin):
     readonly_fields = ('id',)
+    list_display = ["id", "start_time", "training_time"]
     form = MyAssessmentAdminForm
 class ExerciseAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
@@ -66,6 +67,7 @@ class GroupDCAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
 class UserDCAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
+
 
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Exercise, ExerciseAdmin)
