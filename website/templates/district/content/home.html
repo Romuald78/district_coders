@@ -1,15 +1,60 @@
 {% extends "district/common/base.html" %}
+{% load static %}
 
 {% block page_header %}
     {% with page_title="Welcome" %}
         {{ block.super }}
     {% endwith %}
-{%  endblock %}
-
-<!-- ----------------------------------- --->
-{% block page_content %}
-<!-- ----------------------------------- --->
-    HOME
-<!-- ----------------------------------- --->
 {% endblock %}
-<!-- ----------------------------------- --->
+
+{% block page_content %}
+<section class="text-center mb-20">
+    <h1 class="text-5xl text-cyan-300 tracking-wide mb-4" style="font-family: 'Orbitron', sans-serif;">
+      District Coders
+    </h1>
+    <p class="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+        AAAAAAAA
+    </p>
+    <a href="/accounts/signup" class="inline-block mt-8 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl shadow-lg transition duration-200">
+        Enter the system
+    </a>
+</section>
+
+<section class="grid lg:grid-cols-4 md:grid-cols-2 gap-8 mb-24 max-w-7xl mx-auto px-4">
+
+  <div class="bg-[#0f1117] border border-cyan-800 rounded-2xl p-8 flex items-center justify-center hover:shadow-cyan-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/interactive.svg' %}" alt="Exploration interactive" class="h-16 w-16 filter brightness-75">
+  </div>
+
+  <div class="bg-[#0f1117] border border-violet-700 rounded-2xl p-8 flex items-center justify-center hover:shadow-violet-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/editor.svg' %}" alt="Éditeur de code intégré" class="h-16 w-16 filter brightness-75">
+  </div>
+
+  <div class="bg-[#0f1117] border border-teal-700 rounded-2xl p-8 flex items-center justify-center hover:shadow-teal-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/ai-skills.svg' %}" alt="Bilan de compétences" class="h-16 w-16 filter brightness-75">
+  </div>
+
+  <div class="bg-[#0f1117] border border-indigo-700 rounded-2xl p-8 flex items-center justify-center hover:shadow-indigo-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/ranking.svg' %}" alt="Classements & Suivi" class="h-16 w-16 filter brightness-75">
+  </div>
+
+  <div class="bg-[#0f1117] border border-pink-700 rounded-2xl p-8 flex items-center justify-center hover:shadow-pink-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/mission.svg' %}" alt="Mode Mission" class="h-16 w-16 filter brightness-75">
+  </div>
+
+  <div class="bg-[#0f1117] border border-blue-700 rounded-2xl p-8 flex items-center justify-center hover:shadow-blue-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/customize.svg' %}" alt="Interface personnalisable" class="h-16 w-16 filter brightness-75">
+  </div>
+
+  <div class="bg-[#0f1117] border border-yellow-700 rounded-2xl p-8 flex items-center justify-center hover:shadow-yellow-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/community.svg' %}" alt="Communauté active" class="h-16 w-16 filter brightness-75">
+  </div>
+
+  <div class="bg-[#0f1117] border border-red-700 rounded-2xl p-8 flex items-center justify-center hover:shadow-red-500/30 hover:shadow-lg transition">
+    <img src="{% static 'images/features/support.svg' %}" alt="Support réactif" class="h-16 w-16 filter brightness-75">
+  </div>
+
+</section>
+
+
+{% endblock %}

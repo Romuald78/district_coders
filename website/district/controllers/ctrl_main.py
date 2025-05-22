@@ -40,6 +40,11 @@ def ctrl_home(request):
         # render home page
         return HttpResponse(template.render(context, request))
 
+def ctrl_about(request):
+    context = {}
+    template = loader.get_template('district/content/about.html')
+    return HttpResponse(template.render(context, request))
+
 
 def ctrl_error(request, err_msg):
     # dictionary for initial data with

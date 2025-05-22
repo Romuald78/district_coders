@@ -1,20 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-gray-950 text-white">
 
-{% block page_header %}
-    {% include "district/common/head.html" with title=page_title %}
-{% endblock %}
+<head>
+    {% block page_header %}
+        {% include "district/common/head.html" with title=page_title %}
+    {% endblock %}
+</head>
 
-<body>
+<body class="min-h-screen flex flex-col font-mono tracking-wide" style="font-family: 'Inter', sans-serif;">
 
-    {%  include "district/common/header.html" %}
-    <div class="page">
-        <div class="page_container">
-            {%  block page_content %}
-            {% endblock %}
+    {% include "district/common/header.html" %}
+
+    <main class="flex-grow">
+        <div class="relative overflow-hidden min-h-screen">
+            <!-- BLURRED CIRCLES IN THE BACKGROUND -->
+            <div class="absolute top-30 -left-28 w-[300px] h-[300px] rounded-full bg-cyan-300/20 blur-3xl z-0"></div>
+            <div class="absolute bottom-0 -right-32 w-[300px] h-[300px] rounded-full bg-cyan-300/20 blur-3xl z-0"></div>
+
+            <!-- MAIN CONTENT -->
+            <div class="max-w-7xl mx-auto px-4 py-8 relative z-10">
+                 {% block page_content %}
+                 {% endblock %}
+            </div>
         </div>
-        {%  include "district/common/footer.html" %}
-    </div>
-</body>
+    </main>
 
+    {% include "district/common/footer.html" %}
+
+</body>
 </html>
