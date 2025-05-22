@@ -6,7 +6,7 @@ from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
     ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email, ctrl_email_verification, \
     ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done, ctrl_email_change_auth
-from district.controllers.ctrl_main import ctrl_home
+from district.controllers.ctrl_main import ctrl_home, ctrl_about
 from district.controllers.ctrl_assessment import ctrl_asse_details
 
 
@@ -26,6 +26,7 @@ class Page():
 
 PAGES = [
     Page('home', '', ctrl_home, log_req=False),
+    Page('about', 'about/', ctrl_about, log_req=False),
 
     Page('signup', 'accounts/signup/', ctrl_user_signup, log_req=False),
     Page('activate', 'accounts/activate/<slug:uidb64>/<slug:token>/', ctrl_user_validate_email, log_req=False, parameters=True),
