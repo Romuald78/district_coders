@@ -2,13 +2,50 @@
 {% load static %}
 
 {% block page_header %}
-    {% with page_title="About us" %}
-        {{ block.super }}
-    {% endwith %}
+  {% with page_title="About Us" %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock %}
 
 {% block page_content %}
+<div class="flex flex-col items-center justify-center px-4 py-6 text-white font-sans">
 
+  <h1
+    class="text-6xl font-extrabold mb-8 tracking-widest text-cyan-400 text-center drop-shadow-[0_0_10px_rgba(14,203,255,0.9)] drop-shadow-[0_0_25px_rgba(14,203,255,0.5)]"
+    style="font-family: 'Orbitron', sans-serif;">
+    À propos de nous
+  </h1>
 
+  <p
+    class="max-w-3xl text-center text-lg text-cyan-200 leading-relaxed mb-16 drop-shadow-[0_0_6px_rgba(14,203,255,0.6)] drop-shadow-[0_0_10px_rgba(14,203,255,0.3)]">
+    Une équipe de développeurs passionnés unis autour d'une mission : créer une plateforme numérique innovante où les étudiants peuvent s'entraîner, collaborer et progresser ensemble en programmation.
+  </p>
 
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl w-full">
+    <!-- Romuald -->
+    <div class="bg-gray-900 bg-opacity-70 rounded-xl p-8 flex flex-col items-center text-center border border-cyan-400 shadow-[0_0_15px_rgba(14,203,255,0.4)]">
+      <i class="fas fa-crown text-5xl mb-4 text-cyan-400 drop-shadow-[0_0_10px_rgba(14,203,255,0.6)]"></i>
+      <h2 class="text-xl font-semibold text-cyan-300 mb-1" style="font-family: 'Orbitron', sans-serif;">Romuald</h2>
+      <p class="italic text-cyan-400 mb-3">Fondateur</p>
+      <p class="text-gray-300">Architecte du projet et développeur fullstack expérimenté.</p>
+    </div>
+
+    <!-- Valentin -->
+    <div class="bg-gray-900 bg-opacity-70 rounded-xl p-8 flex flex-col items-center text-center border border-cyan-400 shadow-[0_0_15px_rgba(14,203,255,0.4)]">
+      <i class="fas fa-server text-5xl mb-4 text-cyan-400 drop-shadow-[0_0_10px_rgba(14,203,255,0.6)]"></i>
+      <h2 class="text-xl font-semibold text-cyan-300 mb-1" style="font-family: 'Orbitron', sans-serif;">Valentin</h2>
+      <p class="italic text-cyan-400 mb-3">Backend</p>
+      <p class="text-gray-300">Spécialiste du backend et des APIs robustes.</p>
+    </div>
+
+    <!-- Inès -->
+    <div class="bg-gray-900 bg-opacity-70 rounded-xl p-8 flex flex-col items-center text-center border border-cyan-400 shadow-[0_0_15px_rgba(14,203,255,0.4)]">
+      <i class="fas fa-laptop-code text-5xl mb-4 text-cyan-400 drop-shadow-[0_0_10px_rgba(14,203,255,0.6)]"></i>
+      <h2 class="text-xl font-semibold text-cyan-300 mb-1" style="font-family: 'Orbitron', sans-serif;">Inès</h2>
+      <p class="italic text-cyan-400 mb-3">Frontend & UX</p>
+      <p class="text-gray-300">Design, intégration et expérience utilisateur élégante.</p>
+    </div>
+  </div>
+
+</div>
 {% endblock %}
