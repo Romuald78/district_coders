@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
       square.className = "w-2 h-2 bg-cyan-300 opacity-50 absolute falling-square";
 
       square.style.left = Math.random() * 100 + "%";
-      square.style.top = "-" + Math.random() * 500 + "px";
+      square.style.top = "-" + 600 + "px";
       square.style.animationDelay = (Math.random() * 10) + "s";
       square.style.animationDuration = (5 + Math.random() * 15) + "s";
 
