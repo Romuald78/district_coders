@@ -4,13 +4,18 @@
     {% with page_title="Oops !" %}
         {{ block.super }}
     {% endwith %}
-{%  endblock %}
-
-<!-- ----------------------------------- --->
-{% block page_content %}
-<!-- ----------------------------------- --->
-    <h1>Oops, it seems there is something wrong ...</h1>
-    <p class="infobox error">{{ controller_error_message }}</p>
-<!-- ----------------------------------- --->
 {% endblock %}
-<!-- ----------------------------------- --->
+
+{% block page_content %}
+<div class="flex flex-col justify-center items-center py-28">
+  <div id="rain-container" class="absolute inset-0 -z-10 pointer-events-none"></div>
+
+    <h1 class="text-5xl font-bold text-red-500 drop-shadow-[0_0_15px_rgb(255,0,0)] mb-6">
+        Oops, it seems there is something wrong ...
+    </h1>
+    <p class="max-w-lg text-center text-red-400 bg-black/60 border border-red-600 rounded-lg px-6 py-4 transition duration-200 transform hover:scale-110
+              hover:shadow-[0_0_15px_rgb(255,50,50)] font-mono">
+        {{ controller_error_message }}
+    </p>
+</div>
+{% endblock %}
