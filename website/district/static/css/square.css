@@ -1,0 +1,16 @@
+@keyframes fall-squares {
+      0% {
+        transform: translateY(-5%);
+        opacity: 0.4;
+      }
+      100% {
+        transform: translateY(110vh);
+        opacity: 0;
+      }
+}
+
+.falling-square {
+  animation-name: fall-squares;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}

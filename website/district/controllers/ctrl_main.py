@@ -99,7 +99,7 @@ def ctrl_home(request):
         return HttpResponse(template.render(context, request))
 
 def ctrl_about(request):
-    context = {}
+    context = {'squares_range': range(50)}
     template = loader.get_template('district/content/about.html')
     return HttpResponse(template.render(context, request))
 

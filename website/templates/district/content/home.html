@@ -8,17 +8,16 @@
 {% endblock %}
 
 {% block page_content %}
-<section class="text-center mb-20">
-    <h1 class="text-5xl text-cyan-300 tracking-wide mb-4" style="font-family: 'Orbitron', sans-serif;">
-      District Coders
-    </h1>
-    <p class="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-        Practise by solving a variety of exercises, join collaborative workgroups and assess your programming skills in a regular, structured way.
-    </p>
-    <a href="/accounts/signup" class="inline-block mt-8 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl shadow-lg transition duration-200">
-        Enter the system
-    </a>
-</section>
+    <section class="text-center mb-20">
+        <h1 class="text-5xl text-cyan-300 tracking-wide mb-4" style="font-family: 'Orbitron', sans-serif;">
+          District Coders
+        </h1>
+        <p class="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+        Train by solving a variety of exercises, join collaborative workgroups and assess your programming skills in a regular, structured way.    </p>
+        <a href="/accounts/signup" class="inline-block mt-8 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl shadow-lg transition duration-200">
+            Enter the system
+        </a>
+    </section>
 
     <section class="grid lg:grid-cols-4 md:grid-cols-2 gap-8 mb-24 max-w-7xl mx-auto px-4">
     {% for lang in languages %}
@@ -31,7 +30,6 @@
       </div>
     </a>
     {% endfor %}
-
-</section>
+    </section>
 
 {% endblock %}
