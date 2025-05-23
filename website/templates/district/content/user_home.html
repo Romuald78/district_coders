@@ -4,23 +4,47 @@
     {% with page_title="Home" %}
         {{ block.super }}
     {% endwith %}
-{%  endblock %}
-
-<!-- ----------------------------------- --->
-{% block page_content %}
-<!-- ----------------------------------- --->
-    <h1>FUTURE</h1>
-    {% with assessments=future msg_class="warning" %}
-        {% include "district/assessment.html" %}
-    {% endwith %}
-    <h1>IN PROGRESS</h1>
-    {% with assessments=inprogress msg_class="error" %}
-        {% include "district/assessment.html" %}
-    {% endwith %}
-    <h1>TRAINING</h1>
-    {% with assessments=training %}
-        {% include "district/assessment.html" %}
-    {% endwith %}
-<!-- ----------------------------------- --->
 {% endblock %}
-<!-- ----------------------------------- --->
+
+{% block page_content %}
+<div class="min-h-screen p-10 space-y-16 text-white">
+
+
+    <!-- FUTURE -->
+    <div>
+        <div class="inline-block bg-cyan-500/20 px-6 py-3 rounded-md shadow-[0_0_15px_cyan] hover:animate-pulse ease-in-out duration-150">
+            <h1 class="text-4xl font-bold text-cyan-300 drop-shadow-[0_0_10px_cyan] " style="font-family: 'Orbitron', sans-serif;">FUTURE</h1>
+        </div>
+        <div class="mt-4">
+            {% with assessments=future msg_class="warning" %}
+                {% include "district/assessment.html" %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <!-- IN PROGRESS -->
+    <div>
+        <div class="inline-block bg-pink-500/20 px-6 py-3 rounded-md shadow-[0_0_15px_pink] hover:animate-pulse ease-in-out duration-150">
+            <h1 class="text-4xl font-bold text-pink-400 drop-shadow-[0_0_10px_pink] " style="font-family: 'Orbitron', sans-serif;">IN PROGRESS</h1>
+        </div>
+        <div class="mt-4">
+            {% with assessments=inprogress msg_class="error" %}
+                {% include "district/assessment.html" %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <!-- TRAINING -->
+    <div>
+        <div class="inline-block bg-green-400/20 px-6 py-3 rounded-md shadow-[0_0_15px_lime] hover:animate-pulse ease-in-out duration-150">
+            <h1 class="text-4xl font-bold text-green-300 drop-shadow-[0_0_10px_lime]" style="font-family: 'Orbitron', sans-serif;">TRAINING</h1>
+        </div>
+        <div class="mt-4">
+            {% with assessments=training %}
+                {% include "district/assessment.html" %}
+            {% endwith %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
