@@ -9,14 +9,13 @@
 {% block page_content %}
 <div class="min-h-screen p-10 space-y-16 text-white">
 
-
     <!-- FUTURE -->
     <div>
         <div class="inline-block bg-cyan-500/20 px-6 py-3 rounded-md shadow-[0_0_15px_cyan] hover:animate-pulse ease-in-out duration-150">
             <h1 class="text-4xl font-bold text-cyan-300 drop-shadow-[0_0_10px_cyan] " style="font-family: 'Orbitron', sans-serif;">FUTURE</h1>
         </div>
         <div class="mt-4">
-            {% with assessments=future msg_class="warning" %}
+            {% with assessments=future msg_class="warning" category="future" %}
                 {% include "district/assessment.html" %}
             {% endwith %}
         </div>
@@ -28,7 +27,7 @@
             <h1 class="text-4xl font-bold text-pink-400 drop-shadow-[0_0_10px_pink] " style="font-family: 'Orbitron', sans-serif;">IN PROGRESS</h1>
         </div>
         <div class="mt-4">
-            {% with assessments=inprogress msg_class="error" %}
+            {% with assessments=inprogress msg_class="error" category="inprogress" %}
                 {% include "district/assessment.html" %}
             {% endwith %}
         </div>
@@ -40,7 +39,7 @@
             <h1 class="text-4xl font-bold text-green-300 drop-shadow-[0_0_10px_lime]" style="font-family: 'Orbitron', sans-serif;">TRAINING</h1>
         </div>
         <div class="mt-4">
-            {% with assessments=training %}
+            {% with assessments=training category="training" %}
                 {% include "district/assessment.html" %}
             {% endwith %}
         </div>
