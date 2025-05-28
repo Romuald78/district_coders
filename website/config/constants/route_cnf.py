@@ -34,7 +34,7 @@ PAGES = [
     # Page('login', 'accounts/login/', include("django.contrib.auth.urls"), log_req=False),
 
     Page('profile', 'accounts/profile/', ctrl_user_profile),
-    Page('update', 'accounts/update/', ctrl_user_update),
+    Page('update', 'accounts/update/<int:user_id>/', ctrl_user_update),
     Page('group_register', 'accounts/group_register/', ctrl_json_user_register, type="json", parameters=True),
     Page('my_groups', 'accounts/my_groups/', ctrl_json_user_groups, type="json"),
     Page('password_reset_request', 'accounts/password_reset/', ctrl_password_reset_request, log_req=False),
