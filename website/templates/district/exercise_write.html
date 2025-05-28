@@ -14,7 +14,7 @@
         Let's code !
     </h2>
 
-    <div class="w-full mx-auto bg-gray-900/80 backdrop-blur-md p-6 rounded-xl border border-gray-700/70 shadow-lg mb-10 font-sans text-gray-300">
+    <div class="w-full mx-auto bg-gray-900 backdrop-blur-md p-6 rounded-xl border border-gray-700/70 shadow-lg mb-10 font-sans text-gray-300">
         <h3 class="text-xl font-semibold mb-6 border-b border-gray-600 pb-2 text-cyan-400 drop-shadow-[0_0_4px_rgb(22,211,255)]">
             Exercise Information
         </h3>
@@ -41,7 +41,7 @@
 
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 ">
         <!-- ÉDITOR -->
-        <section class="bg-[#1e1e2f] p-6 rounded-xl shadow-lg border border-[#2a2a40] flex flex-col">
+        <section class="bg-gray-900/80  p-6 rounded-xl shadow-lg border border-[#2a2a40] flex flex-col">
             <form id="user_form" method="post" class="flex flex-col flex-grow">
                 {% csrf_token %}
                 <fieldset id="field_set_form" class="space-y-6 flex flex-col flex-grow">
@@ -100,7 +100,7 @@
 
             <!-- Last solution -->
             <div
-                class="bg-[#1e1e2f] p-6 rounded-xl shadow-lg border border-[#3a3f55] flex-grow overflow-auto text-cyan-300 font-mono">
+                class="bg-gray-900/80  p-6 rounded-xl shadow-lg border border-[#3a3f55] flex-grow overflow-auto text-cyan-300 font-mono">
                 <h3 class="text-xl font-semibold mb-3 border-b border-cyan-500 pb-2">Your Last Solution</h3>
                 <ul
                     id="languages_solve_code"
