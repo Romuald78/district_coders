@@ -24,7 +24,7 @@
         <div class="flex items-center space-x-4">
             {% if user.is_authenticated %}
                 <span class="text-sm font-mono text-cyan-500 italic">   ✓ Connected as  <a href="/accounts/profile" class=" text-cyan-300 hover:text-cyan-100 "> {{ user.get_username }} </a> </span>
-                <button onclick="location.href='/accounts/logout';"
+                <button onclick="location.href='{% url 'logout' %}';"
                         class="bg-[#0f1117] text-sm border border-cyan-700 rounded-2xl px-4 py-1 transition duration-300 ease-in-out hover:shadow-[0_0_15px_4px_rgba(14,116,144,1)] hover:scale-105">
                     <i class="fas fa-right-from-bracket fa-sm"></i> LOG OUT
                 </button>
@@ -34,11 +34,11 @@
 
                 <!-- Modal displayed on hover -->
                 <div class="absolute right-0 mt-2 w-48 bg-[#0f1117] border border-gray-700 rounded-xl px-6 py-4 shadow-xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transition duration-300 ease-in-out z-50">
-                    <button onclick="location.href='/accounts/login';"
+                    <button onclick="location.href='{% url 'login' %}';"
                             class="w-full mb-4 bg-[#0f1117] border border-indigo-700 text-white rounded-2xl px-4 py-2 text-sm hover:shadow-[0_0_15px_4px_rgba(67,56,202,1)] hover:scale-105 transition duration-300">
                         <i class="fas fa-right-to-bracket fa-sm"></i> LOG IN
                     </button>
-                    <button onclick="location.href='/accounts/signup';"
+                    <button onclick="location.href='{% url 'signup' %}';"
                             class="w-full bg-[#0f1117] border border-teal-700 text-white rounded-2xl px-4 py-2 text-sm hover:shadow-[0_0_15px_4px_rgba(13,148,136,1)] hover:scale-105 transition duration-300">
                         <i class="fas fa-user-plus fa-sm"></i> SIGN UP
                     </button>
