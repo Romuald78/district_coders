@@ -13,7 +13,12 @@ import os
 from pathlib import Path
 
 from config.secure import email_cnf
-from config.secure.database_cnf import CONFIG_DB
+
+try:
+    from config.secure.database_cnf_local import CONFIG_DB
+except ModuleNotFoundError:
+    from config.secure.database_cnf import CONFIG_DB
+
 from config.secure.django_secret_key import django_secret_key
 from config.constants.medias_cnf import medias_absolute_path, medias_url_root
 
