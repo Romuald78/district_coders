@@ -1,4 +1,5 @@
 {% extends "district/common/base.html" %}
+{% load static %}
 
 {% block page_header %}
     {% with page_title="Digital Profile" %}
@@ -9,7 +10,6 @@
 {% block page_content %}
 <div class="relative font-mono text-indigo-400 flex flex-col items-center p-10 overflow-hidden">
 
-  <!-- Matrix rain effect container -->
   <div id="rain-container" class="absolute inset-0 -z-10 pointer-events-none"></div>
 
   <!-- Main title -->
@@ -22,7 +22,7 @@
   <section
   class="relative w-full max-w-6xl bg-zinc-900 border border-cyan-500 rounded-3xl p-10 shadow-[0_0_20px_cyan] flex flex-col md:flex-row gap-10 transition-transform duration-500 hover:scale-[1.04] hover:shadow-[0_0_25px_cyan]">
 
-     <!-- Bouton flottant en haut à gauche de la carte -->
+     <!-- Floating button at top left of map -->
   <a href="{% url 'update' user.id %}"
      class="absolute top-4 left-4 bg-black border border-indigo-400 text-indigo-400 px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold
             hover:bg-indigo-400 hover:text-black transition shadow-[0_0_15px_indigo] hover:shadow-[0_0_25px_indigo] z-20"
@@ -34,10 +34,16 @@
     <!-- Profile picture -->
     <div class="flex flex-col items-center justify-center shrink-0">
       <a href="{% url 'update' user.id %}" aria-label="Edit Profile Picture">
-        <img src="{{ MEDIA_URL }}{{ user.icon }}" alt="Profile Icon"
-          class="w-44 h-44"/>
+        {% if user.icon %}
+          <img src="{{ MEDIA_URL }}{{ user.icon }}" alt="Profile Icon"
+            class="w-44 h-44 rounded-full object-cover object-center"/>
+        {% else %}
+          <img src="{% static 'images/logos/python.png' %}" alt="Default Profile Icon"
+            class="w-44 h-44 rounded-full object-cover object-center"/>
+        {% endif %}
       </a>
     </div>
+
 
     <!-- User information -->
     <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 text-lg text-cyan-300">
