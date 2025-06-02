@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 from config.secure import email_cnf
+from config.secure.database_cnf import CONFIG_DB
 from config.secure.django_secret_key import django_secret_key
 from config.constants.medias_cnf import medias_absolute_path, medias_url_root
 
@@ -81,14 +82,7 @@ WSGI_APPLICATION = 'website.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'district_coder',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '8889',
-    }
+    'default': CONFIG_DB
 }
 
 
