@@ -13,6 +13,12 @@ import os
 from pathlib import Path
 
 from config.secure import email_cnf
+
+try:
+    from config.secure.database_cnf_local import CONFIG_DB
+except ModuleNotFoundError:
+    from config.secure.database_cnf import CONFIG_DB
+
 from config.secure.django_secret_key import django_secret_key
 from config.constants.medias_cnf import medias_absolute_path, medias_url_root
 
@@ -81,16 +87,10 @@ WSGI_APPLICATION = 'website.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS':{
-            'read_default_file': 'config/secure/mysql_db.cnf'
-        },
-        'TEST': {
-            'NAME': 'dc_test_db',
-        },
-    }
+    'default': CONFIG_DB
 }
+
+
 
 AUTH_USER_MODEL = "district.UserDC"
 
@@ -127,8 +127,9 @@ STATIC_URL  = '/static/'
 # MEDIA FILEs and URLs
 # MEDIA_ROOT (directory of media files)
 # MEDIA_URL (url root for media files)
-MEDIA_ROOT = medias_absolute_path
+MEDIA_ROOT = os.path.join(BASE_DIR,"medias")
 MEDIA_URL = medias_url_root
+#print(BASE_DIR)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

@@ -4,171 +4,111 @@
     {% with page_title="Let's code" %}
         {{ block.super }}
     {% endwith %}
-{%  endblock %}
+{% endblock %}
 
-<!-- ----------------------------------- --->
 {% block page_content %}
-<!-- ----------------------------------- --->
     {{ languages|json_script:"languages" }}
 
-    <script>
-        editor_content = {};
-        def_code = JSON.parse(document.getElementById("languages").textContent);
 
-        for (const [key, value] of Object.entries(def_code)) {
-            editor_content[key] = {"default_code": def_code[key]["default_code"], "last_code": ""};
-        }
+    <h2 class="text-5xl text-cyan-300 tracking-wide mb-4" style="font-family: 'Orbitron', sans-serif;">
+        Let's code !
+    </h2>
 
-        // save the last(former) lang_id
-        ex_lang_id = 0
-
-        function switch_language() {
-
-            display_result_stat();
-            check_test_result();
-
-            // get the language id from the dropdown menu
-            var lang_id = document.getElementById("lang_id").value;
-
-            // save the code before changing
-            if (ex_lang_id !== 0) {
-                editor_content[ex_lang_id]["last_code"] = document.getElementById("raw_code").value
-            }
-            ex_lang_id = lang_id
-
-            // do the changes
-            if (editor_content[lang_id]["last_code"].length === 0) {
-                document.getElementById("raw_code").value = editor_content[lang_id]["default_code"];
-            } else {
-                document.getElementById("raw_code").value = editor_content[lang_id]["last_code"];
-            }
-
-        }
-
-        function set_default_code() {
-            // popup to confirm the choice
-            if (!confirm("Are you sure ?")) {
-                return;
-            }
-
-            // get the language id from the dropdown menu
-            var lang_id = document.getElementById("lang_id").value;
-            // reset the last_code
-            editor_content[lang_id]["last_code"] = "";
-            document.getElementById("raw_code").value = editor_content[lang_id]["default_code"];
-        }
-
-        function set_solve_code(solve_code) {
-            // popup to confirm the choice
-            if (!confirm("Are you sure ?")) {
-                return;
-            }
-
-            // get the language id from the dropdown menu
-            var lang_id = document.getElementById("lang_id").value;
-            // reset the last_code
-            editor_content[lang_id]["last_code"] = solve_code;
-            document.getElementById("raw_code").value = solve_code;
-        }
-
-        function save_current_code() {
-            // get the language id from the dropdown menu
-            var lang_id = document.getElementById("lang_id").value;
-
-            editor_content[lang_id]["last_code"] = document.getElementById("raw_code").value;
-        }
-
-        function check_test_result() {
-            // get infos from the form
-            var formElement = document.getElementById("user_form");
-            const data = new URLSearchParams(new FormData(formElement));
-            // disable the form
-            disable_form(true);
-            // fetching
-            fetch('/exercise/stats_create/', {
-                method: 'post',
-                body: data,
-            })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(json) {
-                disable_form(false);
-            });
-        }
-
-        function disable_form(is_disable) {
-            if (is_disable) {
-                document.getElementById("field_set_form").setAttribute("disabled", "disabled");
-            } else {
-                document.getElementById("field_set_form").removeAttribute("disabled");
-            }
-        }
-
-    </script>
-
-    <h2>Let's code</h2>
-
-    <div class="wording">
-        <ul>
-            <li>id: {{ ex2tst.exercise.id }}</li>
-            <li>title: {{ ex2tst.exercise.title }}</li>
-            <li>desc: {{ ex2tst.exercise.description }}</li>
-            <li>gen_file: {{ ex2tst.exercise.gen_file }}</li>
-            <li>icon: {{ ex2tst.exercise.icon }}</li>
-            <li>mode: {{ ex2tst.exercise.insp_mode_id }}</li>
-            <li>
-                Languages :
-                <ul id="languages_stats"></ul>
-            </li>
-        </ul>
+    <div class="w-full mx-auto bg-gray-900 backdrop-blur-md p-6 rounded-xl border border-gray-700/70 shadow-lg mb-10 font-sans text-gray-300">
+        <h3 class="text-xl font-semibold mb-6 border-b border-gray-600 pb-2 text-cyan-400 drop-shadow-[0_0_4px_rgb(22,211,255)]">
+            Exercise Information
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 text-sm leading-relaxed">
+            <ul class="space-y-2">
+                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">ID :</strong> {{ ex2tst.exercise.id }}</li>
+                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Title :</strong> {{ ex2tst.exercise.title }}</li>
+                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Description :</strong> {{ ex2tst.exercise.description }}</li>
+            </ul>
+            <ul class="space-y-2">
+                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Gen File :</strong> {{ ex2tst.exercise.gen_file }}</li>
+                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Icon :</strong> {{ ex2tst.exercise.icon }}</li>
+                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Mode :</strong> {{ ex2tst.exercise.insp_mode_id }}</li>
+            </ul>
+            <ul class="space-y-2">
+                <li>
+                    <strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Languages :</strong>
+                    <ul id="languages_stats" class="list-disc list-inside ml-5 mt-1 text-cyan-400 text-sm drop-shadow-[0_0_2px_rgb(22,211,255)]"></ul>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <div class="ide">
-        <form id="user_form" method="post">
-            {% csrf_token %}
-            <fieldset id="field_set_form">
-                <select name="lang_id" id="lang_id" onchange="switch_language()">
-                    {% for key, value in languages.items %}
-                        <option value={{ key }}>{{ value.name }}</option>
-                    {% endfor %}
-                </select>
-                <textarea maxlength="{{ max_raw_code }}" class="code" id="raw_code" name="raw_code" rows="5" cols="33"></textarea>
 
-                <input id="ex2tst_id" name="ex2tst_id" type="hidden" value={{ ex2tst.id }}>
-                <input id="asse_id" name="asse_id" type="hidden" value={{ asse_id }}>
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 ">
+        <!-- ÉDITOR -->
+        <section class="bg-gray-900/80  p-6 rounded-xl shadow-lg border border-[#2a2a40] flex flex-col">
+            <form id="user_form" method="post" class="flex flex-col flex-grow">
+                {% csrf_token %}
+                <fieldset id="field_set_form" class="space-y-6 flex flex-col flex-grow">
+                    <div>
+                        <label for="lang_id" class="block text-sm font-medium text-cyan-400 mb-2">Language</label>
+                        <select
+                            name="lang_id"
+                            id="lang_id"
+                            onchange="switch_language()"
+                            class="block w-full bg-[#282c34] border border-[#3a3f55] rounded-md shadow-inner text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 p-2 font-mono">
+                            {% for key, value in languages.items %}
+                                <option value="{{ key }}">{{ value.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                <input type="button" onclick="save_current_code();send_user_code();" value="Submit">
-                <input type="button" onclick="set_default_code()" value="Reset editor">
-            </fieldset>
-        </form>
+                    <div class="flex-grow flex flex-col">
+                        <label for="raw_code" class="block text-sm font-medium text-cyan-400 mb-2">Code</label>
+                        <div
+                            id="monaco_container"
+                            class="flex-grow border border-[#3a3f55] rounded-md shadow-inner bg-[#282c34]"
+                            style="min-height:400px;"
+                        ></div>
+                        <textarea id="raw_code" name="raw_code" class="hidden"></textarea>
+                    </div>
+
+                    <input id="ex2tst_id" name="ex2tst_id" type="hidden" value="{{ ex2tst.id }}">
+                    <input id="asse_id" name="asse_id" type="hidden" value="{{ asse_id }}">
+
+                    <div class="mt-6 flex flex-wrap gap-4 justify-start">
+                        <button
+                            type="button"
+                            onclick="save_current_code();send_user_code();"
+                            class="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition font-semibold shadow-md font-mono">
+                            Submit
+                        </button>
+                        <button
+                            type="button"
+                            onclick="set_default_code()"
+                            class="px-6 py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition font-semibold shadow-sm font-mono">
+                            Reset Editor
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+
+        <!-- RESULT -->
+        <section class="flex flex-col space-y-8">
+            <!-- Console -->
+            <div
+                class="bg-[#12121f] text-[#00ff94] p-5 rounded-xl shadow-lg h-64 overflow-y-auto font-mono border border-[#00ff94]">
+                <h3 class="text-xl font-semibold mb-3 border-b border-[#00ff94] pb-2">Console</h3>
+                <div id="console_view" class="whitespace-pre-wrap"></div>
+            </div>
+
+            <!-- Last solution -->
+            <div
+                class="bg-gray-900/80  p-6 rounded-xl shadow-lg border border-[#3a3f55] flex-grow overflow-auto text-cyan-300 font-mono">
+                <h3 class="text-xl font-semibold mb-3 border-b border-cyan-500 pb-2">Your Last Solution</h3>
+                <ul
+                    id="languages_solve_code"
+                    class="list-disc list-inside max-h-60 overflow-y-auto"></ul>
+            </div>
+        </section>
     </div>
 
-    <pre>
-        <div class="code" id="console_view"></div>
-    </pre>
 
-    <h2>Your last solution</h2>
-    <div class="solution">
-        <ul id="languages_solve_code"></ul>
-    </div>
 
-    <link rel="stylesheet"
-      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/styles/default.min.css">
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
-    <script>
-        // load default code display
-        // get the language id from the dropdown menu
-        var lang_id = document.getElementById("lang_id").value;
-        if (editor_content[lang_id]["last_code"] === "") {
-            document.getElementById("raw_code").value = editor_content[lang_id]["default_code"];
-        } else {
-            document.getElementById("raw_code").value = editor_content[lang_id]["last_code"];
-        }
-
-        display_result_stat();
-        check_test_result();
-    </script>
-<!-- ----------------------------------- --->
 {% endblock %}
-<!-- ----------------------------------- --->

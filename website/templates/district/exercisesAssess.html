@@ -1,47 +1,67 @@
 {% extends "district/common/base.html" %}
 
 {% block page_header %}
-    {% with page_title="Assessment details" %}
+    {% with page_title="Assessment Details" %}
         {{ block.super }}
     {% endwith %}
-{%  endblock %}
-
-<!-- ----------------------------------- --->
-{% block page_content %}
-<!-- ----------------------------------- --->
-    <h3>Assessment : {{ assessment.start_time }}-{{ assessment.end_time }}</h3>
-    <ul>
-        {% for key, value in exo2tests.items %}
-            <li>
-                <ul>
-                    <li>ex id :{{ value.ex2tst_obj.exercise.id }}</li>
-                    <li>title :{{ value.ex2tst_obj.exercise.title }}</li>
-                    <li>description :{{ value.ex2tst_obj.exercise.description }}</li>
-                    <li>gen file :{{ value.ex2tst_obj.exercise.gen_file }}</li>
-                    <li>icon :{{ value.ex2tst_obj.exercise.icon }}</li>
-                    <li>gen type :{{ value.ex2tst_obj.exercise.insp_mode_id }}</li>
-                    <li>{{ value.result_train }}% succeed in training mode</li>
-                    <li>{{ value.result_test }}% succeed in test mode</li>
-                    <li>rank: {{ value.ex2tst_obj.rank }}</li>
-                    <li>score: {{ value.ex2tst_obj.score }}</li>
-                    <li>languages :
-                        {% for extstlng in value.ex_tst_lng %}
-                            <img class="code_logo" src="{{ MEDIA_URL }}{{ extstlng.lang.icon }}">
-                        {% endfor %}
-                    </li>
-                </ul>
-
-                {% if value.is_redirected %}
-                    This exercise is available in another assessment
-                {% endif %}
-                {% if not value.is_triable %}
-                    <span style="color: red">{{ value.not_triable_msg.0 }}</span>
-                {% endif %}
-                <button onclick="location.href='/exercise/details?extest={{ value.ex2tst_obj.id }}&asse={{ value.asse_id }}';">Check it out</button>
-
-            </li>
-        {% endfor %}
-    </ul>
-<!-- ----------------------------------- --->
 {% endblock %}
-<!-- ----------------------------------- --->
+
+{% block page_content %}
+<div class="p-6 space-y-6 text-violet-300 min-h-screen">
+
+    <div class="border border-violet-500 rounded-lg p-4 bg-zinc-900 shadow-md">
+        <h3 class="text-2xl uppercase tracking-wide font-bold text-yellow-300">Assessment</h3>
+        <p class="text-sm text-violet-200 mt-1">Start: {{ assessment.start_time }} | End: {{ assessment.end_time }}</p>
+    </div>
+
+    <!-- Exercise grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {% for key, value in exo2tests.items %}
+        <div class="border border-violet-400 rounded-xl p-4 bg-zinc-900 shadow hover:shadow-yellow-300/30 transition-all space-y-3">
+
+            <!-- Title -->
+            <h4 class="text-xl text-yellow-300 font-semibold">{{ value.ex2tst_obj.exercise.title }}</h4>
+
+            <!-- Description -->
+            <p class="text-sm text-violet-200 italic">{{ value.ex2tst_obj.exercise.description }}</p>
+
+            <!-- Technical info block -->
+            <div class="mt-2 bg-zinc-800/60 p-3 text-xs border-t border-b text-center text-stone-400 space-y-1  -mx-4">
+                <p><strong>Exercise ID:</strong> {{ value.ex2tst_obj.exercise.id }}</p>
+                <p><strong>Generated File:</strong> {{ value.ex2tst_obj.exercise.gen_file }}</p>
+                <p><strong>Icon:</strong> {{ value.ex2tst_obj.exercise.icon }} </p>
+                <p><strong>Generation Type:</strong> {{ value.ex2tst_obj.exercise.insp_mode_id }}</p>
+                <p><strong>Training Mode Success:</strong> {{ value.result_train }}%</p>
+                <p><strong>Test Mode Success:</strong> {{ value.result_test }}%</p>
+                <p><strong>Rank:</strong> {{ value.ex2tst_obj.rank }}</p>
+                <p><strong>Score:</strong> {{ value.ex2tst_obj.score }}</p>
+            </div>
+
+            <!-- Languages -->
+            <div class="mt-2">
+                <p class="text-sm font-semibold text-yellow-300 mb-1">Languages:</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for extstlng in value.ex_tst_lng %}
+                        <img class="w-10 h-10 border border-yellow-300 rounded bg-zinc-700 p-1" src="{{ MEDIA_URL }}{{ extstlng.lang.icon }}" alt="lang icon">
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Special messages or button -->
+            <div class="pt-3">
+              {% if value.is_redirected %}
+                <p class="text-yellow-400 mt-2">This exercise is available in another assessment</p>
+              {% elif not value.is_triable %}
+                <p class="w-full bg-orange-500 hover:bg-orange-400 text-black text-center font-bold py-2 px-4 rounded-full transition duration-200 shadow-md hover:scale-105">{{ value.not_triable_msg.0 }}</p>
+              {% else %}
+              <button onclick="location.href='{% url 'exercise_details' %}?extest={{ value.ex2tst_obj.id }}&asse={{ value.asse_id }}';"
+                  class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded-full transition duration-200 shadow-md hover:scale-105">
+                  Check it out
+                </button>
+              {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
