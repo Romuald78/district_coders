@@ -8,4 +8,5 @@ website/medias/user_codes/
 website/medias/icons/users/
 .venv/
 venv/
+website/config/secure/database_cnf.py
 
