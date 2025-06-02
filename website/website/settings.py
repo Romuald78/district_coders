@@ -25,6 +25,7 @@ from config.constants.medias_cnf import medias_absolute_path, medias_url_root
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -32,7 +33,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -126,6 +127,10 @@ USE_TZ = True
 # This is the sub-folder of the application where to
 # store static files
 STATIC_URL  = '/static/'
+
+# production static file path
+#STATIC_ROOT = BASE_DIR / "district"
+
 
 # MEDIA FILEs and URLs
 # MEDIA_ROOT (directory of media files)
