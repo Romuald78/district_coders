@@ -4,4 +4,5 @@ GCC_EXEC    = "gcc"
 PYTHON_EXEC = "python3"
 PHP_EXEC    = "php"
 JS_EXEC     = "node"
-
+JAVAC_EXEC  = "javac"
+JAVA_EXEC   = "java"
