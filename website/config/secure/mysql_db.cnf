@@ -1,6 +1,0 @@
-[client]
-host     = localhost
-database = district_db
-user     = root
-password = mySQLRomu78$
-default-character-set = utf8
