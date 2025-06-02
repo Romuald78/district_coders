@@ -1,71 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Wording</title>
-    {% load static %}
-    <link rel="icon" href={% static 'images/logos/logo_district_32.ico' %} />
-    <link rel="stylesheet" href={% static 'css/pico-master/css/pico.min.css' %} />
-    <link rel="stylesheet" href={% static 'css/district_coders.css' %} />
-</head>
-<body>
-    {%  include "district/common/header.html" %}
-    <div class="page">
-        <div class="wording">
-            <ul><li>
-                id: {{ ex2tst.exercise.id }}
-                <ul>
-                    <li>title: {{ ex2tst.exercise.title }}</li>
-                    <li>desc: {{ ex2tst.exercise.description }}</li>
-                    <li>gen_file: {{ ex2tst.exercise.gen_file }}</li>
-                    <li>icon: {{ ex2tst.exercise.icon }}</li>
-                    <li>mode: {{ ex2tst.exercise.insp_mode_id }}</li>
-                    <li>
-                    Languages :
-                    <ul>
-                        {% for key, value in languages.items %}
-                            <li>
-                                {{ value.name }}:
-                                <ul>
-                                    <li>{{ value.result_test }}% of success in test mode</li>
-                                    <li>{{ value.result_train }}% of success in train mode</li>
-                                </ul>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </li>
-                </ul>
-            </li></ul>
-        </div>
+{% extends "district/common/base.html" %}
 
-        {% if is_triable %}
-            <button onclick="location.href='/exercise/write?extest={{ ex2tst.id }}&asse={{ asse_id }}';">Try</button>
-        {% endif %}
-        {%  include "district/common/footer.html" %}
+{% block page_header %}
+    {% with page_title="Let's code" %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
 
-        <h2>Your last solution</h2>
-        <div class="solution">
-            <ul>
-                {% for item in testresults %}
-                    {% if item.testresult_obj.solve_percentage != 0 %}
-                    <li>
-                        {{ item.lang_obj.name }}
-                        <ul>
-                            <li>nb try: {{ item.testresult_obj.nb_test_try }}</li>
-                            <li>solve time: {{ item.testresult_obj.solve_time }}</li>
-                            <li>solve at: {{ item.testresult_obj.solve_percentage }}%</li>
-                            <li>solve code:
-                                <pre>
-                                    <div class="code" id="console_view">{{ item.testresult_obj.solve_code }}</div>
-                                </pre>
-                            </li>
+{% block page_content %}
+<div class="p-6 space-y-8">
+
+    <!-- Informations -->
+    <div class="bg-gray-900 border border-violet-500 p-6 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-violet-400 mb-4">Exercise Information</h2>
+        <ul class="text-violet-100 font-mono text-sm space-y-2">
+            <li><span class="font-semibold">ID:</span> {{ ex2tst.exercise.id }}</li>
+            <li><span class="font-semibold">Title:</span> {{ ex2tst.exercise.title }}</li>
+            <li><span class="font-semibold">Description:</span> {{ ex2tst.exercise.description }}</li>
+            <li><span class="font-semibold">Gen File:</span> {{ ex2tst.exercise.gen_file }}</li>
+            <li><span class="font-semibold">Icon:</span> {{ ex2tst.exercise.icon }}</li>
+            <li><span class="font-semibold">Mode:</span> {{ ex2tst.exercise.insp_mode_id }}</li>
+        </ul>
+
+        <!-- Languages -->
+        <div class="mt-6">
+            <h3 class="text-lg text-violet-300 font-semibold mb-2">Languages</h3>
+            <ul class="space-y-3">
+                {% for key, value in languages.items %}
+                    <li class="bg-violet-800/20 p-4 rounded-lg border border-violet-600">
+                        <p class="font-bold text-violet-200">{{ value.name }}</p>
+                        <ul class="text-sm text-violet-100 mt-1">
+                            <li>{{ value.result_test }}% success in test mode</li>
+                            <li>{{ value.result_train }}% success in train mode</li>
                         </ul>
                     </li>
-                    {% endif %}
                 {% endfor %}
             </ul>
         </div>
 
+        {% if is_triable %}
+            <div class="mt-6 flex justify-end">
+                <button onclick="location.href='/exercise/write?extest={{ ex2tst.id }}&asse={{ asse_id }}';"
+                        class="bg-indigo-500 hover:bg-indigo-400 text-black font-bold py-2 px-6 rounded-full transition duration-200 shadow-md hover:scale-105">
+                    Try the Exercise
+                </button>
+            </div>
+        {% endif %}
     </div>
-</body>
-</html>
+
+    <!-- Last solution -->
+    <div class="bg-gray-900 border border-yellow-500 p-6 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-yellow-300 mb-4">Your Last Solution</h2>
+        {% if testresults %}
+            <ul class="space-y-4 text-yellow-100 font-mono text-sm">
+                {% for item in testresults %}
+                    {% if item.testresult_obj.solve_percentage != 0 %}
+                        <li class="bg-yellow-800/10 border border-yellow-500 p-4 rounded-lg">
+                            <p class="font-semibold text-yellow-200">{{ item.lang_obj.name }}</p>
+                            <ul class="mt-1 space-y-1">
+                                <li><span class="font-semibold">Number of tries:</span> {{ item.testresult_obj.nb_test_try }}</li>
+                                <li><span class="font-semibold">Solve time:</span> {{ item.testresult_obj.solve_time }}</li>
+                                <li><span class="font-semibold">Solved at:</span> {{ item.testresult_obj.solve_percentage }}%</li>
+                                <li>
+                                    <span class="font-semibold">Solve code:</span>
+                                    <pre class="bg-black border border-yellow-400 text-green-200 p-3 rounded mt-2 overflow-auto max-h-60 text-xs font-mono whitespace-pre-wrap">
+                                        {{ item.testresult_obj.solve_code }}
+                                    </pre>
+                                </li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-yellow-400">No solutions submitted yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

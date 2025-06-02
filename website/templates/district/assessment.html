@@ -1,35 +1,58 @@
-<ul>
-    {% for i in assessments %}
-        <li>
-            <ul>
-                <li>id :{{ i.assessment.id }}
-                    {%  if i.overlaps|length > 0 %}
-                        <p class="infobox {{ msg_class }}">
-                        ❗ overlaps following assessments :
-                        {% for k in i.overlaps %}
-                            ID={{ k.id }}
-                        {%  endfor %}
-                        ❗
-                    </p>
-                    {% endif %}
-                </li>
-                <li>start time :{{ i.assessment.start_time }}</li>
-                <li>end time :{{ i.assessment.end_time }}</li>
-                <li>training time :{{ i.assessment.training_time }}</li>
-                <li>result json :{{ i.assessment.result_json }}</li>
-                <li>test :{{ i.assessment.test_id }}</li>
-                <li>
-                    groups :
-                    <ul>
-                    {% for k in i.assessment.groups.all %}
-                            <li>{{ k.name }}</li>
-                    {% endfor %}
-                    </ul>
-                </li>
-            </ul>
-        {% if i.is_available %}
-            <button onclick="location.href='/assessment/details/{{ i.assessment.id }}';">details</button>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
+  {% for i in assessments %}
+    <div class="bg-black border-2 rounded-xl shadow-lg hover:shadow-lg transition duration-300 relative
+      {% if category == 'future' %} border-sky-400 {% elif category == 'inprogress' %} border-pink-400 {% elif category == 'training' %} border-green-400 {% else %} border-gray-500 {% endif %}">
+
+      <!-- Title ID -->
+      <div class="text-sm font-mono uppercase tracking-widest rounded-t-xl px-4 py-2 flex justify-between items-center border-b
+        {% if category == 'future' %} bg-sky-800 text-sky-200 border-sky-400 {% elif category == 'inprogress' %} bg-pink-800 text-pink-200 border-pink-400 {% elif category == 'training' %} bg-green-800 text-lime-200 border-green-400 {% else %} bg-gray-800 text-gray-300 border-gray-500 {% endif %}">
+        <span>Exam ID: {{ i.assessment.id }}</span>
+      </div>
+
+      <!-- Content -->
+      <div class="p-4 font-mono text-sm space-y-2
+        {% if category == 'future' %} text-sky-200 {% elif category == 'inprogress' %} text-pink-200 {% elif category == 'training' %} text-lime-200 {% else %} text-gray-300 {% endif %}">
+        {% if i.overlaps|length > 0 %}
+          <div class="text-yellow-400 border border-orange-400 p-2 rounded">
+            Overlaps with:
+            {% for k in i.overlaps %}
+              <span class="ml-1 font-bold">#{{ k.id }}</span>
+            {% endfor %}
+          </div>
         {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+
+        <p><strong>Start:</strong> {{ i.assessment.start_time }}</p>
+        <p><strong>End:</strong> {{ i.assessment.end_time }}</p>
+        <p><strong>Training Time:</strong> {{ i.assessment.training_time }}</p>
+        <p><strong>Test:</strong> {{ i.assessment.test_id }}</p>
+
+        <div>
+          <strong>Groups:</strong>
+          <ul class="list-disc list-inside ml-2">
+            {% for k in i.assessment.groups.all %}
+              <li>{{ k.name }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <details class="text-xs mt-2
+          {% if category == 'future' %} text-sky-300 {% elif category == 'inprogress' %} text-pink-300 {% elif category == 'training' %} text-lime-200 {% else %} text-gray-300 {% endif %}">
+          <summary class="cursor-pointer">Raw JSON</summary>
+          <pre class="bg-black border p-2 rounded mt-1 max-h-40 overflow-auto
+            {% if category == 'future' %} border-sky-500 {% elif category == 'inprogress' %} border-pink-500 {% elif category == 'training' %} border-green-400 {% else %} border-gray-500 {% endif %}">{{ i.assessment.result_json }}</pre>
+        </details>
+      </div>
+
+      <!-- Button Start -->
+      {% if i.is_available %}
+        <div class="px-4 pb-4">
+        <button onclick="location.href='{% url 'assessment_details' i.assessment.id %}';"
+                  class="w-full font-bold py-2 px-4 rounded-full transition duration-200 shadow-md hover:scale-105
+                    {% if category == 'future' %} bg-sky-500 hover:bg-sky-400 text-black {% elif category == 'inprogress' %} bg-pink-500 hover:bg-pink-400 text-black {% elif category == 'training' %} bg-green-500 hover:bg-green-400 text-black {% else %} bg-gray-500 hover:bg-gray-400 text-black {% endif %}">
+            Start
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>

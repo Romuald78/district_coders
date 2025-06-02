@@ -1,5 +1,5 @@
 # Media ROOT (for back end access)
-medias_absolute_path = '/home/cytech/rgr_projects/district_coders/website/medias'
+medias_absolute_path = ''
 
 # Media URL (for web access)
 medias_url_root = '/medias/'

@@ -146,7 +146,7 @@ def ctrl_json_user_groups(request):
 
 
 @login_required(login_url=LOGIN_URL)
-def ctrl_user_update(request):
+def ctrl_user_update(request, user_id):
     user = request.user
 
     if request.method == "POST":
