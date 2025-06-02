@@ -32,9 +32,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -43,7 +43,10 @@ INSTALLED_APPS = [
     # Documentation Generation
     'django.contrib.admindocs',
     # Default Django Installed apps
-    'django.contrib.admin',
+
+    # 'django.contrib.admin',
+    'hide_admin.apps.HideAdminConfig',
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',          # SESSIONS
