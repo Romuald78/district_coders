@@ -83,7 +83,8 @@ def ctrl_exercise_write(request):
 
     if len(response["ex_tst_lng"]) == 0:
         return ctrl_error(request, error_message_cnf.LANGUAGE_NOT_AVAILABLE)
-    result = get_exercise_stat(curr_user, ex2tst_id, asse_id, response["ex_tst_lng"][0].id)
+    # TODO : check ALL the languages (not only the very first ([0])
+    result = get_exercise_stat(curr_user, ex2tst_id, asse_id, response["ex_tst_lng"][0].lang_id)
     if result["exit_code"] != ERROR_CODE_OK:
         return ctrl_error(request, result["err_msg"][1])
 
