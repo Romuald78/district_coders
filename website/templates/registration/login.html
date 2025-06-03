@@ -1,20 +1,100 @@
 {% extends "district/common/base.html" %}
+{% load static %}
 
 {% block page_header %}
-    {% with page_title="Log in" %}
-        {{ block.super }}
-    {% endwith %}
-{%  endblock %}
-
-<!-- ----------------------------------- --->
-{% block page_content %}
-<!-- ----------------------------------- --->
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="button-dc" type="submit">Sign in</button>
-        <a href="/accounts/password_reset">Forgot password?</a>
-    </form>
-<!-- ----------------------------------- --->
+  {% with page_title="Log in" %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock %}
-<!-- ----------------------------------- --->
+
+{% block page_content %}
+
+<div class="flex items-center justify-center text-cyan-700 font-mono">
+  <div class="relative flex flex-col md:flex-row-reverse m-6 space-y-8 md:space-y-0 bg-stone-50 shadow-lg rounded-3xl w-full max-w-7xl border-2 border-gray-400">
+
+    <!-- Form Side -->
+    <div class="flex flex-col justify-center p-10 w-full md:w-1/2">
+      <h1 class="mb-3 text-3xl font-extrabold tracking-wide text-cyan-600 uppercase">Welcome back</h1>
+      <p class="font-light text-cyan-500 mb-8 text-sm">Please enter your credentials to log in.</p>
+
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+        {% for field in form %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold mb-1 text-cyan-600 uppercase tracking-wide">
+              {{ field.label }}
+            </label>
+            <div class="relative">
+              <div class="relative rounded-md bg-cyan-50 ring-1 ring-cyan-300 shadow-inner transition focus-within:ring-2 focus-within:ring-cyan-500 focus-within:bg-white">
+                {% if field.field.widget.input_type == "password" %}
+                  <input type="password" name="{{ field.html_name }}" id="{{ field.auto_id }}"
+                         class="w-full px-3 py-2 pr-10 text-sm bg-transparent text-cyan-700 placeholder-cyan-400 outline-none h-10"
+                         {% if field.value %}value="{{ field.value }}"{% endif %} autocomplete="current-password">
+
+                  <button type="button"
+                          onclick="togglePassword('{{ field.id_for_label }}', 'icon-{{ field.id_for_label }}')"
+                          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-600 hover:text-cyan-800 transition w-6 h-6 flex items-center justify-center">
+                    <i id="icon-{{ field.id_for_label }}" class="fa-solid fa-eye text-[1.25rem]"></i>
+                  </button>
+
+                {% else %}
+                  <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" id="{{ field.auto_id }}"
+                         class="w-full px-3 py-2 text-sm bg-transparent text-cyan-700 placeholder-cyan-400 outline-none"
+                         {% if field.value %}value="{{ field.value }}"{% endif %}>
+                {% endif %}
+              </div>
+
+              {% if field.errors %}
+                <div class="text-sm text-red-600 mt-1 font-mono">
+                  {{ field.errors }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="w-full mt-4 bg-cyan-600 text-white font-extrabold py-2 rounded-md hover:bg-cyan-700 transition shadow-md">
+          Log in
+        </button>
+      </form>
+
+      <div class="flex justify-between text-sm text-cyan-600 mt-6 font-mono">
+        <a href="{% url 'password_reset' %}" class="hover:underline">Forgot password?</a>
+        <a href="{% url 'signup' %}" class="font-extrabold text-cyan-700 hover:underline">Create an account</a>
+      </div>
+    </div>
+
+    <!-- Image Side (LEFT SIDE this time) -->
+    <div class="relative hidden md:block md:w-1/2 overflow-hidden rounded-l-3xl">
+      <img
+        src="{% static 'images/sign_up.png' %}"
+        alt="Digital theme"
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute bottom-6 left-6 p-4 bg-white bg-opacity-90 backdrop-blur-sm rounded text-sm text-cyan-700 shadow-lg font-mono">
+        "Access granted. Let the journey begin."
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function togglePassword(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input && icon) {
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
+  }
+</script>
+
+{% endblock %}

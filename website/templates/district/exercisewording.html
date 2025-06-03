@@ -11,14 +11,9 @@
 
     <!-- Informations -->
     <div class="bg-gray-900 border border-violet-500 p-6 rounded-xl shadow-lg">
-        <h2 class="text-2xl font-bold text-violet-400 mb-4">Exercise Information</h2>
+        <h2 class="text-2xl font-bold text-violet-400 mb-4">{{ ex2tst.exercise.title }}</h2>
         <ul class="text-violet-100 font-mono text-sm space-y-2">
-            <li><span class="font-semibold">ID:</span> {{ ex2tst.exercise.id }}</li>
-            <li><span class="font-semibold">Title:</span> {{ ex2tst.exercise.title }}</li>
             <li><span class="font-semibold">Description:</span> {{ ex2tst.exercise.description }}</li>
-            <li><span class="font-semibold">Gen File:</span> {{ ex2tst.exercise.gen_file }}</li>
-            <li><span class="font-semibold">Icon:</span> {{ ex2tst.exercise.icon }}</li>
-            <li><span class="font-semibold">Mode:</span> {{ ex2tst.exercise.insp_mode_id }}</li>
         </ul>
 
         <!-- Languages -->

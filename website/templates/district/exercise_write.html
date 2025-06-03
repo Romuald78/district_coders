@@ -18,21 +18,16 @@
         <h3 class="text-xl font-semibold mb-6 border-b border-gray-600 pb-2 text-cyan-400 drop-shadow-[0_0_4px_rgb(22,211,255)]">
             Exercise Information
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 text-sm leading-relaxed">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm leading-relaxed">
             <ul class="space-y-2">
                 <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">ID :</strong> {{ ex2tst.exercise.id }}</li>
                 <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Title :</strong> {{ ex2tst.exercise.title }}</li>
                 <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Description :</strong> {{ ex2tst.exercise.description }}</li>
             </ul>
             <ul class="space-y-2">
-                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Gen File :</strong> {{ ex2tst.exercise.gen_file }}</li>
-                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Icon :</strong> {{ ex2tst.exercise.icon }}</li>
-                <li><strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Mode :</strong> {{ ex2tst.exercise.insp_mode_id }}</li>
-            </ul>
-            <ul class="space-y-2">
                 <li>
                     <strong class="font-semibold text-cyan-300 drop-shadow-[0_0_2px_rgb(22,211,255)]">Languages :</strong>
-                    <ul id="languages_stats" class="list-disc list-inside ml-5 mt-1 text-cyan-400 text-sm drop-shadow-[0_0_2px_rgb(22,211,255)]"></ul>
+                    <ul id="languages_stats" class="list-disc list-inside ml-5 mt-1 text-cyan-400 columns-2 text-sm drop-shadow-[0_0_2px_rgb(22,211,255)]"></ul>
                 </li>
             </ul>
         </div>
@@ -90,24 +85,22 @@
         </section>
 
         <!-- RESULT -->
-        <section class="flex flex-col space-y-8">
-            <!-- Console -->
-            <div
-                class="bg-[#12121f] text-[#00ff94] p-5 rounded-xl shadow-lg h-64 overflow-y-auto font-mono border border-[#00ff94]">
-                <h3 class="text-xl font-semibold mb-3 border-b border-[#00ff94] pb-2">Console</h3>
-                <div id="console_view" class="whitespace-pre-wrap"></div>
-            </div>
-
-            <!-- Last solution -->
-            <div
-                class="bg-gray-900/80  p-6 rounded-xl shadow-lg border border-[#3a3f55] flex-grow overflow-auto text-cyan-300 font-mono">
-                <h3 class="text-xl font-semibold mb-3 border-b border-cyan-500 pb-2">Your Last Solution</h3>
-                <ul
-                    id="languages_solve_code"
-                    class="list-disc list-inside max-h-60 overflow-y-auto"></ul>
+        <section class="flex flex-col space-y-6">
+            <div class="flex flex-col flex-grow space-y-6">
+                <!-- Console -->
+                <div class="bg-[#12121f] text-[#00ff94] p-5 rounded-xl shadow-lg flex-grow overflow-y-auto font-mono border border-[#00ff94]">
+                    <h3 class="text-xl font-semibold mb-3 border-b border-[#00ff94] pb-2">Console</h3>
+                    <div id="console_view" class="whitespace-pre-wrap"></div>
+                </div>
             </div>
         </section>
+
+        <!-- Language DONT DELETE or Monaco editor will break -->
+        <ul id="languages_solve_code" ></ul>
+
+
     </div>
+
 
 
 
