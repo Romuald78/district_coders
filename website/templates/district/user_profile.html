@@ -78,6 +78,14 @@
           {{ user.description }}
         </div>
 
+        <div class="font-extrabold uppercase tracking-widest border-b border-cyan-600 pb-1">
+          Groups Assigned
+        </div>
+        <div class="border-b border-cyan-600 pb-1 break-words max-w-full">
+          <ul id="groups">
+            <!-- JS injected groups here -->
+          </ul>
+        </div>
     </div>
   </section>
 
@@ -102,7 +110,7 @@
                     hover:scale-[1.05] shadow-[0_0_15px_emerald]">
     </form>
 
-    <div id="register_result" class="mt-5 text-rose-500 text-center drop-shadow-[0_0_10px_rgb(244,114,182)] tracking-wide text-sm min-h-[1.5rem]"></div>
+<div id="register_result" class="mt-5 text-center tracking-wide text-sm min-h-[1.5rem]"></div>
   </section>
 
   <script>display_user_groups();</script>

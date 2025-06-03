@@ -10,48 +10,48 @@
 {% block page_content %}
 
 <div class="flex items-center justify-center text-cyan-700 font-mono">
-  <div class="relative flex flex-col md:flex-row m-6 space-y-8 md:space-y-0 bg-stone-50 shadow-lg rounded-3xl w-full max-w-7xl border-2 border-gray-400">
+  <div class="relative flex flex-col md:flex-row m-6 space-y-8 md:space-y-0 bg-zinc-900 shadow-[0_0_10px_rgba(34,197,94,0.3)] rounded-3xl w-full max-w-7xl border-2 border-cyan-700">
 
     <!-- Form Side -->
     <div class="flex flex-col justify-center p-10 w-full md:w-1/2">
-      <h1 class="mb-3 text-3xl font-extrabold tracking-wide text-cyan-600 uppercase">Create your account</h1>
-      <p class="font-light text-cyan-500 mb-8 text-sm">Please enter your details to sign up.</p>
+      <h1 class="mb-3 text-3xl font-extrabold tracking-wide text-cyan-400 uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.7)]">Create your account</h1>
+      <p class="font-light text-cyan-400 mb-8 text-sm drop-shadow-[0_0_3px_rgba(6,182,212,0.5)]">Please enter your details to sign up.</p>
 
       <form method="post" enctype="multipart/form-data" class="space-y-5">
       {% csrf_token %}
       {% for field in form %}
         <div>
-          <label for="{{ field.id_for_label }}" class="block text-sm font-semibold mb-1 text-cyan-600 uppercase tracking-wide">
+          <label for="{{ field.id_for_label }}" class="block text-sm font-semibold mb-1 text-cyan-400 uppercase tracking-wide drop-shadow-[0_0_4px_rgba(6,182,212,0.6)]">
             {{ field.label }}
           </label>
           <div class="relative">
-            <div class="relative rounded-md bg-cyan-50 ring-1 ring-cyan-300 shadow-inner transition focus-within:ring-2 focus-within:ring-cyan-500 focus-within:bg-white">
+            <div class="relative rounded-md bg-transparent ring-1 ring-cyan-600 shadow-[0_0_8px_rgba(6,182,212,0.2)] transition focus-within:ring-2 focus-within:ring-cyan-400">
 
               {% if field.field.widget.input_type == "password" %}
                 <input type="password" name="{{ field.html_name }}" id="{{ field.auto_id }}"
-                       class="w-full px-3 py-2 pr-10 text-sm bg-transparent text-cyan-700 placeholder-cyan-400 outline-none h-10"
+                       class="w-full px-3 py-2 pr-10 text-sm bg-transparent text-cyan-300 placeholder-cyan-600 outline-none h-10"
                        {% if field.value %}value="{{ field.value }}"{% endif %} autocomplete="new-password">
 
                 <button type="button"
                         onclick="togglePassword('{{ field.id_for_label }}', 'icon-{{ field.id_for_label }}')"
-                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-600 hover:text-cyan-800 transition w-6 h-6 flex items-center justify-center">
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-200 transition w-6 h-6 flex items-center justify-center drop-shadow-[0_0_5px_rgba(6,182,212,0.7)]">
                   <i id="icon-{{ field.id_for_label }}" class="fa-solid fa-eye text-[1.25rem]"></i>
                 </button>
 
               {% elif field.field.widget.input_type == "email" %}
                 <input type="email" name="{{ field.html_name }}" id="{{ field.auto_id }}"
-                       class="w-full px-3 py-2 text-sm bg-transparent text-cyan-700 placeholder-cyan-400 outline-none"
+                       class="w-full px-3 py-2 text-sm bg-transparent text-cyan-300 placeholder-cyan-600 outline-none"
                        {% if field.value %}value="{{ field.value }}"{% endif %}>
 
               {% elif field.field.widget.input_type == "text" %}
                 <input type="text" name="{{ field.html_name }}" id="{{ field.auto_id }}"
-                       class="w-full px-3 py-2 text-sm bg-transparent text-cyan-700 placeholder-cyan-400 outline-none"
+                       class="w-full px-3 py-2 text-sm bg-transparent text-cyan-300 placeholder-cyan-600 outline-none"
                        {% if field.value %}value="{{ field.value }}"{% endif %}>
 
               {% elif field.field.widget.input_type == "file" %}
               <div class="w-full">
                 <label for="{{ field.auto_id }}"
-                       class="flex items-center justify-between px-4 py-2 text-sm rounded-md cursor-pointer transition">
+                       class="flex items-center justify-between px-4 py-2 text-sm rounded-md cursor-pointer transition text-cyan-300 hover:text-cyan-100 drop-shadow-[0_0_4px_rgba(6,182,212,0.5)]">
                   <span>Choose a file</span>
                   <span id="file-name-{{ field.auto_id }}" class="text-xs ml-2 truncate max-w-[200px]">No file</span>
                   <input type="file"
@@ -62,13 +62,13 @@
                 </label>
               </div>
               {% else %}
-                  <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="w-full resize-y rounded-md px-3 py-2 text-sm bg-transparent text-cyan-700 placeholder-cyan-400 outline-none">{{ field.value|default_if_none:"" }}</textarea>
+                  <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="w-full resize-y rounded-md px-3 py-2 text-sm bg-transparent text-cyan-300 placeholder-cyan-600 outline-none">{{ field.value|default_if_none:"" }}</textarea>
               {% endif %}
 
             </div>
 
             {% if field.errors %}
-              <div class="text-sm text-red-600 mt-1 font-mono">
+              <div class="text-sm text-red-500 mt-1 font-mono drop-shadow-[0_0_3px_rgba(255,0,0,0.8)]">
                 {{ field.errors }}
               </div>
             {% endif %}
@@ -76,15 +76,14 @@
         </div>
       {% endfor %}
 
-      <button type="submit" class="w-full mt-4 bg-cyan-600 text-white font-extrabold py-2 rounded-md hover:bg-cyan-700 transition shadow-md">
+      <button type="submit" class="w-full mt-4 bg-cyan-700 text-white font-extrabold py-2 rounded-md hover:bg-cyan-600 transition shadow-[0_0_10px_rgba(6,182,212,0.5)]">
         Sign up
       </button>
     </form>
 
-
-      <div class="text-center text-sm text-cyan-600 mt-6 font-mono">
+      <div class="text-center text-sm text-cyan-400 mt-6 font-mono drop-shadow-[0_0_4px_rgba(6,182,212,0.6)]">
         Already have an account?
-        <a href="{% url 'login' %}" class="font-extrabold text-cyan-700 hover:underline">Log in</a>
+        <a href="{% url 'login' %}" class="font-extrabold text-cyan-300 hover:underline drop-shadow-[0_0_6px_rgba(6,182,212,0.7)]">Log in</a>
       </div>
     </div>
 
@@ -92,14 +91,16 @@
       <img
         src="{% static 'images/sign_up.png' %}"
         alt="Digital theme"
-        class="w-full h-full object-cover"
+        class="w-full h-full object-cover brightness-75"
       />
-      <div class="absolute bottom-6 right-6 p-4 bg-white bg-opacity-90 backdrop-blur-sm rounded text-sm text-cyan-700 shadow-lg font-mono">
+      <div class="absolute bottom-6 right-6 p-4 bg-zinc-900 bg-opacity-80 backdrop-blur-sm rounded text-sm text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.7)] font-mono drop-shadow-[0_0_5px_rgba(6,182,212,0.7)]">
         "Join the resistance. Code the future."
       </div>
     </div>
 
   </div>
+</div>
+
 </div>
 
 <script>
