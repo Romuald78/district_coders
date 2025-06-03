@@ -48,7 +48,7 @@ def ctrl_user_profile(request):
     return HttpResponse(template.render(context, request))
 
 def upload_default_icon(user):
-    static_icon_path = os.path.join(MEDIA_ROOT, "..", "district", "static", "images", "logos", "logo_district_128.png")
+    static_icon_path = os.path.join(MEDIA_ROOT, "..", "district", "static", "images", "logos", "avatar.png")
     usr_icon_path = user_icon_upload_to(user, '')
     shutil.copy(static_icon_path, os.path.join(MEDIA_ROOT, usr_icon_path))
     user.icon = ImageFieldFile(user, user.icon, usr_icon_path)

@@ -38,7 +38,7 @@
           <img src="{{ MEDIA_URL }}{{ user.icon }}" alt="Profile Icon"
             class="w-44 h-44 rounded-full object-cover object-center"/>
         {% else %}
-          <img src="{% static 'images/logos/python.png' %}" alt="Default Profile Icon"
+          <img src="{% static 'images/logos/avatar.png' %}" alt="Default Profile Icon"
             class="w-44 h-44 rounded-full object-cover object-center"/>
         {% endif %}
       </a>
@@ -83,14 +83,7 @@
 
 
 
-  <!-- Groups section -->
-  <details class="mt-14 w-full max-w-6xl bg-zinc-900 border border-violet-600 rounded-2xl p-8 shadow-lg
-                  text-violet-300 transition hover:shadow-[0_0_25px_violet]">
-    <summary class="cursor-pointer text-xl font-semibold tracking-wide hover:underline select-none">Show Groups</summary>
-    <ul id="groups" class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3 list-disc list-inside text-sm text-yellow-300">
-      <!-- JS injected groups here -->
-    </ul>
-  </details>
+
 
   <!-- Registration key form -->
   <section
