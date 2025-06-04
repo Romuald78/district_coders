@@ -17,6 +17,15 @@
       <h1 class="mb-3 text-3xl font-extrabold tracking-wide text-amber-400 uppercase drop-shadow-[0_0_5px_rgba(251,191,36,0.7)]">Welcome back</h1>
       <p class="font-light text-amber-400 mb-8 text-sm drop-shadow-[0_0_3px_rgba(251,191,36,0.5)]">Please enter your credentials to log in.</p>
 
+        {% if form.non_field_errors %}
+              <div class="text-sm text-red-500 mb-4 font-mono drop-shadow-[0_0_3px_rgba(255,0,0,0.8)]">
+                {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+
       <form method="post" class="space-y-5">
         {% csrf_token %}
         {% for field in form %}

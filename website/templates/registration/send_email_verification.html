@@ -1,28 +1,41 @@
 {% extends "district/common/base.html" %}
 
 {% block page_header %}
-    {% with page_title="Email confirm" %}
-        {{ block.super }}
-    {% endwith %}
-{%  endblock %}
-
-<!-- ----------------------------------- --->
-{% block page_content %}
-<!-- ----------------------------------- --->
-    <div>
-        <h1>Go check out your emails !</h1>
-        at {{ email }}
-
-        <form method="post" id="user_form">
-            {% csrf_token %}
-            <input type="hidden" name="user_id" id="user_id" value="{{ user_id }}"/>
-            <button onclick="send_email_confirm()">Send another email</button>
-        </form>
-
-        <div id="stat"></div>
-    </div>
-
-    <script>send_email_confirm();</script>
-<!-- ----------------------------------- --->
+  {% with page_title="Email confirm" %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock %}
-<!-- ----------------------------------- --->
+
+{% block page_content %}
+<div class="flex items-center justify-center min-h-screen font-mono text-lime-300">
+  <div id="rain-container" class="absolute inset-0 -z-10 pointer-events-none"></div>
+
+  <div class="relative w-full max-w-2xl bg-zinc-900 border-2 border-lime-500 shadow-[0_0_15px_rgba(163,230,53,0.5)] rounded-3xl p-10 m-6 space-y-6">
+
+    <h1 class="text-3xl font-extrabold text-lime-400 uppercase tracking-widest drop-shadow-[0_0_6px_rgba(163,230,53,0.8)]">
+      Go check out your emails!
+    </h1>
+
+    <p class="text-sm text-lime-300 drop-shadow-[0_0_3px_rgba(163,230,53,0.5)]">
+      We sent a confirmation email to: <span class="font-semibold text-lime-400">{{ email }}</span>
+    </p>
+
+    <form method="post" id="user_form" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="user_id" id="user_id" value="{{ user_id }}"/>
+
+      <button type="submit"
+              onclick="send_email_confirm()"
+              class="w-full py-2 mt-2 bg-lime-600 text-zinc-900 font-extrabold rounded-md hover:bg-lime-500 transition shadow-[0_0_12px_rgba(163,230,53,0.6)]">
+        Send another confirmation email
+      </button>
+    </form>
+
+    <div id="stat" class="text-sm text-lime-400"></div>
+  </div>
+</div>
+
+<script>
+  send_email_confirm();
+</script>
+{% endblock %}
