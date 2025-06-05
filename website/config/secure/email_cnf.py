@@ -1,9 +1,9 @@
-EMAIL_HOST          = "smtp-xxxxx.mywebsite.com"
+EMAIL_HOST          = "smtp.gmail.com"
 EMAIL_PORT          = 587
-EMAIL_HOST_USER     = "myidentifier@mywebsite.net"
-EMAIL_HOST_PASSWORD = "myPassword"
+EMAIL_HOST_USER     = "charines78@gmail.com"
+EMAIL_HOST_PASSWORD = "zwppnwujdmlfwakb"
 EMAIL_USE_TLS       = True
-EMAIL_USE_SSL       = False
+# EMAIL_USE_SSL       = False
 # EMAIL_TIMEOUT = ""
 # EMAIL_SSL_KEYFILE = ""
 # EMAIL_SSL_CERTFILE = ""
