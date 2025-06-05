@@ -4,6 +4,7 @@ from random import randint
 
 from config.constants import default_value_cnf, error_message_cnf
 from config.constants.error_message_cnf import ERROR_CODE_OK, ERROR_CODE_ACCESS, ERROR_CODE_COMPILE, ERROR_CODE_TIMEOUT
+from config.constants.exec_paths_cnf import PYTHON_EXEC
 from config.constants.inspector_mode_cnf import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
 from district.models.exercise import Exercise
 from district.models.language import Language
@@ -41,8 +42,7 @@ class ExerciseInspector():
         # Retrieve the execution command string
         exec_cmd = self.program.get_exec_cmd()
         # Retrieve the verification exec file path
-        ex_corr = os.path.join(MEDIA_ROOT, "exercises", "bin", f"{exercise.gen_file}.exe")
-
+        ex_corr = os.path.join(MEDIA_ROOT, "exercises", f"{exercise.gen_file}.py")
         # Compile user code if needed
         (exit_code_comp, stdout_comp, stderr_comp) = self.program.compile(exercise.gen_file, exercise.insp_mode.name)
         if exit_code_comp != ERROR_CODE_OK:
@@ -52,9 +52,9 @@ class ExerciseInspector():
         if exercise.insp_mode.name == INSPECTOR_MODE_STDIO:  # mode stdio
             # Call the system
             # .../...../exo.exe -g -sXXXXX -tYYYYY | execcommandstring | .../...../exo.exe -v -sXXXXX -tYYYYY
-            part1 = subprocess.Popen([ex_corr, "-g", f"-s{seed}", f"-t{self.threshold}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part1 = subprocess.Popen([PYTHON_EXEC, ex_corr, "-g", f"-s{seed}", f"-t{self.threshold}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen(exec_cmd, stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            part3 = subprocess.Popen([ex_corr, "-v", f"-s{seed}", f"-t{self.threshold}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part3 = subprocess.Popen([PYTHON_EXEC, ex_corr, "-v", f"-s{seed}", f"-t{self.threshold}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             try:
                 result = part3.communicate(timeout=self.timeout)
