@@ -167,13 +167,13 @@ LOGOUT_REDIRECT_URL = "/"
 DEFAULT_GROUP_KEY = "everyone"
 
 # EMAIL BACKEND
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = email_cnf.EMAIL_HOST
 EMAIL_PORT = email_cnf.EMAIL_PORT
 EMAIL_HOST_USER = email_cnf.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = email_cnf.EMAIL_HOST_PASSWORD
 EMAIL_USE_TLS = email_cnf.EMAIL_USE_TLS
-EMAIL_USE_SSL = email_cnf.EMAIL_USE_SSL
+# EMAIL_USE_SSL = email_cnf.EMAIL_USE_SSL
 # EMAIL_TIMEOUT = email_cnf.EMAIL_TIMEOUT
 # EMAIL_SSL_KEYFILE = email_cnf.EMAIL_SSL_KEYFILE
 # EMAIL_SSL_CERTFILE = email_cnf.EMAIL_SSL_CERTFILE

@@ -1,6 +1,7 @@
 import os.path
 import shutil
 import traceback
+from datetime import datetime
 
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -9,7 +10,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import send_mail, BadHeaderError, EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.db.models import Q
 from django.db.models.fields.files import ImageFieldFile, FieldFile, ImageField
@@ -18,6 +19,7 @@ from django.shortcuts import redirect, render
 from django.template import loader
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_str, force_bytes
 
@@ -233,34 +235,50 @@ def ctrl_password_reset_request(request):
                 for user in associated_users:
                     subject = "Password Reset Requested"
                     email_template_name = "registration/mails/reset_password_email.html"
+
                     c = {
                         "email": user.email,
-                        'domain': get_current_site(request),
-                        'site_name': 'District Coders',
+                        "domain": get_current_site(request).domain,
+                        "site_name": "District Coders",
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
-                        'token': default_token_generator.make_token(user),
-                        'protocol': 'http',
+                        "token": default_token_generator.make_token(user),
+                        "protocol": "https" if request.is_secure() else "http",
+                        "year": datetime.now().year,
                     }
-                    email = render_to_string(email_template_name, c)
+
+                    html_content = render_to_string(email_template_name, c)
+                    text_content = strip_tags(html_content)  # facultatif, pour fallback texte
+
+                    email = EmailMultiAlternatives(
+                        subject,
+                        text_content,  # texte brut fallback
+                        email_cnf.EMAIL_HOST_USER,
+                        [user.email]
+                    )
+                    email.attach_alternative(html_content, "text/html")  # ajoute le HTML
+
                     try:
-                        send_mail(subject, email, email_cnf.EMAIL_HOST_USER, [user.email], fail_silently=False)
+                        email.send(fail_silently=False)
                     except BadHeaderError:
                         return HttpResponse('Invalid header found.')
+
                     return redirect("/accounts/password_reset/done/")
+
+    # GET ou formulaire invalide
     password_reset_form = PasswordResetForm()
-    return render(request=request, template_name="registration/reset_password.html",
-                  context={"password_reset_form": password_reset_form})
+    return render(request, "registration/reset_password.html", {"password_reset_form": password_reset_form})
 
 
 @login_required(login_url=LOGIN_URL)
 def ctrl_password_change_done(request):
     user = request.user
 
-    # sending email
+    # Email content
     subject = "Password changed"
-    email_template_name = "registration/mails/change_password_email.html"
-    c = {
+    from_email = email_cnf.EMAIL_HOST_USER
+    to_email = [user.email]
+    context = {
         "email": user.email,
         'domain': get_current_site(request),
         'site_name': 'District Coders',
@@ -268,18 +286,29 @@ def ctrl_password_change_done(request):
         "user": user,
         'token': default_token_generator.make_token(user),
         'protocol': 'http',
+        'year': datetime.now().year,
     }
-    email = render_to_string(email_template_name, c)
-    try:
-        send_mail(subject, email, email_cnf.EMAIL_HOST_USER, [user.email], fail_silently=False)
-    except BadHeaderError:
-        return HttpResponse('Invalid header found.')
 
-    context = {}
-    # Load view template
+    # Render HTML + plain fallback
+    html_content = render_to_string("registration/mails/change_password_email.html", context)
+    text_content = f"""
+    Hello {user.username},
+
+    Your password has been successfully changed.
+
+    If you did not request this, please contact support.
+
+    http://{get_current_site(request).domain}{reverse('login')}
+    """
+
+    # Send email with both versions
+    email = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+    email.attach_alternative(html_content, "text/html")
+    email.send()
+
+    # Render confirmation view
     template = loader.get_template('registration/change_password_done.html')
-    return HttpResponse(template.render(context, request))
-
+    return HttpResponse(template.render({}, request))
 
 @login_required(login_url=LOGIN_URL)
 def ctrl_email_change_auth(request):

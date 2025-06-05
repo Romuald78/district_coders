@@ -34,8 +34,9 @@
     <div id="stat" class="text-sm text-lime-400"></div>
   </div>
 </div>
-
 <script>
-  send_email_confirm();
+{% if not user.is_authenticated %}
+    send_email_confirm();
+  {% endif %}
 </script>
 {% endblock %}

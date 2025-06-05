@@ -1,8 +1,101 @@
+{% load static %}
 {% autoescape off %}
-Hello {{ user.username }},
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Confirmation</title>
+    <!-- Font Awesome (CDN) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-Please confirm your email !
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #888;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            margin: auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
+        }
+        .email-header {
+            background: linear-gradient(135deg, #00e0ff, #8a2be2);
+            padding: 30px;
+            text-align: center;
+        }
+        .email-header img {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .email-body {
+            padding: 30px 20px;
+        }
+        .email-body h2 {
+            color: #224ec1;
+        }
+        .btn-confirm {
+            display: inline-block;
+            background: #c8d6fa;
+            color: #000;
+            padding: 14px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 0 10px #224ec1;
+            margin-top: 20px;
+        }
+        .btn-confirm i {
+            margin-right: 8px;
+        }
+        .email-body p {
+            line-height: 1.6;
+        }
+        .email-footer {
+            background-color: #1a1a2e;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header with logo and app name -->
+        <div class="email-header">
+            <h1><i class="fas fa-code"></i> District Coders</h1>
+        </div>
 
-http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+        <!-- Body -->
+        <div class="email-body">
+            <h2>Hey {{ user.username }},</h2>
+            <p>Thanks for joining <strong>District Coders</strong>! 🚀</p>
+            <p>To get started, confirm your email by clicking below:</p>
 
+            <a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}" class="btn-confirm">
+                <i class="fas fa-check-circle"></i> Confirm My Email
+            </a>
+
+            <p>If the button doesn’t work, you can copy and paste this link into your browser:</p>
+            <p style="word-break: break-all;">
+                http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="email-footer">
+            &copy; {{ year }} District Coders. Built with code & creativity.<br>
+        </div>
+    </div>
+</body>
+</html>
 {% endautoescape %}
