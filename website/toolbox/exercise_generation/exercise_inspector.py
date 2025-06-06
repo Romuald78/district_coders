@@ -100,6 +100,8 @@ class ExerciseInspector():
         else:
             raise Exception(f"Bad inspector mode value {exercise.insp_mode.name}")
 
+        print(exit_code_exec)
+
         # retrieve all return values (integer, stdout, stderr)
         # return all these info back to upper layer (dictionary ?)
         return (exit_code_exec, (stdout_comp + stdout_exec).decode("UTF-8"), (stderr_comp + stderr_exec).decode("UTF-8"))

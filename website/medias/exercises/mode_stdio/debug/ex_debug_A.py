@@ -19,6 +19,8 @@ class GenExercice(GenDC):
             v = self.randint(-500, 500)
             print(v)
 
+        return True
+
     def _verify(self):
         result = True
         # reinit seed
@@ -30,13 +32,19 @@ class GenExercice(GenDC):
             v = self.randint(-500, 500)
             v = abs(v)
             try:
-                u = int(input())
+                u = input()
+                try:
+                    u = int(u)
+                except ValueError:
+                    print(f"Impossible to get the user output as an integer (input='{u}')", file=sys.stderr)
+                    result = False
+                    break
                 if u != v:
                     print(f"Expected: '{v}' / Received: '{u}'", file=sys.stderr)
                     result = False
                     break
             except:
-                print(f"Expected: '{v}' / Received: '{u}'", file=sys.stderr)
+                print(f"Impossible to get the user output.\nExpected: '{v}' / Nothing received :(", file=sys.stderr)
                 result = False
                 break
 
