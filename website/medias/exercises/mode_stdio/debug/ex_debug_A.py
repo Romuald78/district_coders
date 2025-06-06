@@ -1,6 +1,8 @@
 import sys
 
+
 from medias.exercises.libDC.genDC import GenDC
+
 
 
 class GenExercice(GenDC):
