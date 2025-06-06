@@ -9,4 +9,4 @@ website/medias/icons/users/
 venv/
 .venv/
 website/config/secure/database_cnf_local.py
-
+website/medias/exercises/mode_stdio/debug/

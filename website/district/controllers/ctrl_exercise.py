@@ -125,6 +125,7 @@ def ctrl_json_exercise_inspect(request):
         # make sure the user is able to access to the inspection
         response = get_exercise_write(user_id, ex2tst_id, asse_id)
         if response["exit_code"] != ERROR_CODE_OK:
+
             dico_json_response["exit_code"] = response["exit_code"]
             dico_json_response["err_msg"]   = response["err_msg"]
             return JsonResponse(dico_json_response)
@@ -155,6 +156,8 @@ def ctrl_json_exercise_inspect(request):
         if exit_code == ERROR_CODE_COMPILE:
             dico_json_response["exit_code"] = exit_code
             dico_json_response["err_msg"] = COMPILE_ERROR
+            dico_json_response["stdout"] = ansi_to_html(stdout)
+            dico_json_response["stderr"] = ansi_to_html(stderr)
             return JsonResponse(dico_json_response)
 
         # Get exo percentage from exit_code
@@ -166,6 +169,8 @@ def ctrl_json_exercise_inspect(request):
         if dict_response["exit_code"] != ERROR_CODE_OK:
             dico_json_response["exit_code"] = ERROR_CODE_PARAMS
             dico_json_response["err_msg"]   = dict_response["err_msg"] # Missing testResult
+            dico_json_response["stdout"] = ansi_to_html(stdout)
+            dico_json_response["stderr"] = ansi_to_html(stderr)
             return JsonResponse(dico_json_response)
         else:
             testresult = get_testresult(user_id, asse_id, queryset_exotest2lang)[0]["testresult_obj"]
