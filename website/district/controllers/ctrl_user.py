@@ -2,12 +2,15 @@ import os.path
 import shutil
 import traceback
 from datetime import datetime
+from logging import currentframe
 
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail, BadHeaderError, EmailMultiAlternatives
@@ -68,6 +71,7 @@ def ctrl_user_signup(request):
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
             user.email = form.cleaned_data.get('email')
+            user.groups.add(GroupDC.objects.get(register_key=DEFAULT_GROUP_KEY))
             if form.cleaned_data.get('icon'):
                 user.icon = form.cleaned_data.get('icon')
             else:
@@ -187,7 +191,7 @@ def ctrl_user_validate_email(request, uidb64, token):
         # if valid set active true
         user.is_active = True
         # set signup_confirmation true
-        user.is_email_validated = True
+        user.previous_email = None
         user.save()
         login(request, user)
         return redirect('/')
@@ -201,12 +205,13 @@ def ctrl_email_verification(request, user_id):
     except UserDC.DoesNotExist:
         curr_user = None
 
-    if curr_user is not None and not curr_user.is_email_validated:
+    if curr_user is not None and not curr_user.is_active:
         context = {}
         context["user_id"] = curr_user.id
         context["email"] = curr_user.email
         template = loader.get_template('registration/send_email_verification.html')
         return HttpResponse(template.render(context, request))
+
     else:
         return ctrl_error(request, error_message_cnf.EMAIL_ALREADY_CONFIRM[1])
 
@@ -218,7 +223,7 @@ def ctrl_json_sending_email(request):
     except UserDC.DoesNotExist:
         curr_user = None
 
-    if curr_user is not None and not curr_user.is_email_validated:
+    if curr_user is not None and not curr_user.is_active:
         send_confirm_email(request, curr_user)
         return JsonResponse({"exit_code": ERROR_CODE_OK})
     else:
@@ -226,6 +231,7 @@ def ctrl_json_sending_email(request):
 
 
 def ctrl_password_reset_request(request):
+    logout(request)
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
         if password_reset_form.is_valid():
@@ -308,6 +314,7 @@ def ctrl_password_change_done(request):
 
     # Render confirmation view
     template = loader.get_template('registration/change_password_done.html')
+    logout(request)
     return HttpResponse(template.render({}, request))
 
 @login_required(login_url=LOGIN_URL)
@@ -315,39 +322,54 @@ def ctrl_email_change_auth(request):
     # getting params
     new_email = request.POST.get("new_email", "")
     password = request.POST.get("password", "")
-    curr_user = request.user
+    current_user = request.user
 
     # conditions
     are_field_not_empty = len(new_email) > 0 and len(password) > 0
     if are_field_not_empty:
-        id_password_correct = check_password(password, curr_user.password)
+        id_password_correct = check_password(password, current_user.password)
         try:
             validate_email(new_email)
-            is_email_validate = True
+            is_form_ok = True
         except ValidationError:
-            is_email_validate = False
+            is_form_ok = False
 
         if UserDC.objects.filter(email=new_email).exists():
-            is_email_validate = False
+            is_form_ok = False
     else :
         id_password_correct = False
-        is_email_validate = False
+        is_form_ok = False
 
-    if are_field_not_empty and id_password_correct and is_email_validate and curr_user.email != new_email:
+    if are_field_not_empty and id_password_correct and is_form_ok and current_user.email != new_email:
         # save changes
-        curr_user.is_email_validated = False
-        curr_user.email = new_email
-        curr_user.save()
-        send_confirm_email(request, curr_user)
+        current_user.is_active = False
+        current_user.previous_email = current_user.email
+        current_user.email = new_email
+        current_user.save()
+        send_confirm_email(request, current_user)
         # redirect
-        return redirect(reverse('email_change_confirm', kwargs={"user_id": curr_user.id}))
+        return redirect(reverse('email_change_confirm', kwargs={"user_id": current_user.id}))
     else:
         context = {"err_msg": ""}
         if are_field_not_empty:
             if not id_password_correct:
                 context["err_msg"] = error_message_cnf.PASSWORD_INVALID
-            elif not is_email_validate:
+            elif not is_form_ok:
                 context["err_msg"] = error_message_cnf.EMAIL_INVALID
 
         template = loader.get_template('registration/email_change_auth.html')
         return HttpResponse(template.render(context, request))
+
+
+def ctrl_login(request):
+    curr_user = request.user
+    if curr_user.is_authenticated:
+        return redirect("/")
+    return LoginView.as_view(template_name="registration/login.html")(request)
+
+def ctrl_password_reset_done(request):
+    curr_user = request.user
+    if curr_user.is_authenticated:
+        return redirect("/")
+    return auth_views.PasswordResetCompleteView.as_view(
+        template_name='registration/reset_password_complete.html')(request)

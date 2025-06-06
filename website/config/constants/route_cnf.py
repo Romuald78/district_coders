@@ -5,7 +5,8 @@ from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_ex
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
     ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email, ctrl_email_verification, \
-    ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done, ctrl_email_change_auth
+    ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done, ctrl_email_change_auth, ctrl_login, \
+    ctrl_password_reset_done
 from district.controllers.ctrl_main import ctrl_home, ctrl_about
 from district.controllers.ctrl_assessment import ctrl_asse_details
 
@@ -32,7 +33,7 @@ PAGES = [
     Page('activate', 'accounts/activate/<slug:uidb64>/<slug:token>/', ctrl_user_validate_email, log_req=False, parameters=True),
 
     # Page('login', 'accounts/login/', include("django.contrib.auth.urls"), log_req=False),
-
+    Page('login', 'accounts/login/', ctrl_login),
     Page('profile', 'accounts/profile/', ctrl_user_profile),
     Page('update', 'accounts/update/<int:user_id>/', ctrl_user_update),
     Page('group_register', 'accounts/group_register/', ctrl_json_user_register, type="json", parameters=True),
@@ -44,8 +45,7 @@ PAGES = [
     # Page('password_reset_confirm' , 'accounts/password_reset_confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
     #     template_name="registration/password_reset_confirm.html"), log_req=False),
 
-    Page('password_reset_complete', 'accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(
-        template_name='registration/reset_password_complete.html'), log_req=False),
+    Page('password_reset_complete', 'accounts/reset/done/', ctrl_password_reset_done, log_req=False),
 
     Page('password_change_done', 'accounts/password_change/done/', ctrl_password_change_done),
     Page('password_change', 'accounts/password_change/', auth_views.PasswordChangeView.as_view(
@@ -53,6 +53,7 @@ PAGES = [
 
     Page('email_change_auth', 'accounts/email_change_auth/', ctrl_email_change_auth),
     Page('email_change_confirm', 'accounts/email_change_confirm/<int:user_id>/', ctrl_email_verification, log_req=False, parameters=True),
+    Page('email_change_confirm_2', 'accounts/email_change_confirm/', ctrl_home, log_req=False),
     Page('email_change_send', 'accounts/email_change_send/', ctrl_json_sending_email, type="json", log_req=False, parameters=True),
 
     Page('assessment_details', 'assessment/details/<int:id_asse>/', ctrl_asse_details, parameters=True),

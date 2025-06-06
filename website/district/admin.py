@@ -72,7 +72,7 @@ class GroupDCAdmin(admin.ModelAdmin):
     list_display = ["id","name","icon","register_key","description"]
 class UserDCAdmin(admin.ModelAdmin):
     readonly_fields = ('id','image_tag',)
-    list_display = ["id", "password", "last_login", "is_superuser", "username", "first_name", "last_name", "email", "is_staff", "is_active", "date_joined", "icon", "description", "is_email_validated"]
+    list_display = ["id", "password", "last_login", "is_superuser", "username", "first_name", "last_name", "email", "is_staff", "is_active", "date_joined", "icon", "description"]
 
 
 admin.site.register(Language, LanguageAdmin)
