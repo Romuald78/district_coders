@@ -1,7 +1,7 @@
 import subprocess
 
 from config.constants.error_message_cnf import ERROR_CODE_OK
-from config.constants.exec_paths_cnf import PYTHON_EXEC, GCC_EXEC, PHP_EXEC, JS_EXEC, JAVAC_EXEC
+from config.constants.exec_paths_cnf import PYTHON_EXEC, GCC_EXEC, PHP_EXEC, JS_EXEC, JAVAC_EXEC, JAVA_EXEC
 from config.constants.inspector_mode_cnf import INSPECTOR_MODE_STDIO, INSPECTOR_MODE_INCLUDE
 from toolbox.exercise_generation.user_program import UserProgram
 from website.settings import MEDIA_ROOT
@@ -9,19 +9,30 @@ from website.settings import MEDIA_ROOT
 import os
 
 
-class JavaProgram(UserProgram):
+class JAVAProgram(UserProgram):
 
     def __init__(self, raw_code, user_id):
-        super().__init__()
         super().__init__()
         self.raw_code = raw_code
         self.user_id = user_id
 
         self.filepath = os.path.join(MEDIA_ROOT, "user_codes", f"code_{user_id}", f"User.java")
-        classpath     = os.path.join(MEDIA_ROOT, "user_codes", f"code_{user_id}", f"User.class")
-        self.exec_cmd = [JAVAC_EXEC, classpath]
+        classpath     = os.path.join(MEDIA_ROOT, "user_codes", f"code_{user_id}", f"User")
+        self.exec_cmd = [JAVA_EXEC, classpath]
         # store the raw code into the user file
         UserProgram.create_user_file(self.filepath, self.raw_code)
+
+    def get_exec_cmd(self):
+        return self.exec_cmd
+
+    def compile(self, gen_file, insp_mode):
+        if insp_mode == INSPECTOR_MODE_STDIO:
+            result = subprocess.run([JAVAC_EXEC, self.filepath], capture_output=True)
+        else:
+            raise Exception("JavaProgram compilation not implemented. (mode include)")
+
+        return (result.returncode, result.stdout, result.stderr)
+
 
 
 class CProgram(UserProgram):

@@ -4,6 +4,8 @@ import os
 
 from district.models.language import Language
 
+
+
 defaultC = """
 #include <stdio.h>
 
@@ -42,7 +44,11 @@ print("answer")
 
 #----------------------------------------------
 defaultJava = """
-default Java code 
+public class User {
+    public static void main(String[] args){
+        System.out.println("answer");
+    }
+}
 """
 
 

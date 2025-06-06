@@ -29,9 +29,9 @@ class UserDC(AbstractUser):
 
     # TODO : add width and height values to ImageField ?
     icon = models.ImageField(blank=True, upload_to=user_icon_upload_to)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, null=True)
     groups = models.ManyToManyField(GroupDC)
-    is_email_validated = models.BooleanField(default=False)
+    previous_email = models.EmailField(null=True)
 
     # Display of the icon in the admin interface
     def image_tag(self):

@@ -20,6 +20,7 @@ def send_confirm_email(request, user):
     from_email = email_cnf.EMAIL_HOST_USER
     to_email = [user.email]
 
+
     # Creates the HTML message
     html_content = render_to_string('registration/mails/activation_email.html', {
         'user': user,
