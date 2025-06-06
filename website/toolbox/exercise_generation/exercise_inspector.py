@@ -42,7 +42,8 @@ class ExerciseInspector():
         # Retrieve the execution command string
         exec_cmd = self.program.get_exec_cmd()
         # Retrieve the verification exec file path
-        ex_corr = os.path.join(MEDIA_ROOT, "exercises", f"{exercise.gen_file}.py")
+        # ex_corr = os.path.join(MEDIA_ROOT, "exercises", exercise.insp_mode.name, f"{exercise.gen_file}")
+        ex_corr = '.'.join(["medias.exercises", exercise.insp_mode.name, exercise.gen_file.replace('/', '.')])
         # Compile user code if needed
         (exit_code_comp, stdout_comp, stderr_comp) = self.program.compile(exercise.gen_file, exercise.insp_mode.name)
         if exit_code_comp != ERROR_CODE_OK:
@@ -52,9 +53,9 @@ class ExerciseInspector():
         if exercise.insp_mode.name == INSPECTOR_MODE_STDIO:  # mode stdio
             # Call the system
             # .../...../exo.exe -g -sXXXXX -tYYYYY | execcommandstring | .../...../exo.exe -v -sXXXXX -tYYYYY
-            part1 = subprocess.Popen([PYTHON_EXEC, ex_corr, "-g", f"-s{seed}", f"-t{self.threshold}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part1 = subprocess.Popen([PYTHON_EXEC, '-m', ex_corr, "-g", f"-s{seed}", f"-t{self.threshold}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             part2 = subprocess.Popen(exec_cmd, stdin=part1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            part3 = subprocess.Popen([PYTHON_EXEC, ex_corr, "-v", f"-s{seed}", f"-t{self.threshold}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            part3 = subprocess.Popen([PYTHON_EXEC, '-m', ex_corr, "-v", f"-s{seed}", f"-t{self.threshold}"], stdin=part2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             try:
                 result = part3.communicate(timeout=self.timeout)
