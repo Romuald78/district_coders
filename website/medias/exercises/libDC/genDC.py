@@ -51,6 +51,19 @@ class GenDC:
         print('[OK]')
         sys.exit(0)
 
-
-
-
+    def read_and_compare_next_int(self, ref_int):
+        result = True
+        try:
+            usr_int = input()
+            try:
+                mini2 = int(usr_int)
+                if ref_int != mini2:
+                    print(f"Expected: '{ref_int}' / Received: '{usr_int}'", file=sys.stderr)
+                    result = False
+            except ValueError:
+                print(f"Impossible to get the user output as an integer (Received='{usr_int}')", file=sys.stderr)
+                result = False
+        except:
+            print(f"Impossible to get the user output.\nExpected: '{ref_int}' / Nothing received :(", file=sys.stderr)
+            result = False
+        return result
