@@ -17,6 +17,9 @@ function display_user_groups() {
             ul.appendChild(li_gn);
 
             // adding members list of the group
+            // store member data in memory if required, without displaying it
+            // (no DOM injection code for members)
+            /*
             var li_mem = document.createElement("li");
             li_mem.appendChild(document.createTextNode("membres :"));
             ul.appendChild(li_mem);
@@ -29,6 +32,8 @@ function display_user_groups() {
                 ul_mem.appendChild(li_user);
             })
             ul.appendChild(ul_mem);
+
+             */
         }
 
         // console.log(JSON.stringify(json));
@@ -57,10 +62,12 @@ function send_register_key() {
                 err_p.classList.add("warning");
             } else {
                 err_p.classList.add("error");
+                err_p.classList.add("text-rose-500");
             }
         } else {
             err_p.appendChild(document.createTextNode("New group registration ok"));
             err_p.classList.add("ok");
+            err_p.classList.add("text-emerald-500");
             // refresh display
             display_user_groups();
 

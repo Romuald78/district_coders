@@ -51,7 +51,7 @@ migrate_langs = [
     {"name":"C",                    "value":"c",        "code":defaultC     },
     {"name":"C++",                  "value":"cpp",      "code":defaultCPP   },
     {"name":"C#",                   "value":"csharp",   "code":defaultCSharp},
-    {"name":"JS",                   "value":"js",       "code":defaultJS    },
+    {"name":"Javascript",           "value":"js",       "code":defaultJS    },
     {"name":"Java",                 "value":"java",     "code":defaultJava  },
     {"name":"PHP",                  "value":"php",      "code":defaultPHP   },
     {"name":"Python",               "value":"python",   "code":defaultPython},
