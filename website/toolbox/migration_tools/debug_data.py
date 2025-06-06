@@ -1,10 +1,12 @@
 
 #----------------------------------------------
 import os.path
+import shutil
 from datetime import timedelta
 
 from django.utils import timezone
 
+from config.constants.inspector_mode_cnf import INSPECTOR_MODE_STDIO
 from district.models.assessment import Assessment
 from district.models.exercise import Exercise
 from district.models.exo2test import Exo2Test
@@ -16,7 +18,8 @@ from district.models.test import TestDC
 from district.models.testresult import TestResult
 from district.models.user import UserDC
 from config.secure.admin_cnf import ADMIN_EMAIL
-from website.settings import DEBUG, DEFAULT_GROUP_KEY
+from website.settings import DEBUG, DEFAULT_GROUP_KEY, MEDIA_ROOT
+
 
 def createAdmin():
     print("admin user creation ...")
@@ -43,6 +46,8 @@ def createExercises():
         obj.insp_mode = stdio.first()
         obj.save()
         exercises.append(obj)
+        prefix = os.path.join(MEDIA_ROOT, 'exercises', INSPECTOR_MODE_STDIO)
+        shutil.copy(src=os.path.join(prefix,'ex0001_val_abs.py'), dst=os.path.join(prefix, f"{obj.gen_file}.py"))
         #print(f"    > Exercise [{obj.id}]:'{obj.title}' added !")
     return exercises
 
