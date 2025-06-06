@@ -1,5 +1,6 @@
 from django.contrib.auth import views as auth_views
 
+from district.controllers.ctrl_admin import ctrl_admin_login
 from district.controllers.ctrl_exercise import ctrl_exercise_write, ctrl_json_exercise_inspect, ctrl_exercise_details, \
     ctrl_json_exercise_get_stat
 from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
@@ -28,6 +29,7 @@ class Page():
 PAGES = [
     Page('home', '', ctrl_home, log_req=False),
     Page('about', 'about/', ctrl_about, log_req=False),
+
 
     Page('signup', 'accounts/signup/', ctrl_user_signup, log_req=False),
     Page('activate', 'accounts/activate/<slug:uidb64>/<slug:token>/', ctrl_user_validate_email, log_req=False, parameters=True),

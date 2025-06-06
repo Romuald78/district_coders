@@ -15,16 +15,21 @@ Including another URLconf
 """
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.views import LoginView
 from django.urls import path, include
 
 from config.constants.route_cnf import PAGES
+from district.controllers.ctrl_admin import ctrl_admin_login
 from website import settings
 
 urlpatterns = [
     # [VIEW] Documentation Generation (before 'admin' URL in order to avoid interceptions)
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     # [VIEW] Administration View
+
+    path('admin/login/', ctrl_admin_login, name='admin_login'),
     path('admin/'    , admin.site.urls)
+
 ]
 
 for page in PAGES:

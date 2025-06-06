@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
     # Default Django Installed apps
 
-    # 'django.contrib.admin',
-    'hide_admin.apps.HideAdminConfig',
+    'django.contrib.admin',
+ #'hide_admin.apps.HideAdminConfig',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
