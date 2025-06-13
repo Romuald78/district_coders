@@ -6,7 +6,7 @@ if ! [  -d "./venv"  ] ; then
     exit 1
   fi
 fi
-source venv/bin/activate
-if [  $? -ne 0  ] ; then
-  echo "Impossible to activate venv"
-fi
+#source venv/bin/activate
+#if [  $? -ne 0  ] ; then
+#  echo "Impossible to activate venv"
+#fi
