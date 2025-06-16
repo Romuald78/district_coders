@@ -239,6 +239,10 @@ def ctrl_password_reset_request(request):
             associated_users = UserDC.objects.filter(Q(email=data))
             if associated_users.exists():
                 for user in associated_users:
+
+                    # Stocker l’email dans la session pour activer le compte après reset
+                    request.session['reactivate_email'] = user.email
+
                     subject = "Password Reset Requested"
                     email_template_name = "registration/mails/reset_password_email.html"
 
@@ -368,8 +372,70 @@ def ctrl_login(request):
     return LoginView.as_view(template_name="registration/login.html")(request)
 
 def ctrl_password_reset_done(request):
-    curr_user = request.user
-    if curr_user.is_authenticated:
+    # If the user is already logged in, he is redirected to the home page
+    if request.user.is_authenticated:
         return redirect("/")
+
+    # Retrieves the email to be reactivated stored in the session (at the time of the reset request)
+    email_to_activate = request.session.pop("reactivate_email", None)
+    print("Email récupéré depuis session :", email_to_activate)
+
+    # If an email has been retrieved, we try to activate the corresponding account
+    if email_to_activate:
+        try:
+            user = UserDC.objects.get(email=email_to_activate)
+            user.is_active = True
+            user.save()
+            print("Compte activé pour :", user.email)
+        except UserDC.DoesNotExist:
+            # No users found with this email
+            print("Utilisateur introuvable avec :", email_to_activate)
+
+    # Password reset confirmation page is displayed
     return auth_views.PasswordResetCompleteView.as_view(
         template_name='registration/reset_password_complete.html')(request)
+
+
+
+def ctrl_lost_account(request):
+    """
+    Allows a user to recover his account even if he has changed email address,
+     by checking whether the old email address (previous_email) exists in the
+     database and whether the linked account is inactive.
+    If so, the old email is restored and the account is deactivated so that it can request a new password.
+    """
+    # Log out current user (if any)
+    logout(request)
+    found = False
+    # If a POST has been received (form submitted)
+    if request.method == "POST":
+        account_reset_form = PasswordResetForm(request.POST)
+        if account_reset_form.is_valid():
+            data = account_reset_form.cleaned_data['email']
+
+            # We're looking for an account with this email as its primary email
+            associated_users = UserDC.objects.filter(Q(email=data))
+            if not associated_users.exists() or len(associated_users) != 1:
+                # If no user has this main email,
+                # check if it corresponds to a previous email (previous_email)
+                associated_users_2 = UserDC.objects.filter(Q(previous_email=data))
+                if associated_users_2.exists() and len(associated_users_2) == 1:
+                    # If found: the previous email is restored as the main email
+                    user = associated_users_2.first()
+                    user.email = user.previous_email
+                    user.previous_email = None
+                    user.is_active = False
+                    user.save()
+                    found = True
+            else :
+                # Only one user has been found with the email: he can make a classic reset request
+                found = True
+
+            # If a user has been identified (either with email or previous_email)
+            if found:
+                return ctrl_password_reset_request(request)
+
+    # GET or invalid form
+    account_reset_form = PasswordResetForm()
+    return render(request, "registration/reset_password.html", {"password_reset_form": account_reset_form})
+

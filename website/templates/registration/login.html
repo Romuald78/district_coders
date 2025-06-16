@@ -13,7 +13,7 @@
   <div class="relative flex flex-col md:flex-row-reverse m-6 space-y-8 md:space-y-0 bg-zinc-900 shadow-[0_0_10px_rgba(251,191,36,0.3)] rounded-3xl w-full max-w-7xl border-2 border-amber-600">
 
     <!-- Form Side -->
-    <div class="flex flex-col justify-center p-10 w-full md:w-1/2">
+    <div class="flex flex-col justify-center p-10 w-full md:w-1/2 relative">
       <h1 class="mb-3 text-3xl font-extrabold tracking-wide text-amber-400 uppercase drop-shadow-[0_0_5px_rgba(251,191,36,0.7)]">Welcome back</h1>
       <p class="font-light text-amber-400 mb-8 text-sm drop-shadow-[0_0_3px_rgba(251,191,36,0.5)]">Please enter your credentials to log in.</p>
 
@@ -72,9 +72,13 @@
         <a href="{% url 'password_reset' %}" class="hover:underline">Forgot password?</a>
         <a href="{% url 'signup' %}" class="font-extrabold text-amber-300 hover:underline drop-shadow-[0_0_6px_rgba(251,191,36,0.7)]">Create an account</a>
       </div>
+
+       <a href="{% url 'account_reset_request' %}" class="absolute italic bottom-5 left-0 w-full text-end text-xs text-amber-500 font-mono pr-6 drop-shadow-[0_0_4px_rgba(251,191,36,0.6)] hover:text-amber-300 drop-shadow-[0_0_4px_rgba(251,191,36,0.8)] hover:underline">Recover my account<i class="fa-solid fa-rotate-left ms-1"></i></a>
+
     </div>
 
-    <!-- Image Side (LEFT SIDE this time) -->
+
+    <!-- Image Side (LEFT SIDE) -->
     <div class="relative hidden md:block md:w-1/2 overflow-hidden rounded-l-3xl">
       <img
         src="{% static 'images/sign_up.png' %}"
@@ -87,6 +91,7 @@
     </div>
 
   </div>
+
 </div>
 
 <script>

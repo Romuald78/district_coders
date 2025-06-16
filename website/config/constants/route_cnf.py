@@ -7,7 +7,7 @@ from district.controllers.ctrl_testresult import ctrl_json_testresult_exists
 from district.controllers.ctrl_user import ctrl_user_profile, ctrl_user_signup, ctrl_json_user_register, \
     ctrl_json_user_groups, ctrl_user_update, ctrl_user_validate_email, ctrl_email_verification, \
     ctrl_json_sending_email, ctrl_password_reset_request, ctrl_password_change_done, ctrl_email_change_auth, ctrl_login, \
-    ctrl_password_reset_done
+    ctrl_password_reset_done, ctrl_lost_account
 from district.controllers.ctrl_main import ctrl_home, ctrl_about
 from district.controllers.ctrl_assessment import ctrl_asse_details
 
@@ -34,6 +34,7 @@ PAGES = [
     Page('signup', 'accounts/signup/', ctrl_user_signup, log_req=False),
     Page('activate', 'accounts/activate/<slug:uidb64>/<slug:token>/', ctrl_user_validate_email, log_req=False, parameters=True),
 
+
     # Page('login', 'accounts/login/', include("django.contrib.auth.urls"), log_req=False),
     Page('login', 'accounts/login/', ctrl_login),
     Page('profile', 'accounts/profile/', ctrl_user_profile),
@@ -41,6 +42,8 @@ PAGES = [
     Page('group_register', 'accounts/group_register/', ctrl_json_user_register, type="json", parameters=True),
     Page('my_groups', 'accounts/my_groups/', ctrl_json_user_groups, type="json"),
     Page('password_reset_request', 'accounts/password_reset/', ctrl_password_reset_request, log_req=False),
+    Page('account_reset_request', 'accounts/account_reset/', ctrl_lost_account, log_req=False),
+
 
     # Page('password_reset_done'    , 'accounts/password_reset_done/', auth_views.PasswordResetDoneView.as_view(
     #     template_name='registration/password_reset_done.html'), log_req=False),
