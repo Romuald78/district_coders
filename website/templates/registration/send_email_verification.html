@@ -24,19 +24,15 @@
       {% csrf_token %}
       <input type="hidden" name="user_id" id="user_id" value="{{ user_id }}"/>
 
-      <button type="submit"
-              onclick="send_email_confirm()"
-              class="w-full py-2 mt-2 bg-lime-600 text-zinc-900 font-extrabold rounded-md hover:bg-lime-500 transition shadow-[0_0_12px_rgba(163,230,53,0.6)]">
-        Send another confirmation email
+       <button type="submit"
+               onclick="send_email_confirm()"
+          class="w-full py-2 mt-2 bg-lime-600 text-zinc-900 font-extrabold rounded-md hover:bg-lime-500 transition shadow-[0_0_12px_rgba(163,230,53,0.6)]">
+           Send another confirmation email
       </button>
     </form>
 
     <div id="stat" class="text-sm text-lime-400"></div>
   </div>
 </div>
-<script>
-{% if not user.is_authenticated %}
-    send_email_confirm();
-  {% endif %}
-</script>
+
 {% endblock %}

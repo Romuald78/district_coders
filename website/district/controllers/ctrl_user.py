@@ -81,6 +81,7 @@ def ctrl_user_signup(request):
                 # confirmation email
                 user.is_active = False
                 user.save()
+                send_confirm_email(request, user)
                 return redirect(reverse('email_change_confirm', kwargs={"user_id": user.id}))
     else:
         form = SignupForm()
@@ -160,6 +161,7 @@ def ctrl_user_update(request, user_id):
         if form.is_valid():
             # user = form.save()
             user.refresh_from_db()
+            user.username = form.cleaned_data.get('username')
             user.first_name = form.cleaned_data.get('first_name')
             user.last_name = form.cleaned_data.get('last_name')
             if form.cleaned_data.get('icon'):
