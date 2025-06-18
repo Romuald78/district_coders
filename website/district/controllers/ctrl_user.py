@@ -193,7 +193,7 @@ def ctrl_user_validate_email(request, uidb64, token):
         # if valid set active true
         user.is_active = True
         # set signup_confirmation true
-        user.previous_email = None
+        user.previous_email = None ### don't understand, have to ask to Romuald
         user.save()
         login(request, user)
         return redirect('/')
@@ -387,6 +387,7 @@ def ctrl_password_reset_done(request):
         try:
             user = UserDC.objects.get(email=email_to_activate)
             user.is_active = True
+            user.previous_email = None
             user.save()
             print("Compte activé pour :", user.email)
         except UserDC.DoesNotExist:
