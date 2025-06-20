@@ -180,3 +180,6 @@ EMAIL_USE_TLS = email_cnf_local.EMAIL_USE_TLS
 
 # RESET TIMEOUT (email or password) (in second)
 PASSWORD_RESET_TIMEOUT = 5 * 60
+
+
+TEST_RUNNER = 'district.tst_folder.core.tst_runner.DistrictTestRunner'

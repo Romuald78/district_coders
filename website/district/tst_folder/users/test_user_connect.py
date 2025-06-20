@@ -1,3 +1,4 @@
+import inspect
 import os
 import random
 import string
@@ -6,26 +7,17 @@ import json
 from django.contrib.auth.models import AnonymousUser
 from django.core import management
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TransactionTestCase, RequestFactory, Client
 
 from config.constants.error_message_cnf import ERROR_CODE_CONFLICT, GROUP_REGISTER_ALREADY_IN, ERROR_CODE_PARAMS, \
     GROUP_REGISTER_EMPTY_KEY, ERROR_CODE_NOT_FOUND, GROUP_REGISTER_INVALID_KEY
 from district.models.group import GroupDC
 from district.models.user import UserDC
+from district.tst_folder.core.tst_main_class import MainClassTest
 from toolbox.utils.route_mgr import PageManager
 from website.settings import MEDIA_ROOT, DEFAULT_GROUP_KEY
 
 
-class UserConnectTest(TransactionTestCase):
-
-    def __init__(self, methodName=''):
-        super().__init__(methodName)
-
-    def setUp(self):
-        # in django the client is instanciated in _pre_setup()
-        #self.client  = Client()
-        management.call_command("dc_reinit")
-        management.call_command("populate_multi")
+class UserConnectTest(MainClassTest):
 
     def __login(self, username, password):
         url = "/accounts/login/"
@@ -132,7 +124,24 @@ class UserConnectTest(TransactionTestCase):
                 self.assertEquals(response.context['user'].email, user.email)
                 self.assertEquals(response.context['user'].password, user.password)
 
+    def __init__(self, methodName=''):
+        super().__init__(methodName)
+
+    def setUp(self):
+        # in django the client is instanciated in _pre_setup()
+        #self.client  = Client()
+        management.call_command("dc_reinit")
+        management.call_command("populate_multi")
+
+    @staticmethod
+    def getSortedTestCaseNames():
+        return ['test_user_connect',
+                'test_json_group_register',
+                'test_user_update']
+
     def test_user_connect(self):
+        method_name = inspect.currentframe().f_code.co_name
+        print(method_name)
         # Check random user name and password
         with self.subTest("random log/pass"):
             nam = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
@@ -153,6 +162,8 @@ class UserConnectTest(TransactionTestCase):
             self.__userLogin()
 
     def test_user_update(self):
+        method_name = inspect.currentframe().f_code.co_name
+        print(method_name)
         # Check user connection
         with self.subTest("connect user_1"):
             self.__userLogin()
@@ -166,6 +177,8 @@ class UserConnectTest(TransactionTestCase):
         self.__update_info(data)
 
     def test_json_group_register(self):
+        method_name = inspect.currentframe().f_code.co_name
+        print(method_name)
         json_url = PageManager().get_URL('group_register')
         for user in UserDC.objects.filter(id__gt=0).all():
             # ----------------------------
