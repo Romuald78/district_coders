@@ -49,16 +49,16 @@
     <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 text-lg text-cyan-300">
 
       <div class="font-extrabold uppercase tracking-widest border-b border-cyan-600 pb-1">ID</div>
-      <div class="border-b border-cyan-600 pb-1">[{{ user.id }}]</div>
+      <div class="border-b border-cyan-600 break-words pb-1">[{{ user.id }}]</div>
 
       <div class="font-extrabold uppercase tracking-widest border-b border-cyan-600 pb-1">Name</div>
-      <div class="border-b border-cyan-600 pb-1">{{ user.first_name }} {{ user.last_name }}</div>
+      <div class="border-b border-cyan-600 break-words pb-1">{{ user.first_name }} {{ user.last_name }}</div>
 
       <div class="font-extrabold uppercase tracking-widest border-b border-cyan-600 pb-1">Username</div>
-      <div class="border-b border-cyan-600 pb-1">'{{ user.username }}'</div>
+      <div class="border-b border-cyan-600 break-words pb-1">'{{ user.username }}'</div>
 
       <div class="font-extrabold uppercase tracking-widest border-b border-cyan-600 pb-1">Email</div>
-      <div class="border-b border-cyan-600 pb-1 flex items-center gap-2">
+      <div class="border-b border-cyan-600 pb-1 flex items-center break-words gap-2">
         {{ user.email }}
         <a href="/accounts/email_change_auth/"
            class="ml-auto text-indigo-400 hover:text-cyan-300 transition"><i class="fa-solid fa-user-pen"></i></a>
