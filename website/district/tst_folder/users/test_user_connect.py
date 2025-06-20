@@ -135,11 +135,11 @@ class UserConnectTest(MainClassTest):
 
     @staticmethod
     def getSortedTestCaseNames():
-        return ['test_user_connect',
-                'test_json_group_register',
-                'test_user_update']
+        return [UserConnectTest.test_user_login.__name__,
+                UserConnectTest.test_json_group_register.__name__,
+                UserConnectTest.test_user_update.__name__]
 
-    def test_user_connect(self):
+    def test_user_login(self):
         method_name = inspect.currentframe().f_code.co_name
         print(method_name)
         # Check random user name and password
