@@ -33,6 +33,13 @@ class UserDC(AbstractUser):
     groups = models.ManyToManyField(GroupDC)
     previous_email = models.EmailField(null=True)
 
+    email = models.EmailField(
+        unique=True,
+        error_messages={'unique': 'This email is already in use'},
+        max_length=254,
+        verbose_name='email address'
+    )
+
     # Display of the icon in the admin interface
     def image_tag(self):
         return get_icon_tag(self.icon)

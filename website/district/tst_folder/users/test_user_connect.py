@@ -19,6 +19,72 @@ from website.settings import MEDIA_ROOT, DEFAULT_GROUP_KEY
 
 class UserConnectTest(MainClassTest):
 
+    # ERROR_LOGIN = "Please enter a correct username and password. Note that both fields may be case-sensitive."
+    #
+    # def __init__(self, methodName=''):
+    #     super().__init__(methodName)
+    #     self.login_url   = PageManager().get_URL('login')
+    #     self.name_valid   = 'user_1'
+    #     self.pass_valid   = 'pass_1'
+    #     self.name_invalid = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+    #     self.pass_invalid = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+    #
+    #
+    # def __correct_login(self):
+    #     self.__test_login(self.name_valid, self.pass_valid, err_msgs='no error this is a success')
+    #
+    # def __random_login(self):
+    #     msg1 = "Please enter a correct username and password. Note that both fields may be case-sensitive."
+    #     username = self.name_invalid
+    #     password = self.pass_invalid
+    #     response = self.__test_login(username, password, err_msgs=msg1)
+    #     user     = response.context['user']
+    #     self.assertContains(response, msg1)
+    #     self.assertContains(response, msg2)
+    #     self.assertEquals(user.__class__, AnonymousUser)
+    #
+    # def __test_login(self, nam, pwd, err_msgs=None):
+    #     if err_msgs is None:
+    #         err_msgs = ['no error this is a success']
+    #
+    #     data = {
+    #         'username': nam,
+    #         'password': pwd,
+    #     }
+    #     response = self.client.post(self.login_url, data, follow=True)
+    #     self.assertEqual(response.status_code, 200)
+    #
+    #     response_text = response.content.decode()
+    #     print("Contenu de la réponse :\n", response_text)  # Debug
+    #
+    #     for msg in err_msgs:
+    #         self.assertTrue(msg in response_text, f"{msg} has not been found !")
+    #
+    #     return response  # <<< IMPORTANT
+    #
+    # def setUp(self):
+    #     management.call_command("dc_reinit")
+    #     management.call_command("populate_multi")
+    #
+    #
+    # def test_user_login(self):
+    #     process = [
+    #         "correct_login",
+    #         "random_login",
+    #
+    #     ]
+    #     for p in process:
+    #         method = [f for f in dir(self.__class__) if callable(getattr(self.__class__, f)) and p in f]
+    #         if len(method) > 0:
+    #             with self.subTest(p):
+    #                 f = getattr(self.__class__, method[0])
+    #                 try:
+    #                     f(self)
+    #                 except AssertionError as ae:
+    #                     msg = f"\n-------------\n[ERROR] in method '{f.__name__}'\n-------------"
+    #                     raise AssertionError(str(ae) + msg)
+    #
+
     def __login(self, username, password):
         url = "/accounts/login/"
         response = self.client.post(url, data={
@@ -70,6 +136,7 @@ class UserConnectTest(MainClassTest):
             # go to update page
             update_url = PageManager().get_URL('update')
             profile_url = PageManager().get_URL('profile')
+            print("Update URL:", update_url)
             response = self.client.get(update_url)
             self.assertEquals(response.status_code, 200)
             # get user and default values
@@ -89,7 +156,7 @@ class UserConnectTest(MainClassTest):
             self.assertEquals(user.last_name, '')
             self.assertEquals(user.icon, '')
             self.assertEquals(user.description, '')
-        # Update each data
+
         for field in update_data:
             with self.subTest(f"update {field}"):
                 # update value
@@ -98,7 +165,7 @@ class UserConnectTest(MainClassTest):
                 # prepare image if needed
                 if field == 'icon':
                     compare_value = f'icons/users/{user.username}/{user.username}_icon.png'
-                    img_path = os.path.join(MEDIA_ROOT, update_data[field])
+                    img_path = os.path.join('medias', update_data[field])
                     data[field] = SimpleUploadedFile(
                         name=img_path,
                         content=open(img_path, 'rb').read(),
