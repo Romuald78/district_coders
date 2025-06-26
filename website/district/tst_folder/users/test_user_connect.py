@@ -41,12 +41,31 @@ class UserConnectTest(MainClassTest):
         self.__test_login('', self.pass_valid, err_msgs='This field is required')
 
     def __random_login(self):
-        self.__test_login(self.name_invalid, self.pass_invalid, err_msgs='')
+        msg1 = "Please enter a correct username and password."
+        msg2 = "Note that both fields may be case-sensitive."
+        response = self.__test_login(self.name_invalid, self.pass_invalid)
+        user     = response.context['user']
+        self.assertContains(response, msg1)
+        self.assertContains(response, msg2)
+        self.assertEquals(user.__class__, AnonymousUser)
 
     def __error_login(self):
         self.__test_login(self.name_valid, self.pass_invalid, err_msgs='')
         self.__test_login(self.name_invalid, self.pass_valid, err_msgs='')
 
+    def __user_login(self):
+        profile_url = PageManager().get_URL("profile")
+        response = self.__test_login("user_1", "pass_1", err_msgs='no error this is a success')
+        # Check the good redirection
+        self.assertRedirects(response, profile_url)
+        response = self.client.get(profile_url)
+        # Check profile view contains user
+        self.assertIn('user', response.context.keys())
+        user = response.context['user']
+        # Check the user object has the correct class
+        self.assertEquals(user.__class__, UserDC)
+        # Check the user is the one
+        self.assertEquals(user.id, 2)
 
     def __test_login(self, nam, pwd, err_msgs=None):
         if err_msgs is None:
@@ -77,6 +96,8 @@ class UserConnectTest(MainClassTest):
             "login_empty",
             "one_field_login",
             "random_login",
+            "error_login",
+            "user_login",
 
         ]
         for p in process:
