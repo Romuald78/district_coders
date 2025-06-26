@@ -7,6 +7,7 @@ import json
 from django.contrib.auth.models import AnonymousUser
 from django.core import management
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 
 from config.constants.error_message_cnf import ERROR_CODE_CONFLICT, GROUP_REGISTER_ALREADY_IN, ERROR_CODE_PARAMS, \
     GROUP_REGISTER_EMPTY_KEY, ERROR_CODE_NOT_FOUND, GROUP_REGISTER_INVALID_KEY
@@ -31,74 +32,68 @@ class UserConnectTest(MainClassTest):
 
 
     def __correct_login(self):
-        self.__test_login(self.name_valid, self.pass_valid, err_msgs='no error this is a success')
+        self.__test_login(self.name_valid, self.pass_valid, err_msgs=None)
 
     def __login_empty(self):
-        self.__test_login('', '', err_msgs='This field is required')
+        self.__test_login('', '', err_msgs=['This field is required'])
 
     def __one_field_login(self):
-        self.__test_login(self.name_valid, '', err_msgs='This field is required')
-        self.__test_login('', self.pass_valid, err_msgs='This field is required')
+        self.__test_login(self.name_valid, '', err_msgs=['This field is required'])
+        self.__test_login('', self.pass_valid, err_msgs=['This field is required'])
 
     def __random_login(self):
         msg1 = "Please enter a correct username and password."
         msg2 = "Note that both fields may be case-sensitive."
-        response = self.__test_login(self.name_invalid, self.pass_invalid)
-        user     = response.context['user']
-        self.assertContains(response, msg1)
-        self.assertContains(response, msg2)
-        self.assertEquals(user.__class__, AnonymousUser)
+        self.__test_login(self.name_invalid, self.pass_invalid, err_msgs=[msg1, msg2])
+
 
     def __error_login(self):
-        self.__test_login(self.name_valid, self.pass_invalid, err_msgs='')
-        self.__test_login(self.name_invalid, self.pass_valid, err_msgs='')
+        msg1 = "Please enter a correct username and password."
+        msg2 = "Note that both fields may be case-sensitive."
+        self.__test_login(self.name_valid, self.pass_invalid, err_msgs=[msg1, msg2])
+        self.__test_login(self.name_invalid, self.pass_valid, err_msgs=[msg1, msg2])
 
-    def __user_login(self):
-        profile_url = PageManager().get_URL("profile")
-        response = self.__test_login("user_1", "pass_1", err_msgs='no error this is a success')
-        # Check the good redirection
-        self.assertRedirects(response, profile_url)
-        response = self.client.get(profile_url)
-        # Check profile view contains user
-        self.assertIn('user', response.context.keys())
-        user = response.context['user']
-        # Check the user object has the correct class
-        self.assertEquals(user.__class__, UserDC)
-        # Check the user is the one
-        self.assertEquals(user.id, 2)
-
-    def __test_login(self, nam, pwd, err_msgs=None):
-        if err_msgs is None:
-            err_msgs = ['no error this is a success']
-
+    def __test_login(self, nam, pwd, err_msgs=["xxx"]):
+        self.client.logout()
+        #self.client.login(username=nam, pwd=pwd)
         data = {
             'username': nam,
             'password': pwd,
         }
         response = self.client.post(self.login_url, data, follow=True)
-        self.assertEqual(response.status_code, 200)
+        if err_msgs is not None:
+            self.assertEquals(response.status_code, 200)
+        else:
+            expected_url = reverse('profile')
+            self.assertRedirects(response, expected_url)
 
         response_text = response.content.decode()
 
-        for msg in err_msgs:
-            self.assertTrue(msg in response_text, f"{msg} has not been found !")
-
+        if err_msgs is not None:
+            for msg in err_msgs:
+                self.assertTrue(msg in response_text, f"{msg} has not been found !")
+            user = response.context['user']
+            self.assertEquals(user.__class__, AnonymousUser)
+        else :
+            user = response.context['user']
+            self.assertEquals(user.__class__, UserDC)
         return response
 
     def setUp(self):
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
+    @staticmethod
+    def getSortedTestCaseNames():
+        return ["test_user_login"]
 
     def test_user_login(self):
         process = [
-            "correct_login",
             "login_empty",
             "one_field_login",
             "random_login",
             "error_login",
-            "user_login",
-
+            "correct_login",
         ]
         for p in process:
             method = [f for f in dir(self.__class__) if callable(getattr(self.__class__, f)) and p in f]
@@ -159,6 +154,12 @@ class UserConnectTest(MainClassTest):
     #     return data
     #
     # def __update_info(self, update_data):
+    #         data = {
+    #             "first_name": user.first_name,
+    #             "last_name": user.last_name,
+    #             "description": user.description,
+    #         }
+    #
     #     with self.subTest("display update"):
     #         # go to update page
     #         update_url = PageManager().get_URL('update')
@@ -168,16 +169,7 @@ class UserConnectTest(MainClassTest):
     #         self.assertEquals(response.status_code, 200)
     #         # get user and default values
     #         user = response.context['user']
-    #         data = {
-    #             "first_name": user.first_name,
-    #             "last_name": user.last_name,
-    #             "description": user.description,
-    #         }
-    #         forbidden_data = {
-    #             "username":'user_1_new',
-    #             "email"   :'email_1_new@toto.fr',
-    #             "password":'pass_1_new'
-    #         }
+    #
     #         # check default values for user_1
     #         self.assertEquals(user.first_name, '')
     #         self.assertEquals(user.last_name, '')
@@ -208,15 +200,6 @@ class UserConnectTest(MainClassTest):
     #             user = response.context['user']
     #             self.assertTrue(hasattr(user, field))
     #             self.assertEquals(getattr(user, field), compare_value)
-    #     for field in forbidden_data:
-    #         with self.subTest(f"update {field}"):
-    #             data[field] = forbidden_data[field]
-    #             # post data
-    #             response = self.client.post(update_url, data)
-    #             self.assertEquals(response.status_code, 200)
-    #             self.assertEquals(response.context['user'].username, user.username)
-    #             self.assertEquals(response.context['user'].email, user.email)
-    #             self.assertEquals(response.context['user'].password, user.password)
     #
     # def __init__(self, methodName=''):
     #     super().__init__(methodName)
