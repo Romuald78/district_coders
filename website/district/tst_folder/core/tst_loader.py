@@ -17,3 +17,11 @@ class DistrictTestLoader(TestLoader):
         if len(result) == 0:
             result = super().getTestCaseNames(cls, testCaseClass)
         return result
+
+    def loadTestsFromModule(self, module, pattern=None):
+        suite = unittest.TestSuite()
+
+        # TODO + modif Runner to be compliant with
+        suite.addTests(self.loadTestsFromTestCase(__my_class_name__))
+
+        return suite
