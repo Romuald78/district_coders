@@ -141,6 +141,10 @@ class UserConnectTest(MainClassTest):
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
+    @staticmethod
+    def getSortedTestCaseNames():
+        return ["test_user_signup"]
+
     def test_user_signup(self):
         process = [
             # New user and new email

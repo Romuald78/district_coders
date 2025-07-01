@@ -20,8 +20,6 @@ from website.settings import MEDIA_ROOT, DEFAULT_GROUP_KEY
 
 class UserConnectTest(MainClassTest):
 
-    ERROR_LOGIN = "Please enter a correct username and password. Note that both fields may be case-sensitive."
-
     def __init__(self, methodName=''):
         super().__init__(methodName)
         self.login_url   = PageManager().get_URL('login')
