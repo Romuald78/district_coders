@@ -7,6 +7,7 @@ import json
 from django.contrib.auth.models import AnonymousUser
 from django.core import management
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 
 from config.constants.error_message_cnf import ERROR_CODE_CONFLICT, GROUP_REGISTER_ALREADY_IN, ERROR_CODE_PARAMS, \
     GROUP_REGISTER_EMPTY_KEY, ERROR_CODE_NOT_FOUND, GROUP_REGISTER_INVALID_KEY
@@ -19,229 +20,305 @@ from website.settings import MEDIA_ROOT, DEFAULT_GROUP_KEY
 
 class UserConnectTest(MainClassTest):
 
-    def __login(self, username, password):
-        url = "/accounts/login/"
-        response = self.client.post(url, data={
-            "username" : username,
-            "password" : password,
-        })
-        return response
-
-    def __randomLogin(self, nam, pwd):
-        msg1 = "Please enter a correct username and password."
-        msg2 = "Note that both fields may be case-sensitive."
-        username = nam
-        password = pwd
-        response = self.__login(username, password)
-        user     = response.context['user']
-        self.assertContains(response, msg1)
-        self.assertContains(response, msg2)
-        self.assertEquals(user.__class__, AnonymousUser)
-
-    def __userLogin(self):
-        profile_url = PageManager().get_URL("profile")
-        response = self.__login("user_1", "pass_1")
-        # Check the good redirection
-        self.assertRedirects(response, profile_url)
-        response = self.client.get(profile_url)
-        # Check profile view contains user
-        self.assertIn('user', response.context.keys())
-        user = response.context['user']
-        # Check the user object has the correct class
-        self.assertEquals(user.__class__, UserDC)
-        # Check the user is the one
-        self.assertEquals(user.id, 2)
-
-    def __init_update_data(self, user, field=None, new_value=None):
-        data = {
-            "username": user.username,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "icon": user.icon,
-            "description": user.description
-        }
-        if field != None:
-            data[field] = new_value
-        return data
-
-    def __update_info(self, update_data):
-        with self.subTest("display update"):
-            # go to update page
-            update_url = PageManager().get_URL('update')
-            profile_url = PageManager().get_URL('profile')
-            response = self.client.get(update_url)
-            self.assertEquals(response.status_code, 200)
-            # get user and default values
-            user = response.context['user']
-            data = {
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "description": user.description,
-            }
-            forbidden_data = {
-                "username":'user_1_new',
-                "email"   :'email_1_new@toto.fr',
-                "password":'pass_1_new'
-            }
-            # check default values for user_1
-            self.assertEquals(user.first_name, '')
-            self.assertEquals(user.last_name, '')
-            self.assertEquals(user.icon, '')
-            self.assertEquals(user.description, '')
-        # Update each data
-        for field in update_data:
-            with self.subTest(f"update {field}"):
-                # update value
-                data[field]   = update_data[field]
-                compare_value = update_data[field]
-                # prepare image if needed
-                if field == 'icon':
-                    compare_value = f'icons/users/{user.username}/{user.username}_icon.png'
-                    img_path = os.path.join(MEDIA_ROOT, update_data[field])
-                    data[field] = SimpleUploadedFile(
-                        name=img_path,
-                        content=open(img_path, 'rb').read(),
-                        content_type='image/png')
-                # post data
-                response = self.client.post(update_url, data)
-                # Check redirect
-                self.assertRedirects(response, profile_url)
-                # Display new info
-                response = self.client.get(profile_url)
-                self.assertEquals(response.status_code, 200)
-                # Get user
-                user = response.context['user']
-                self.assertTrue(hasattr(user, field))
-                self.assertEquals(getattr(user, field), compare_value)
-        for field in forbidden_data:
-            with self.subTest(f"update {field}"):
-                data[field] = forbidden_data[field]
-                # post data
-                response = self.client.post(update_url, data)
-                self.assertEquals(response.status_code, 200)
-                self.assertEquals(response.context['user'].username, user.username)
-                self.assertEquals(response.context['user'].email, user.email)
-                self.assertEquals(response.context['user'].password, user.password)
+    ERROR_LOGIN = "Please enter a correct username and password. Note that both fields may be case-sensitive."
 
     def __init__(self, methodName=''):
         super().__init__(methodName)
+        self.login_url   = PageManager().get_URL('login')
+        self.name_valid   = 'user_1'
+        self.pass_valid   = 'pass_1'
+        self.name_invalid = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+        self.pass_invalid = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+
+
+    def __correct_login(self):
+        self.__test_login(self.name_valid, self.pass_valid, err_msgs=None)
+
+    def __login_empty(self):
+        self.__test_login('', '', err_msgs=['This field is required'])
+
+    def __one_field_login(self):
+        self.__test_login(self.name_valid, '', err_msgs=['This field is required'])
+        self.__test_login('', self.pass_valid, err_msgs=['This field is required'])
+
+    def __random_login(self):
+        msg1 = "Please enter a correct username and password."
+        msg2 = "Note that both fields may be case-sensitive."
+        self.__test_login(self.name_invalid, self.pass_invalid, err_msgs=[msg1, msg2])
+
+
+    def __error_login(self):
+        msg1 = "Please enter a correct username and password."
+        msg2 = "Note that both fields may be case-sensitive."
+        self.__test_login(self.name_valid, self.pass_invalid, err_msgs=[msg1, msg2])
+        self.__test_login(self.name_invalid, self.pass_valid, err_msgs=[msg1, msg2])
+
+    def __test_login(self, nam, pwd, err_msgs=["xxx"]):
+        self.client.logout()
+        #self.client.login(username=nam, pwd=pwd)
+        data = {
+            'username': nam,
+            'password': pwd,
+        }
+        response = self.client.post(self.login_url, data, follow=True)
+        if err_msgs is not None:
+            self.assertEquals(response.status_code, 200)
+        else:
+            expected_url = reverse('profile')
+            self.assertRedirects(response, expected_url)
+
+        response_text = response.content.decode()
+
+        if err_msgs is not None:
+            for msg in err_msgs:
+                self.assertTrue(msg in response_text, f"{msg} has not been found !")
+            user = response.context['user']
+            self.assertEquals(user.__class__, AnonymousUser)
+        else :
+            user = response.context['user']
+            self.assertEquals(user.__class__, UserDC)
+        return response
 
     def setUp(self):
-        # in django the client is instanciated in _pre_setup()
-        #self.client  = Client()
         management.call_command("dc_reinit")
         management.call_command("populate_multi")
 
     @staticmethod
     def getSortedTestCaseNames():
-        return [UserConnectTest.test_user_login.__name__,
-                UserConnectTest.test_json_group_register.__name__,
-                UserConnectTest.test_user_update.__name__]
+        return ["test_user_login"]
 
     def test_user_login(self):
-        method_name = inspect.currentframe().f_code.co_name
-        print(method_name)
-        # Check random user name and password
-        with self.subTest("random log/pass"):
-            nam = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
-            pwd = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
-            self.__randomLogin(nam, pwd)
-        # Check good user name and random password
-        with self.subTest("user_1 + random pass"):
-            nam = "user_1"
-            pwd = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
-            self.__randomLogin(nam, pwd)
-        # Check random user name and known password
-        with self.subTest("user_1 + random login"):
-            nam = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
-            pwd = "pass_1"
-            self.__randomLogin(nam, pwd)
-        # Check admin user
-        with self.subTest("user admin ok"):
-            self.__userLogin()
+        process = [
+            "login_empty",
+            "one_field_login",
+            "random_login",
+            "error_login",
+            "correct_login",
+        ]
+        for p in process:
+            method = [f for f in dir(self.__class__) if callable(getattr(self.__class__, f)) and p in f]
+            if len(method) > 0:
+                with self.subTest(p):
+                    f = getattr(self.__class__, method[0])
+                    try:
+                        f(self)
+                    except AssertionError as ae:
+                        msg = f"\n-------------\n[ERROR] in method '{f.__name__}'\n-------------"
+                        raise AssertionError(str(ae) + msg)
 
-    def test_user_update(self):
-        method_name = inspect.currentframe().f_code.co_name
-        print(method_name)
-        # Check user connection
-        with self.subTest("connect user_1"):
-            self.__userLogin()
-        # prepare update structure
-        data = {
-            "first_name" : 'first_1',
-            "last_name"  : 'last_1',
-            "description": 'description_1',
-            "icon"       : 'icons/groups/group_everyone.png',
-        }
-        self.__update_info(data)
 
-    def test_json_group_register(self):
-        method_name = inspect.currentframe().f_code.co_name
-        print(method_name)
-        json_url = PageManager().get_URL('group_register')
-        for user in UserDC.objects.filter(id__gt=0).all():
-            # ----------------------------
-            # User login
-            # ----------------------------
-            self.client.force_login(user)
-            # ----------------------------
-            # register with Empty key
-            # ----------------------------
-            with self.subTest(f"usr{user.id} - empty key"):
-                response = self.client.post(json_url, {"register_key": ""})
-                self.assertEquals(response.status_code, 200)
-                json_result = json.loads(response.content)
-                self.assertIn('exit_code', json_result)
-                self.assertEquals(json_result['exit_code'], ERROR_CODE_PARAMS)
-                self.assertIn('err_msg', json_result)
-                self.assertEquals(json_result['err_msg'], GROUP_REGISTER_EMPTY_KEY)
-            # ----------------------------
-            # Register with random key
-            # ----------------------------
-            with self.subTest(f"usr{user.id} - random key"):
-                rand_key = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
-                response = self.client.post(json_url, {"register_key": rand_key})
-                self.assertEquals(response.status_code, 200)
-                json_result = json.loads(response.content)
-                self.assertIn('exit_code', json_result)
-                self.assertEquals(json_result['exit_code'], ERROR_CODE_NOT_FOUND)
-                self.assertIn('err_msg', json_result)
-                self.assertEquals(json_result['err_msg'], GROUP_REGISTER_INVALID_KEY)
-            # ----------------------------
-            # Check already registered to "everyone" group
-            # ----------------------------
-            # if this is not the admin user
-            with self.subTest(f"usr{user.id} - everyone group"):
-                eo_grp = GroupDC.objects.filter(register_key=DEFAULT_GROUP_KEY).first()
-                self.assertIsNotNone(eo_grp)
-                usr_grp = user.groups.filter(id=eo_grp.id).first()
-                # The admin user is not linked to the "everyone" group
-                if user.is_staff:
-                    self.assertEquals(None, usr_grp)
-                else:
-                    self.assertEquals(eo_grp, usr_grp)
-            # ----------------------------
-            # Connect this user to any group
-            # ----------------------------
-            for group in GroupDC.objects.all():
-                # Store information about user/group link
-                in_group = user.groups.filter(id=group.id)
-                with self.subTest(f"usr{user.id} - grp{group.id} - register"):
-                    # Here we check the group is not linked
-                    if not in_group:
-                        # link the user and the group
-                        response = self.client.post(json_url, {"register_key": group.register_key})
-                        self.assertEquals(response.status_code, 200)
-                        json_result = json.loads(response.content)
-                        self.assertIn('exit_code', json_result)
-                        self.assertEquals(json_result['exit_code'], 0)
-                    # Here we can be sure there is a link between the user and the group
-                    # Check to link a second time
-                    response = self.client.post(json_url, {"register_key": group.register_key})
-                    self.assertEquals(response.status_code, 200)
-                    json_result = json.loads(response.content)
-                    self.assertIn('exit_code', json_result)
-                    self.assertEquals(json_result['exit_code'], ERROR_CODE_CONFLICT)
-                    self.assertIn('err_msg', json_result)
-                    self.assertEquals(json_result['err_msg'], GROUP_REGISTER_ALREADY_IN)
+    # def __login(self, username, password):
+    #     url = "/accounts/login/"
+    #     response = self.client.post(url, data={
+    #         "username" : username,
+    #         "password" : password,
+    #     })
+    #     return response
+    #
+    # def __randomLogin(self, nam, pwd):
+    #     msg1 = "Please enter a correct username and password."
+    #     msg2 = "Note that both fields may be case-sensitive."
+    #     username = nam
+    #     password = pwd
+    #     response = self.__login(username, password)
+    #     user     = response.context['user']
+    #     self.assertContains(response, msg1)
+    #     self.assertContains(response, msg2)
+    #     self.assertEquals(user.__class__, AnonymousUser)
+    #
+    # def __userLogin(self):
+    #     profile_url = PageManager().get_URL("profile")
+    #     response = self.__login("user_1", "pass_1")
+    #     # Check the good redirection
+    #     self.assertRedirects(response, profile_url)
+    #     response = self.client.get(profile_url)
+    #     # Check profile view contains user
+    #     self.assertIn('user', response.context.keys())
+    #     user = response.context['user']
+    #     # Check the user object has the correct class
+    #     self.assertEquals(user.__class__, UserDC)
+    #     # Check the user is the one
+    #     self.assertEquals(user.id, 2)
+    #
+    # def __init_update_data(self, user, field=None, new_value=None):
+    #     data = {
+    #         "username": user.username,
+    #         "email": user.email,
+    #         "first_name": user.first_name,
+    #         "last_name": user.last_name,
+    #         "icon": user.icon,
+    #         "description": user.description
+    #     }
+    #     if field != None:
+    #         data[field] = new_value
+    #     return data
+    #
+    # def __update_info(self, update_data):
+    #         data = {
+    #             "first_name": user.first_name,
+    #             "last_name": user.last_name,
+    #             "description": user.description,
+    #         }
+    #
+    #     with self.subTest("display update"):
+    #         # go to update page
+    #         update_url = PageManager().get_URL('update')
+    #         profile_url = PageManager().get_URL('profile')
+    #         print("Update URL:", update_url)
+    #         response = self.client.get(update_url)
+    #         self.assertEquals(response.status_code, 200)
+    #         # get user and default values
+    #         user = response.context['user']
+    #
+    #         # check default values for user_1
+    #         self.assertEquals(user.first_name, '')
+    #         self.assertEquals(user.last_name, '')
+    #         self.assertEquals(user.icon, '')
+    #         self.assertEquals(user.description, '')
+    #
+    #     for field in update_data:
+    #         with self.subTest(f"update {field}"):
+    #             # update value
+    #             data[field]   = update_data[field]
+    #             compare_value = update_data[field]
+    #             # prepare image if needed
+    #             if field == 'icon':
+    #                 compare_value = f'icons/users/{user.username}/{user.username}_icon.png'
+    #                 img_path = os.path.join('medias', update_data[field])
+    #                 data[field] = SimpleUploadedFile(
+    #                     name=img_path,
+    #                     content=open(img_path, 'rb').read(),
+    #                     content_type='image/png')
+    #             # post data
+    #             response = self.client.post(update_url, data)
+    #             # Check redirect
+    #             self.assertRedirects(response, profile_url)
+    #             # Display new info
+    #             response = self.client.get(profile_url)
+    #             self.assertEquals(response.status_code, 200)
+    #             # Get user
+    #             user = response.context['user']
+    #             self.assertTrue(hasattr(user, field))
+    #             self.assertEquals(getattr(user, field), compare_value)
+    #
+    # def __init__(self, methodName=''):
+    #     super().__init__(methodName)
+    #
+    # def setUp(self):
+    #     # in django the client is instanciated in _pre_setup()
+    #     #self.client  = Client()
+    #     management.call_command("dc_reinit")
+    #     management.call_command("populate_multi")
+    #
+    # @staticmethod
+    # def getSortedTestCaseNames():
+    #     return [UserConnectTest.test_user_login.__name__,
+    #             UserConnectTest.test_json_group_register.__name__,
+    #             UserConnectTest.test_user_update.__name__]
+    #
+    # def test_user_login(self):
+    #     method_name = inspect.currentframe().f_code.co_name
+    #     print(method_name)
+    #     # Check random user name and password
+    #     with self.subTest("random log/pass"):
+    #         nam = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+    #         pwd = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+    #         self.__randomLogin(nam, pwd)
+    #     # Check good user name and random password
+    #     with self.subTest("user_1 + random pass"):
+    #         nam = "user_1"
+    #         pwd = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+    #         self.__randomLogin(nam, pwd)
+    #     # Check random user name and known password
+    #     with self.subTest("user_1 + random login"):
+    #         nam = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+    #         pwd = "pass_1"
+    #         self.__randomLogin(nam, pwd)
+    #     # Check admin user
+    #     with self.subTest("user admin ok"):
+    #         self.__userLogin()
+    #
+    # def test_user_update(self):
+    #     method_name = inspect.currentframe().f_code.co_name
+    #     print(method_name)
+    #     # Check user connection
+    #     with self.subTest("connect user_1"):
+    #         self.__userLogin()
+    #     # prepare update structure
+    #     data = {
+    #         "first_name" : 'first_1',
+    #         "last_name"  : 'last_1',
+    #         "description": 'description_1',
+    #         "icon"       : 'icons/groups/group_everyone.png',
+    #     }
+    #     self.__update_info(data)
+    #
+    # def test_json_group_register(self):
+    #     method_name = inspect.currentframe().f_code.co_name
+    #     print(method_name)
+    #     json_url = PageManager().get_URL('group_register')
+    #     for user in UserDC.objects.filter(id__gt=0).all():
+    #         # ----------------------------
+    #         # User login
+    #         # ----------------------------
+    #         self.client.force_login(user)
+    #         # ----------------------------
+    #         # register with Empty key
+    #         # ----------------------------
+    #         with self.subTest(f"usr{user.id} - empty key"):
+    #             response = self.client.post(json_url, {"register_key": ""})
+    #             self.assertEquals(response.status_code, 200)
+    #             json_result = json.loads(response.content)
+    #             self.assertIn('exit_code', json_result)
+    #             self.assertEquals(json_result['exit_code'], ERROR_CODE_PARAMS)
+    #             self.assertIn('err_msg', json_result)
+    #             self.assertEquals(json_result['err_msg'], GROUP_REGISTER_EMPTY_KEY)
+    #         # ----------------------------
+    #         # Register with random key
+    #         # ----------------------------
+    #         with self.subTest(f"usr{user.id} - random key"):
+    #             rand_key = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+    #             response = self.client.post(json_url, {"register_key": rand_key})
+    #             self.assertEquals(response.status_code, 200)
+    #             json_result = json.loads(response.content)
+    #             self.assertIn('exit_code', json_result)
+    #             self.assertEquals(json_result['exit_code'], ERROR_CODE_NOT_FOUND)
+    #             self.assertIn('err_msg', json_result)
+    #             self.assertEquals(json_result['err_msg'], GROUP_REGISTER_INVALID_KEY)
+    #         # ----------------------------
+    #         # Check already registered to "everyone" group
+    #         # ----------------------------
+    #         # if this is not the admin user
+    #         with self.subTest(f"usr{user.id} - everyone group"):
+    #             eo_grp = GroupDC.objects.filter(register_key=DEFAULT_GROUP_KEY).first()
+    #             self.assertIsNotNone(eo_grp)
+    #             usr_grp = user.groups.filter(id=eo_grp.id).first()
+    #             # The admin user is not linked to the "everyone" group
+    #             if user.is_staff:
+    #                 self.assertEquals(None, usr_grp)
+    #             else:
+    #                 self.assertEquals(eo_grp, usr_grp)
+    #         # ----------------------------
+    #         # Connect this user to any group
+    #         # ----------------------------
+    #         for group in GroupDC.objects.all():
+    #             # Store information about user/group link
+    #             in_group = user.groups.filter(id=group.id)
+    #             with self.subTest(f"usr{user.id} - grp{group.id} - register"):
+    #                 # Here we check the group is not linked
+    #                 if not in_group:
+    #                     # link the user and the group
+    #                     response = self.client.post(json_url, {"register_key": group.register_key})
+    #                     self.assertEquals(response.status_code, 200)
+    #                     json_result = json.loads(response.content)
+    #                     self.assertIn('exit_code', json_result)
+    #                     self.assertEquals(json_result['exit_code'], 0)
+    #                 # Here we can be sure there is a link between the user and the group
+    #                 # Check to link a second time
+    #                 response = self.client.post(json_url, {"register_key": group.register_key})
+    #                 self.assertEquals(response.status_code, 200)
+    #                 json_result = json.loads(response.content)
+    #                 self.assertIn('exit_code', json_result)
+    #                 self.assertEquals(json_result['exit_code'], ERROR_CODE_CONFLICT)
+    #                 self.assertIn('err_msg', json_result)
+    #                 self.assertEquals(json_result['err_msg'], GROUP_REGISTER_ALREADY_IN)

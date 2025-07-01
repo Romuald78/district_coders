@@ -1,10 +1,14 @@
+import sys
+
 from django.test import TransactionTestCase
 from django.core import management
+from django.urls import reverse
 
+from district.tst_folder.core.tst_main_class import MainClassTest
 from toolbox.utils.route_mgr import PageManager
 
 
-class UserConnectTest(TransactionTestCase):
+class UserConnectTest(MainClassTest):
 
     ERR_FLD_REQ     = 'This field is required'
     ERR_EMPTY_MAIL  = 'Empty email'
@@ -12,6 +16,9 @@ class UserConnectTest(TransactionTestCase):
     ERR_PWD_SHORT   = 'This password is too short'
     ERR_PWD_8CHARS  = 'It must contain at least 8 characters'
     ERR_PWD_NUMERIC = 'This password is entirely numeric'
+    ERR_PWD_MATCH   = "The two password fields didn"
+    ERR_USER_EXISTS = 'A user with that username already exists.'
+    ERR_MAIL_EXISTS = 'This email is already in use'
 
     def __empty_form(self):
         msg = [UserConnectTest.ERR_FLD_REQ,
@@ -54,48 +61,75 @@ class UserConnectTest(TransactionTestCase):
         self.__test_signup('', '', '', self.email, msg)
 
     def __empty_name(self):
-        self.__test_signup('', self.pass_strong, self.pass_strong, self.email)
+        msg = [UserConnectTest.ERR_FLD_REQ]
+        self.__test_signup('', self.pass_strong, self.pass_strong, self.email, msg)
 
     def __empty_pass(self):
-        self.__test_signup(self.name, '', '', self.email)
-        self.__test_signup(self.name, self.pass_strong, '', self.email)
-        self.__test_signup(self.name, '', self.pass_strong, self.email)
+        msg = [UserConnectTest.ERR_FLD_REQ]
+        self.__test_signup(self.name, '', '', self.email, msg)
+        self.__test_signup(self.name, self.pass_strong, '', self.email, msg)
+        self.__test_signup(self.name, '', self.pass_strong, self.email, msg)
 
     def __empty_email(self):
-        self.__test_signup(self.name, self.pass_strong, self.pass_strong, '')
+        msg = [UserConnectTest.ERR_EMPTY_MAIL]
+        self.__test_signup(self.name, self.pass_strong, self.pass_strong, '', msg)
 
     def __different_pass(self):
-        self.__test_signup(self.name, self.pass_strong, self.pass_weak, self.email)
-        self.__test_signup(self.name, self.pass_weak, self.pass_strong, self.email)
+        msg = [UserConnectTest.ERR_PWD_MATCH]
+        self.__test_signup(self.name, self.pass_strong, self.pass_strong+"oo", self.email, msg)
+        self.__test_signup(self.name, self.pass_strong+"oo", self.pass_strong, self.email, msg)
 
     def __weak_pass(self):
-        self.__test_signup(self.name, self.pass_weak, self.pass_weak, self.email)
+        msg = [UserConnectTest.ERR_PWD_SHORT, UserConnectTest.ERR_PWD_8CHARS]
+        self.__test_signup(self.name, self.pass_weak, self.pass_weak, self.email, msg)
+        msg = [UserConnectTest.ERR_PWD_COMMON]
+        self.__test_signup(self.name, self.pass_common, self.pass_common, self.email, msg)
+        msg = [UserConnectTest.ERR_PWD_NUMERIC]
+        self.__test_signup(self.name, self.pass_numeric, self.pass_numeric, self.email, msg)
+
+    def existing_user(self):
+        msg = [UserConnectTest.ERR_USER_EXISTS]
+        self.__test_signup('user_1', self.pass_strong, self.pass_strong, self.email, msg)
+
+    def existing_email(self):
+        msg = [UserConnectTest.ERR_MAIL_EXISTS]
+        self.__test_signup(self.name, self.pass_strong, self.pass_strong, 'user_1@dummy.com', msg)
 
     def __correct_signup(self):
-        self.__test_signup(self.name, self.pass_strong, self.pass_strong, self.email)
+        self.__test_signup(self.name, self.pass_strong, self.pass_strong, self.email, err_msgs=None)
 
 
-    def __test_signup(self, nam, pwd, pwd2, email, err_msgs=['xxxx']):
+    def __test_signup(self, nam, pwd, pwd2, email, err_msgs=["xxx"]):
         data = {
             'username' : nam,
-            'password' : pwd,
+            'password1' : pwd,
             'password2': pwd2,
             'email'    : email,
         }
         response = self.client.post(self.signup_url, data)
-        self.assertEquals(response.status_code, 200)
+        if err_msgs is not None:
+            self.assertEquals(response.status_code, 200)
+        else :
+            expected_url = reverse('email_change_confirm', kwargs={'user_id': 17})
+            self.assertRedirects(response, expected_url)
+
         # TODO : retrieve field information
         # to check the related error
         #print(response.context['form'].fields['username'])
-        # .........
-        for msg in err_msgs:
-            self.assertTrue(msg in response.content.decode(), f"{msg} has not been found !")
+
+        if err_msgs is not None:
+            for msg in err_msgs:
+                found = msg in response.content.decode()
+                if not found:
+                    print(response.content.decode(), file=sys.stderr)
+                self.assertTrue(found, f"{msg} has not been found !")
+
 
     def __init__(self, methodName=''):
         super().__init__(methodName)
         self.signup_url   = PageManager().get_URL('signup')
         self.name         = 'user_999'
-        self.pass_weak    = 'pass_999'
+        self.pass_weak    = 'pass_9'
         self.pass_common  = 'abcdefghij'
         self.pass_numeric = '1234567890'
         self.pass_strong  = 'pass_999_AB12$'
@@ -136,8 +170,5 @@ class UserConnectTest(TransactionTestCase):
 
     # ----------------------------------------------------
 
-    def existing_user(self):
-        self.__test_signup('', '', '', '')
 
-    def existing_email(self):
-        self.__test_signup('', '', '', '')
+
