@@ -37,8 +37,7 @@ class AnonymousTest(TransactionTestCase):
 
         # test with id of user that didn't validate its email
         with self.subTest("email validate False"):
-            user1 = UserDC.objects.create(username="user1", first_name="pf1", last_name="pl1", email="jsp@jsp1.com", is_active=True,
-                                          is_email_validated=False)
+            user1 = UserDC.objects.create(username="user1", first_name="pf1", last_name="pl1", email="jsp@jsp1.com", is_active=True)
 
             request = self.factory.get(reverse(page.name, kwargs={"user_id": user1.id}))
             request.user = AnonymousUser()
@@ -47,8 +46,7 @@ class AnonymousTest(TransactionTestCase):
 
         # test with id of user that did validate its email
         with self.subTest("email validate True"):
-            user2 = UserDC.objects.create(username="user2", first_name="pf2", last_name="pl2", email="jsp@jsp2.com", is_active=True,
-                                          is_email_validated=True)
+            user2 = UserDC.objects.create(username="user2", first_name="pf2", last_name="pl2", email="jsp@jsp2.com", is_active=True)
 
             response = self.client.get(f'/accounts/email_change_confirm/{user2.id}/')
             self.assertIn("controller_error_message", response.context.keys())
